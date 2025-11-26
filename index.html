@@ -53,10 +53,13 @@
         }
 
         .splash-logo {
-            width: 200px;
-            height: 200px;
+            max-width: 280px;
+            max-height: 280px;
+            width: 90%;
+            height: auto;
+            object-fit: contain;
             margin-bottom: 30px;
-            animation: pulse 2s infinite;
+            animation: fadeIn 0.5s ease-in-out;
         }
 
         .splash-title {
@@ -528,7 +531,7 @@
 
         <!-- Splash Screen -->
         <div class="splash-screen" id="splashScreen">
-            <img class="splash-logo" src="${LOGO_URL}" alt="DV Lottery Logo" id="splashLogo">
+            <img class="splash-logo" src="https://raw.githubusercontent.com/Werih1/dv-photo-miniapp/main/images/dv-lottery-logo.jpg" alt="DV Lottery Logo" id="splashLogo">
             <div class="splash-title">DV Lottery Photo Check</div>
             <div class="splash-subtitle">Проверка фото для лотереи Green Card</div>
         </div>
@@ -803,7 +806,7 @@
             document.getElementById('splashScreen').style.display = 'none';
             document.getElementById('mainScreen').classList.add('active');
             loadUserData();
-        }, 2000);
+        }, 3000);
 
         // Load user data
         async function loadUserData() {
