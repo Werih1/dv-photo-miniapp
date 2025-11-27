@@ -29,8 +29,8 @@
             justify-content: space-between;
             width: 100%;
             height: 100%;
-            background: linear-gradient(rgba(25, 78, 132, 0.7), rgba(25, 78, 132, 0.7)), url('images/dv-lottery-logo.jpg') center/cover no-repeat;
-            padding: 40px 20px;
+            background: linear-gradient(rgba(25, 78, 132, 0.65), rgba(25, 78, 132, 0.65)), url('images/logo.png') center/cover no-repeat;
+            padding: 30px 20px;
             position: fixed;
             top: 0;
             left: 0;
@@ -42,41 +42,60 @@
         }
 
         .splash-top {
-            flex: 1;
+            flex: 0.5;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
         }
 
-        .splash-subtitle {
-            font-size: 18px;
-            color: rgba(255,255,255,0.95);
-            height: 24px;
-            min-height: 24px;
-            font-weight: 500;
+        .splash-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: white;
             text-align: center;
-            margin-bottom: 20px;
+            line-height: 1.2;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            letter-spacing: -0.5px;
+        }
+
+        .splash-middle {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .splash-bottom {
+            flex: 0.5;
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 20px;
+            gap: 16px;
+            justify-content: flex-end;
+        }
+
+        .splash-subtitle {
+            font-size: 16px;
+            color: rgba(255,255,255,0.95);
+            height: 22px;
+            min-height: 22px;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 12px;
         }
 
         .language-selector-splash {
             display: flex;
-            gap: 16px;
+            gap: 14px;
             justify-content: center;
             flex-wrap: wrap;
         }
 
         .lang-btn-splash {
-            width: 70px;
-            height: 70px;
+            width: 65px;
+            height: 65px;
             border: 3px solid white;
             border-radius: 14px;
             background: rgba(255,255,255,0.15);
@@ -225,57 +244,6 @@
             border-color: #194E84;
             background: rgba(25, 78, 132, 0.05);
             transform: scale(0.98);
-        }
-
-        /* ===== TABS (HIDDEN BY DEFAULT) ===== */
-        .tabs {
-            display: none;
-            gap: 0;
-            width: 100%;
-            border-bottom: 2px solid #e0e0e0;
-            background: white;
-            padding: 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            overflow-x: auto;
-            overflow-y: hidden;
-        }
-
-        .tabs.active {
-            display: flex;
-        }
-
-        .tab {
-            flex: 1;
-            min-width: 80px;
-            padding: 14px 12px;
-            border: none;
-            background: white;
-            color: #999;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            white-space: nowrap;
-        }
-
-        .tab.active {
-            color: #194E84;
-            background: rgba(25, 78, 132, 0.05);
-        }
-
-        .tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #194E84 0%, #1a5a99 100%);
         }
 
         /* ===== TAB CONTENT ===== */
@@ -456,42 +424,10 @@
             color: #333;
         }
 
-        .instruction-block ol,
-        .instruction-block ul {
-            margin-left: 16px;
+        .instruction-block p {
             font-size: 13px;
             line-height: 1.8;
             color: #555;
-        }
-
-        .instruction-block li {
-            margin-bottom: 6px;
-        }
-
-        /* ===== SUPPORT BUTTON ===== */
-        .support-button {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            border: 2px solid #194E84;
-            margin-top: 16px;
-        }
-
-        .support-button a {
-            background: linear-gradient(135deg, #194E84 0%, #1a5a99 100%);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            text-decoration: none;
-            display: inline-block;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .support-button a:active {
-            transform: scale(0.98);
         }
 
         /* ===== SCROLLBAR ===== */
@@ -517,10 +453,13 @@
     <!-- SPLASH SCREEN -->
     <div class="splash" id="splashScreen">
         <div class="splash-top">
-            <div class="splash-subtitle" id="splashSubtitle">Выберете язык</div>
+            <div class="splash-title">DV-Lottery<br>Photo Check</div>
         </div>
         
+        <div class="splash-middle"></div>
+
         <div class="splash-bottom">
+            <div class="splash-subtitle" id="splashSubtitle">Выберите язык</div>
             <div class="language-selector-splash">
                 <button class="lang-btn-splash" data-lang="ru" title="Русский">
                     <img src="images/russia.png" alt="Русский">
@@ -580,14 +519,6 @@
             </div>
         </div>
 
-        <!-- TABS (shown when in sub-sections) -->
-        <div class="tabs" id="appTabs">
-            <button class="tab active" data-tab="home">ГЛАВНАЯ</button>
-            <button class="tab" data-tab="news">НОВОСТИ</button>
-            <button class="tab" data-tab="pricing">ТАРИФЫ</button>
-            <button class="tab" data-tab="instructions">ТРЕБОВАНИЯ</button>
-        </div>
-
         <!-- HOW IT WORKS -->
         <div class="tab-content" id="howWorksTab">
             <button class="back-btn" id="backBtn1">← Назад</button>
@@ -620,10 +551,13 @@
     <input type="file" id="photoInput" accept="image/*" style="display: none;">
 
     <script>
+        // ADMIN IDS
+        const ADMIN_IDS = [380950248, 375133882];
+
         // ===== MULTILINGUAL CONTENT =====
         const CONTENT = {
             ru: {
-                selectLanguage: 'Выберете язык',
+                selectLanguage: 'Выберите язык',
                 title: 'DV-Lottery Photo Check',
                 attempts_label: 'Осталось проверок:',
                 btn_upload: '📸 ЗАГРУЗИТЬ ФОТО',
@@ -784,8 +718,9 @@
         let appState = {
             currentLang: null,
             attempts: 3,
+            isAdmin: false,
             languageSelected: false,
-            currentView: 'menu'
+            userId: null
         };
 
         const LANGUAGES = ['ru', 'en', 'fr', 'ar'];
@@ -798,10 +733,20 @@
         });
 
         function initApp() {
+            // Get user ID from Telegram WebApp
             if (window.Telegram?.WebApp) {
                 Telegram.WebApp.ready();
                 Telegram.WebApp.expand();
+                
+                const webAppData = Telegram.WebApp.initDataUnsafe;
+                if (webAppData?.user?.id) {
+                    appState.userId = webAppData.user.id;
+                    appState.isAdmin = ADMIN_IDS.includes(appState.userId);
+                }
             }
+
+            // Set attempts based on admin status
+            appState.attempts = appState.isAdmin ? 999 : 3;
 
             setupEventListeners();
             startLanguageAnimation();
@@ -854,8 +799,10 @@
                 const file = e.target.files[0];
                 if (file) {
                     alert(CONTENT[appState.currentLang].upload_success);
-                    appState.attempts--;
-                    document.getElementById('attemptsCount').textContent = appState.attempts;
+                    if (!appState.isAdmin) {
+                        appState.attempts--;
+                    }
+                    document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
                 }
             });
 
@@ -968,16 +915,13 @@
 
         function showSection(section) {
             document.getElementById('menuView').style.display = 'none';
-            document.getElementById('appTabs').classList.remove('active');
             
             const tabName = section === 'howWorks' ? 'howWorks' : section === 'dvForm' ? 'dvForm' : section;
             document.getElementById(tabName + 'Tab').classList.add('active');
-            document.getElementById('appTabs').classList.add('active');
         }
 
         function backToMenu() {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.getElementById('appTabs').classList.remove('active');
             document.getElementById('menuView').style.display = 'flex';
         }
 
@@ -987,7 +931,7 @@
             
             if (code === 'GIFT2026') {
                 appState.attempts += 5;
-                document.getElementById('attemptsCount').textContent = appState.attempts;
+                document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
                 alert(content.promo_success);
                 document.getElementById('promoCode').value = '';
             } else {
@@ -996,7 +940,6 @@
         }
 
         function buyPlan(planName) {
-            // Open Telegram Stars payment or external payment link
             window.Telegram?.WebApp?.openLink('https://t.me/Stars4tonBot?start=buy_' + planName.replace(/\s+/g, '_'));
         }
 
@@ -1006,14 +949,15 @@
             #splashSubtitle {
                 transition: opacity 0.3s ease;
             }
-            .app-content {
-                transition: all 0.3s ease;
-            }
         `;
         document.head.appendChild(style);
+
+        // Display attempts on load
+        window.addEventListener('load', () => {
+            document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
+        });
     </script>
 </body>
 </html>
-
 
 
