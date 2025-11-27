@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>DV Photo Check</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="models/face-api.min.js"></script>
@@ -13,10 +13,13 @@
             box-sizing: border-box;
         }
 
-        body {
+        html, body {
+            width: 100%;
+            height: 100%;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #ffffff;
             color: #333;
+            overflow: hidden;
         }
 
         .splash {
@@ -24,36 +27,46 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
+            width: 100%;
+            height: 100%;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 20px;
+            overflow: auto;
         }
 
         .splash-logo {
-            width: 250px;
-            height: 250px;
+            width: 200px;
+            height: 200px;
             margin-bottom: 30px;
+            object-fit: contain;
         }
 
         .splash-title {
-            font-size: 28px;
+            font-size: 24px;
             font-weight: bold;
             color: white;
             margin-bottom: 10px;
+            text-align: center;
         }
 
         .splash-subtitle {
-            font-size: 16px;
+            font-size: 14px;
             color: rgba(255,255,255,0.9);
+            text-align: center;
         }
 
         .main {
             display: none;
+            width: 100%;
+            height: 100%;
             padding: 20px;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .main.active {
-            display: block;
+            display: flex;
+            flex-direction: column;
         }
 
         .header {
@@ -62,7 +75,7 @@
         }
 
         .header h1 {
-            font-size: 24px;
+            font-size: 22px;
             margin-bottom: 10px;
         }
 
@@ -85,6 +98,8 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s;
+            -webkit-appearance: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .btn-primary {
@@ -93,7 +108,7 @@
         }
 
         .btn-primary:active {
-            transform: scale(0.98);
+            opacity: 0.8;
         }
 
         .btn-secondary {
@@ -103,31 +118,58 @@
 
         .photo {
             display: none;
-            padding: 20px;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            overflow-y: auto;
+            flex-direction: column;
         }
 
         .photo.active {
-            display: block;
+            display: flex;
+        }
+
+        .photo-header {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            border-bottom: 1px solid #f0f0f0;
         }
 
         .back-btn {
             color: #2196F3;
             background: none;
             border: none;
-            font-size: 16px;
+            font-size: 14px;
             cursor: pointer;
-            margin-bottom: 20px;
+            padding: 8px;
+            -webkit-appearance: none;
+        }
+
+        .back-btn-text {
+            flex: 1;
+            text-align: left;
+        }
+
+        .photo-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
         }
 
         .photo-container {
             position: relative;
             width: 100%;
-            max-width: 100%;
-            margin: 0 auto 20px;
+            aspect-ratio: 1;
             background: #f0f0f0;
             border-radius: 12px;
             overflow: hidden;
-            aspect-ratio: 1;
+            margin-bottom: 20px;
+            flex-shrink: 0;
         }
 
         .photo-img {
@@ -135,6 +177,7 @@
             height: 100%;
             display: block;
             object-fit: contain;
+            background: white;
         }
 
         .photo-canvas {
@@ -144,6 +187,7 @@
             width: 100%;
             height: 100%;
             cursor: grab;
+            touch-action: none;
         }
 
         .photo-canvas:active {
@@ -198,6 +242,18 @@
             100% { transform: rotate(360deg); }
         }
 
+        .photo-buttons {
+            display: flex;
+            gap: 10px;
+            padding: 0 20px 20px 20px;
+        }
+
+        .btn-flex {
+            flex: 1;
+            padding: 12px !important;
+            margin: 0 !important;
+        }
+
         .results {
             display: none;
             margin-top: 20px;
@@ -239,6 +295,7 @@
             align-items: center;
             padding: 10px 0;
             border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
         }
 
         .criteria-item:last-child {
@@ -248,20 +305,40 @@
         .criteria-icon {
             margin-right: 12px;
             flex-shrink: 0;
+            font-size: 16px;
         }
 
         .criteria-label {
             flex: 1;
-            font-size: 14px;
         }
 
         .criteria-value {
-            font-size: 14px;
             color: #666;
+            font-size: 12px;
         }
 
         input[type="file"] {
             display: none;
+        }
+
+        .debug-info {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.9);
+            color: #00ff00;
+            font-size: 10px;
+            font-family: monospace;
+            padding: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 9999;
+        }
+
+        .debug-info.active {
+            display: block;
         }
     </style>
 </head>
@@ -279,47 +356,73 @@
         </div>
         <button class="button btn-primary" id="uploadBtn">📸 Загрузить фото</button>
         <button class="button btn-secondary" id="infoBtn">📋 Инструкции</button>
-        <input type="file" id="photoInput" accept="image/*">
+        <input type="file" id="photoInput" accept="image/*" capture="environment">
     </div>
 
     <div class="photo" id="photo">
-        <button class="back-btn" id="backBtn">← Назад</button>
-
-        <div class="photo-container">
-            <img class="photo-img" id="photoImg">
-            <canvas class="photo-canvas" id="canvas"></canvas>
+        <div class="photo-header">
+            <button class="back-btn" id="backBtn">← Назад</button>
         </div>
 
-        <div class="info" id="info" style="display: none;">
-            <p><strong>Линии:</strong></p>
-            <p>🔴 Макушка: <span id="topStatus" class="manual">MANUAL</span></p>
-            <p>🔵 Подбородок: <span id="bottomStatus" class="manual">MANUAL</span></p>
-            <p>🟢 Глаза: <span id="eyeStatus" class="manual">MANUAL</span></p>
-            <p style="margin-top: 12px; font-size: 12px; color: #999;">Потяните линии вверх/вниз</p>
+        <div class="photo-content">
+            <div class="photo-container">
+                <img class="photo-img" id="photoImg">
+                <canvas class="photo-canvas" id="canvas"></canvas>
+            </div>
+
+            <div class="info" id="info" style="display: none;">
+                <p><strong>Линии:</strong></p>
+                <p>🔴 Макушка: <span id="topStatus" class="manual">MANUAL</span></p>
+                <p>🔵 Подбородок: <span id="bottomStatus" class="manual">MANUAL</span></p>
+                <p>🟢 Глаза: <span id="eyeStatus" class="manual">MANUAL</span></p>
+                <p style="margin-top: 12px; font-size: 12px; color: #999;">Потяните линии вверх/вниз</p>
+            </div>
+
+            <div class="spinner" id="spinner">
+                <div class="spin"></div>
+                <div>Анализирую лицо...</div>
+            </div>
+
+            <div class="results" id="results">
+                <div class="result-status" id="resultStatus"></div>
+                <div class="criteria" id="criteria"></div>
+            </div>
         </div>
 
-        <div class="spinner" id="spinner">
-            <div class="spin"></div>
-            <div>Анализирую лицо...</div>
-        </div>
-
-        <button class="button btn-primary" id="submitBtn" style="display: none;">✓ Проверить</button>
-        <button class="button btn-secondary" id="newPhotoBtn" style="display: none;">📸 Новое фото</button>
-
-        <div class="results" id="results">
-            <div class="result-status" id="resultStatus"></div>
-            <div class="criteria" id="criteria"></div>
+        <div class="photo-buttons" id="photoButtons" style="display: none;">
+            <button class="button btn-primary btn-flex" id="submitBtn">✓ Проверить</button>
+            <button class="button btn-secondary btn-flex" id="newPhotoBtn">📸 Новое</button>
         </div>
     </div>
 
+    <div class="debug-info" id="debugInfo"></div>
+
     <script>
-        console.log("🔵 DV Photo Validator Starting...");
+        const DEBUG = true;
+        const logs = [];
+
+        function addLog(msg) {
+            if (DEBUG) {
+                const time = new Date().toLocaleTimeString();
+                const logMsg = `[${time}] ${msg}`;
+                logs.push(logMsg);
+                if (logs.length > 20) logs.shift();
+                document.getElementById('debugInfo').textContent = logs.join('\n');
+                document.getElementById('debugInfo').classList.add('active');
+            }
+            console.log(msg);
+        }
+
+        addLog("🔵 DV Photo Validator Starting...");
 
         const tg = window.Telegram.WebApp;
-        tg.ready();
+        if (tg) {
+            tg.ready();
+            addLog("✅ Telegram WebApp API ready");
+        }
 
         const state = {
-            userId: tg.initDataUnsafe?.user?.id || 'anonymous',
+            userId: tg?.initDataUnsafe?.user?.id || 'anonymous-user-' + Math.random().toString(36).substr(2, 9),
             attempts: 3,
             photo: null,
             canvas: null,
@@ -332,36 +435,39 @@
             touchStartY: null
         };
 
+        addLog(`📱 User ID: ${state.userId}`);
+
         const API = 'https://dv-lottery-api-ob49.onrender.com';
 
         // ИНИЦИАЛИЗАЦИЯ
         async function init() {
-            console.log("⏳ Initializing app...");
+            addLog("⏳ Initializing app...");
             try {
                 // Загружаем попытки
                 await loadAttempts();
 
-                // Загружаем модели Face-API - используем ssdMobilenetv1 как в GPT версии!
-                console.log("🤖 Loading Face-API models from: models/");
+                // Загружаем модели Face-API
+                addLog("🤖 Loading Face-API models...");
                 await faceapi.nets.ssdMobilenetv1.loadFromUri('models/');
                 await faceapi.nets.faceLandmark68Net.loadFromUri('models/');
                 state.modelsLoaded = true;
-                console.log("✅ Models loaded successfully");
+                addLog("✅ Models loaded successfully");
             } catch (e) {
-                console.error("❌ Init error:", e);
+                addLog(`❌ Init error: ${e.message}`);
                 state.modelsLoaded = false;
             }
         }
 
         async function loadAttempts() {
             try {
-                console.log("📊 Loading attempts for user:", state.userId);
+                addLog(`📊 Loading attempts from: ${API}/api/user/${state.userId}`);
                 const res = await fetch(`${API}/api/user/${state.userId}`);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const data = await res.json();
-                state.attempts = data.attempts;
-                console.log("✅ Attempts loaded:", state.attempts);
+                state.attempts = data.attempts || 3;
+                addLog(`✅ Attempts loaded: ${state.attempts}`);
             } catch (e) {
-                console.error("❌ Load attempts error:", e);
+                addLog(`⚠️ Could not load attempts: ${e.message}`);
                 state.attempts = 3;
             }
             document.getElementById('attempts').textContent = state.attempts;
@@ -372,7 +478,7 @@
             document.getElementById('splash').style.display = 'none';
             document.getElementById('main').classList.add('active');
             init();
-        }, 3000);
+        }, 2500);
 
         // UPLOAD
         document.getElementById('uploadBtn').addEventListener('click', () => {
@@ -387,11 +493,15 @@
             const file = e.target.files[0];
             if (!file) return;
 
+            addLog(`📷 Photo selected: ${file.name} (${file.size} bytes)`);
+
             const reader = new FileReader();
             reader.onload = async (ev) => {
                 state.photo = ev.target.result;
                 document.getElementById('photoImg').src = state.photo;
                 document.getElementById('photoImg').onload = async () => {
+                    addLog("🖼️ Photo loaded to canvas");
+
                     document.getElementById('main').classList.remove('active');
                     document.getElementById('photo').classList.add('active');
 
@@ -399,8 +509,11 @@
                     state.ctx = state.canvas.getContext('2d');
                     state.img = document.getElementById('photoImg');
 
+                    // Масштабируем canvas под image
                     state.canvas.width = state.img.naturalWidth;
                     state.canvas.height = state.img.naturalHeight;
+
+                    addLog(`📐 Image dimensions: ${state.img.naturalWidth}x${state.img.naturalHeight}`);
 
                     document.getElementById('spinner').classList.add('active');
                     document.getElementById('info').style.display = 'none';
@@ -409,14 +522,13 @@
                     if (state.modelsLoaded) {
                         await detectFace();
                     } else {
-                        console.warn("⚠️ Models not loaded, using defaults");
+                        addLog("⚠️ Models not loaded, using defaults");
                         setDefaultLines();
                     }
 
                     document.getElementById('spinner').classList.remove('active');
                     document.getElementById('info').style.display = 'block';
-                    document.getElementById('submitBtn').style.display = 'block';
-                    document.getElementById('newPhotoBtn').style.display = 'block';
+                    document.getElementById('photoButtons').style.display = 'flex';
 
                     setupCanvas();
                     drawLines();
@@ -425,24 +537,21 @@
             reader.readAsDataURL(file);
         });
 
-        // ДЕТЕКТИРОВАНИЕ ЛИЦА - используем ssdMobilenetv1
+        // ДЕТЕКТИРОВАНИЕ ЛИЦА
         async function detectFace() {
             try {
-                console.log("🔍 Detecting face with ssdMobilenetv1...");
+                addLog("🔍 Detecting face with ssdMobilenetv1...");
                 const detection = await faceapi
                     .detectSingleFace(state.img, new faceapi.SsdMobilenetv1Options())
                     .withFaceLandmarks();
 
                 if (detection && detection.landmarks) {
-                    console.log("✅ Face detected successfully");
+                    addLog("✅ Face detected successfully");
                     const landmarks = detection.landmarks.positions;
                     const h = state.canvas.height;
 
-                    // Находим координаты
                     const topY = Math.min(...landmarks.map(p => p.y));
                     const bottomY = Math.max(...landmarks.map(p => p.y));
-
-                    // Глаза это точки 36-47
                     const eyePoints = landmarks.slice(36, 48);
                     const eyeY = eyePoints.reduce((sum, p) => sum + p.y, 0) / eyePoints.length;
 
@@ -454,13 +563,13 @@
                     state.detections.bottom = 'DETECTED';
                     state.detections.eyes = 'DETECTED';
 
-                    console.log("📍 Lines set:", state.lines);
+                    addLog(`📍 Lines detected: top=${state.lines.top.toFixed(1)}, bottom=${state.lines.bottom.toFixed(1)}, eyes=${state.lines.eyes.toFixed(1)}`);
                 } else {
-                    console.log("⚠️ Face not detected");
+                    addLog("⚠️ Face not detected");
                     setDefaultLines();
                 }
             } catch (e) {
-                console.error("❌ Detect error:", e);
+                addLog(`❌ Detect error: ${e.message}`);
                 setDefaultLines();
             }
             updateStatus();
@@ -492,8 +601,8 @@
             state.canvas.addEventListener('mousedown', onMouseDown);
             state.canvas.addEventListener('mousemove', onMouseMove);
             state.canvas.addEventListener('mouseup', () => state.dragging = null);
-            state.canvas.addEventListener('touchstart', onTouchStart);
-            state.canvas.addEventListener('touchmove', onTouchMove);
+            state.canvas.addEventListener('touchstart', onTouchStart, false);
+            state.canvas.addEventListener('touchmove', onTouchMove, false);
             state.canvas.addEventListener('touchend', () => state.dragging = null);
         }
 
@@ -512,14 +621,14 @@
         }
 
         function onTouchStart(e) {
-            state.touchStartY = e.touches[0].clientY;
+            if (e.touches.length !== 1) return;
             const rect = state.canvas.getBoundingClientRect();
             const y = ((e.touches[0].clientY - rect.top) / rect.height) * 100;
             checkLine(y);
         }
 
         function onTouchMove(e) {
-            if (!state.dragging) return;
+            if (!state.dragging || e.touches.length !== 1) return;
             e.preventDefault();
             const rect = state.canvas.getBoundingClientRect();
             const y = ((e.touches[0].clientY - rect.top) / rect.height) * 100;
@@ -572,6 +681,7 @@
 
         // SUBMIT
         document.getElementById('submitBtn').addEventListener('click', async () => {
+            addLog("📤 Submitting photo...");
             document.getElementById('spinner').classList.add('active');
 
             try {
@@ -585,7 +695,10 @@
                     })
                 });
 
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
                 const result = await res.json();
+
+                addLog(`✅ Result received: ${result.success ? 'SUCCESS' : 'FAILED'}`);
 
                 if (result.success) {
                     const statusEl = document.getElementById('resultStatus');
@@ -608,8 +721,8 @@
                     document.getElementById('attempts').textContent = state.attempts;
                 }
             } catch (e) {
-                console.error(e);
-                tg.showAlert('Ошибка обработки');
+                addLog(`❌ Submit error: ${e.message}`);
+                tg.showAlert('Ошибка обработки: ' + e.message);
             } finally {
                 document.getElementById('spinner').classList.remove('active');
             }
@@ -617,11 +730,11 @@
 
         // BACK
         document.getElementById('backBtn').addEventListener('click', () => {
+            addLog("← Going back");
             document.getElementById('photo').classList.remove('active');
             document.getElementById('main').classList.add('active');
             document.getElementById('results').classList.remove('active');
-            document.getElementById('submitBtn').style.display = 'none';
-            document.getElementById('newPhotoBtn').style.display = 'none';
+            document.getElementById('photoButtons').style.display = 'none';
         });
 
         document.getElementById('newPhotoBtn').addEventListener('click', () => {
@@ -634,5 +747,6 @@
     </script>
 </body>
 </html>
+
 
 
