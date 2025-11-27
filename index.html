@@ -320,26 +320,6 @@
         input[type="file"] {
             display: none;
         }
-
-        .debug-info {
-            display: none;
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(0,0,0,0.9);
-            color: #00ff00;
-            font-size: 10px;
-            font-family: monospace;
-            padding: 10px;
-            max-height: 150px;
-            overflow-y: auto;
-            z-index: 9999;
-        }
-
-        .debug-info.active {
-            display: block;
-        }
     </style>
 </head>
 <body>
@@ -352,7 +332,7 @@
     <div class="main" id="main">
         <div class="header">
             <h1>DV Photo Check</h1>
-            <div class="attempts">Попыток: <span id="attempts">...</span></div>
+            <div class="attempts">Попыток: <span id="attempts">3</span></div>
         </div>
         <button class="button btn-primary" id="uploadBtn">📸 Загрузить фото</button>
         <button class="button btn-secondary" id="infoBtn">📋 Инструкции</button>
@@ -395,82 +375,57 @@
         </div>
     </div>
 
-    <div class="debug-info" id="debugInfo"></div>
-
     <script>
-        const DEBUG = true;
-        const logs = [];
-
-        function addLog(msg) {
-            if (DEBUG) {
-                const time = new Date().toLocaleTimeString();
-                const logMsg = `[${time}] ${msg}`;
-                logs.push(logMsg);
-                if (logs.length > 20) logs.shift();
-                document.getElementById('debugInfo').textContent = logs.join('\n');
-                document.getElementById('debugInfo').classList.add('active');
-            }
-            console.log(msg);
-        }
-
-        addLog("🔵 DV Photo Validator Starting...");
-
         const tg = window.Telegram.WebApp;
-        if (tg) {
-            tg.ready();
-            addLog("✅ Telegram WebApp API ready");
-        }
+        if (tg) tg.ready();
 
         const state = {
-            userId: tg?.initDataUnsafe?.user?.id || 'anonymous-user-' + Math.random().toString(36).substr(2, 9),
+            userId: tg?.initDataUnsafe?.user?.id || 'test-user',
             attempts: 3,
             photo: null,
             canvas: null,
             ctx: null,
             img: null,
-            lines: { top: 0, bottom: 0, eyes: 0 },
+            lines: { top: 15, bottom: 70, eyes: 45 },
             detections: { top: 'MANUAL', bottom: 'MANUAL', eyes: 'MANUAL' },
             modelsLoaded: false,
-            dragging: null,
-            touchStartY: null
+            dragging: null
         };
-
-        addLog(`📱 User ID: ${state.userId}`);
 
         const API = 'https://dv-lottery-api-ob49.onrender.com';
 
         // ИНИЦИАЛИЗАЦИЯ
         async function init() {
-            addLog("⏳ Initializing app...");
             try {
-                // Загружаем попытки
                 await loadAttempts();
-
-                // Загружаем модели Face-API
-                addLog("🤖 Loading Face-API models...");
-                await faceapi.nets.ssdMobilenetv1.loadFromUri('models/');
-                await faceapi.nets.faceLandmark68Net.loadFromUri('models/');
-                state.modelsLoaded = true;
-                addLog("✅ Models loaded successfully");
+                await loadModels();
             } catch (e) {
-                addLog(`❌ Init error: ${e.message}`);
-                state.modelsLoaded = false;
+                console.error('Init error:', e);
+                setDefaultLines();
             }
         }
 
         async function loadAttempts() {
             try {
-                addLog(`📊 Loading attempts from: ${API}/api/user/${state.userId}`);
                 const res = await fetch(`${API}/api/user/${state.userId}`);
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const data = await res.json();
-                state.attempts = data.attempts || 3;
-                addLog(`✅ Attempts loaded: ${state.attempts}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    state.attempts = data.attempts || 3;
+                }
             } catch (e) {
-                addLog(`⚠️ Could not load attempts: ${e.message}`);
                 state.attempts = 3;
             }
             document.getElementById('attempts').textContent = state.attempts;
+        }
+
+        async function loadModels() {
+            try {
+                await faceapi.nets.ssdMobilenetv1.loadFromUri('models/');
+                await faceapi.nets.faceLandmark68Net.loadFromUri('models/');
+                state.modelsLoaded = true;
+            } catch (e) {
+                state.modelsLoaded = false;
+            }
         }
 
         // Splash -> Main
@@ -493,15 +448,11 @@
             const file = e.target.files[0];
             if (!file) return;
 
-            addLog(`📷 Photo selected: ${file.name} (${file.size} bytes)`);
-
             const reader = new FileReader();
             reader.onload = async (ev) => {
                 state.photo = ev.target.result;
                 document.getElementById('photoImg').src = state.photo;
                 document.getElementById('photoImg').onload = async () => {
-                    addLog("🖼️ Photo loaded to canvas");
-
                     document.getElementById('main').classList.remove('active');
                     document.getElementById('photo').classList.add('active');
 
@@ -509,20 +460,15 @@
                     state.ctx = state.canvas.getContext('2d');
                     state.img = document.getElementById('photoImg');
 
-                    // Масштабируем canvas под image
                     state.canvas.width = state.img.naturalWidth;
                     state.canvas.height = state.img.naturalHeight;
-
-                    addLog(`📐 Image dimensions: ${state.img.naturalWidth}x${state.img.naturalHeight}`);
 
                     document.getElementById('spinner').classList.add('active');
                     document.getElementById('info').style.display = 'none';
 
-                    // АНАЛИЗИРУЕМ ЛИЦО
                     if (state.modelsLoaded) {
                         await detectFace();
                     } else {
-                        addLog("⚠️ Models not loaded, using defaults");
                         setDefaultLines();
                     }
 
@@ -540,13 +486,11 @@
         // ДЕТЕКТИРОВАНИЕ ЛИЦА
         async function detectFace() {
             try {
-                addLog("🔍 Detecting face with ssdMobilenetv1...");
                 const detection = await faceapi
                     .detectSingleFace(state.img, new faceapi.SsdMobilenetv1Options())
                     .withFaceLandmarks();
 
                 if (detection && detection.landmarks) {
-                    addLog("✅ Face detected successfully");
                     const landmarks = detection.landmarks.positions;
                     const h = state.canvas.height;
 
@@ -562,14 +506,10 @@
                     state.detections.top = 'DETECTED';
                     state.detections.bottom = 'DETECTED';
                     state.detections.eyes = 'DETECTED';
-
-                    addLog(`📍 Lines detected: top=${state.lines.top.toFixed(1)}, bottom=${state.lines.bottom.toFixed(1)}, eyes=${state.lines.eyes.toFixed(1)}`);
                 } else {
-                    addLog("⚠️ Face not detected");
                     setDefaultLines();
                 }
             } catch (e) {
-                addLog(`❌ Detect error: ${e.message}`);
                 setDefaultLines();
             }
             updateStatus();
@@ -638,13 +578,9 @@
 
         function checkLine(y) {
             const threshold = 5;
-            if (Math.abs(y - state.lines.top) < threshold) {
-                state.dragging = 'top';
-            } else if (Math.abs(y - state.lines.bottom) < threshold) {
-                state.dragging = 'bottom';
-            } else if (Math.abs(y - state.lines.eyes) < threshold) {
-                state.dragging = 'eyes';
-            }
+            if (Math.abs(y - state.lines.top) < threshold) state.dragging = 'top';
+            else if (Math.abs(y - state.lines.bottom) < threshold) state.dragging = 'bottom';
+            else if (Math.abs(y - state.lines.eyes) < threshold) state.dragging = 'eyes';
         }
 
         // РИСУЕМ ЛИНИИ
@@ -652,7 +588,6 @@
             state.ctx.clearRect(0, 0, state.canvas.width, state.canvas.height);
             const h = state.canvas.height;
 
-            // Red - top
             state.ctx.strokeStyle = '#F44336';
             state.ctx.lineWidth = 3;
             state.ctx.beginPath();
@@ -660,7 +595,6 @@
             state.ctx.lineTo(state.canvas.width, (state.lines.top / 100) * h);
             state.ctx.stroke();
 
-            // Blue - bottom
             state.ctx.strokeStyle = '#2196F3';
             state.ctx.lineWidth = 3;
             state.ctx.beginPath();
@@ -668,7 +602,6 @@
             state.ctx.lineTo(state.canvas.width, (state.lines.bottom / 100) * h);
             state.ctx.stroke();
 
-            // Green - eyes
             state.ctx.strokeStyle = '#4CAF50';
             state.ctx.lineWidth = 2;
             state.ctx.setLineDash([5, 5]);
@@ -681,7 +614,6 @@
 
         // SUBMIT
         document.getElementById('submitBtn').addEventListener('click', async () => {
-            addLog("📤 Submitting photo...");
             document.getElementById('spinner').classList.add('active');
 
             try {
@@ -695,20 +627,16 @@
                     })
                 });
 
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                if (!res.ok) throw new Error('Server error');
                 const result = await res.json();
 
-                addLog(`✅ Result received: ${result.success ? 'SUCCESS' : 'FAILED'}`);
-
                 if (result.success) {
-                    const statusEl = document.getElementById('resultStatus');
-                    const criteriaEl = document.getElementById('criteria');
                     const allValid = result.validation.criteria.every(c => c.passed);
-
+                    const statusEl = document.getElementById('resultStatus');
                     statusEl.className = `result-status ${allValid ? 'success' : 'error'}`;
                     statusEl.textContent = allValid ? '✅ Фото OK' : '❌ Фото не подходит';
 
-                    criteriaEl.innerHTML = result.validation.criteria.map(c => `
+                    document.getElementById('criteria').innerHTML = result.validation.criteria.map(c => `
                         <div class="criteria-item">
                             <div class="criteria-icon">${c.passed ? '✅' : '❌'}</div>
                             <div class="criteria-label">${c.name}</div>
@@ -721,8 +649,7 @@
                     document.getElementById('attempts').textContent = state.attempts;
                 }
             } catch (e) {
-                addLog(`❌ Submit error: ${e.message}`);
-                tg.showAlert('Ошибка обработки: ' + e.message);
+                tg.showAlert('Ошибка обработки фото');
             } finally {
                 document.getElementById('spinner').classList.remove('active');
             }
@@ -730,7 +657,6 @@
 
         // BACK
         document.getElementById('backBtn').addEventListener('click', () => {
-            addLog("← Going back");
             document.getElementById('photo').classList.remove('active');
             document.getElementById('main').classList.add('active');
             document.getElementById('results').classList.remove('active');
