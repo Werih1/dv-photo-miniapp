@@ -3,18 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DV Photo Validator Pro</title>
+    <title>DV Photo Check</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Локальный Face-API -->
     <script src="models/face-api.min.js"></script>
     <style>
-        :root {
-            --primary-blue: #2196F3;
-            --success-green: #4CAF50;
-            --error-red: #F44336;
-            --warning-orange: #FF9800;
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -22,21 +14,12 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #ffffff;
-            color: #000000;
-            overflow-x: hidden;
+            color: #333;
         }
 
-        .app-container {
-            max-width: 100vw;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Splash Screen */
-        .splash-screen {
+        .splash {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -44,15 +27,11 @@
             min-height: 100vh;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             padding: 20px;
-            animation: fadeIn 0.5s;
         }
 
         .splash-logo {
-            max-width: 280px;
-            max-height: 280px;
-            width: 90%;
-            height: auto;
-            object-fit: contain;
+            width: 250px;
+            height: 250px;
             margin-bottom: 30px;
         }
 
@@ -60,23 +39,20 @@
             font-size: 28px;
             font-weight: bold;
             color: white;
-            text-align: center;
             margin-bottom: 10px;
         }
 
         .splash-subtitle {
             font-size: 16px;
             color: rgba(255,255,255,0.9);
-            text-align: center;
         }
 
-        /* Main Screen */
-        .main-screen {
-            padding: 20px;
+        .main {
             display: none;
+            padding: 20px;
         }
 
-        .main-screen.active {
+        .main.active {
             display: block;
         }
 
@@ -85,19 +61,17 @@
             margin-bottom: 30px;
         }
 
-        .header-title {
+        .header h1 {
             font-size: 24px;
-            font-weight: bold;
             margin-bottom: 10px;
         }
 
-        .attempts-counter {
+        .attempts {
             display: inline-block;
             padding: 8px 16px;
-            background: var(--primary-blue);
+            background: #2196F3;
             color: white;
             border-radius: 20px;
-            font-size: 14px;
             font-weight: 500;
         }
 
@@ -105,8 +79,6 @@
             width: 100%;
             padding: 16px;
             margin-bottom: 12px;
-            background: var(--primary-blue);
-            color: white;
             border: none;
             border-radius: 12px;
             font-size: 16px;
@@ -115,32 +87,36 @@
             transition: all 0.3s;
         }
 
-        .button:active {
+        .btn-primary {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:active {
             transform: scale(0.98);
         }
 
-        .button-secondary {
-            background: #f5f5f5;
+        .btn-secondary {
+            background: #f0f0f0;
             color: #333;
         }
 
-        /* Photo Screen */
-        .photo-screen {
+        .photo {
             display: none;
             padding: 20px;
         }
 
-        .photo-screen.active {
+        .photo.active {
             display: block;
         }
 
-        .back-button {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            color: var(--primary-blue);
-            cursor: pointer;
+        .back-btn {
+            color: #2196F3;
+            background: none;
+            border: none;
             font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 20px;
         }
 
         .photo-container {
@@ -154,7 +130,7 @@
             aspect-ratio: 1;
         }
 
-        .photo-preview {
+        .photo-img {
             width: 100%;
             height: 100%;
             display: block;
@@ -174,7 +150,7 @@
             cursor: grabbing;
         }
 
-        .line-info {
+        .info {
             background: white;
             border-radius: 12px;
             padding: 16px;
@@ -182,35 +158,34 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
-        .line-info p {
+        .info p {
             margin: 8px 0;
             font-size: 14px;
-            color: #666;
         }
 
         .detected {
-            color: var(--success-green);
+            color: #4CAF50;
             font-weight: bold;
         }
 
         .manual {
-            color: var(--warning-orange);
+            color: #FF9800;
             font-weight: bold;
         }
 
-        .loading-spinner {
-            display: none;
+        .spinner {
             text-align: center;
             padding: 40px;
+            display: none;
         }
 
-        .loading-spinner.active {
+        .spinner.active {
             display: block;
         }
 
-        .spinner {
+        .spin {
             border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary-blue);
+            border-top: 4px solid #2196F3;
             border-radius: 50%;
             width: 50px;
             height: 50px;
@@ -218,12 +193,17 @@
             margin: 0 auto 20px;
         }
 
-        .validation-results {
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .results {
             display: none;
             margin-top: 20px;
         }
 
-        .validation-results.active {
+        .results.active {
             display: block;
         }
 
@@ -232,23 +212,22 @@
             border-radius: 12px;
             text-align: center;
             font-weight: bold;
-            font-size: 16px;
             margin-bottom: 20px;
         }
 
         .result-status.success {
             background: rgba(76, 175, 80, 0.1);
-            color: var(--success-green);
-            border: 2px solid var(--success-green);
+            color: #4CAF50;
+            border: 2px solid #4CAF50;
         }
 
         .result-status.error {
             background: rgba(244, 67, 54, 0.1);
-            color: var(--error-red);
-            border: 2px solid var(--error-red);
+            color: #F44336;
+            border: 2px solid #F44336;
         }
 
-        .criteria-list {
+        .criteria {
             background: white;
             border-radius: 12px;
             padding: 16px;
@@ -267,8 +246,6 @@
         }
 
         .criteria-icon {
-            width: 24px;
-            height: 24px;
             margin-right: 12px;
             flex-shrink: 0;
         }
@@ -280,458 +257,379 @@
 
         .criteria-value {
             font-size: 14px;
-            font-weight: 500;
             color: #666;
         }
 
-        .hidden-input {
+        input[type="file"] {
             display: none;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Splash Screen -->
-        <div class="splash-screen" id="splashScreen">
-            <img class="splash-logo" src="images/dv-lottery-logo.jpg" alt="DV Lottery Logo">
-            <div class="splash-title">DV Photo Validator</div>
-            <div class="splash-subtitle">Проверка фото для лотереи Green Card</div>
+    <div class="splash" id="splash">
+        <img class="splash-logo" src="images/dv-lottery-logo.jpg" alt="DV Lottery">
+        <div class="splash-title">DV Photo Validator</div>
+        <div class="splash-subtitle">Проверка фото для лотереи</div>
+    </div>
+
+    <div class="main" id="main">
+        <div class="header">
+            <h1>DV Photo Check</h1>
+            <div class="attempts">Попыток: <span id="attempts">...</span></div>
+        </div>
+        <button class="button btn-primary" id="uploadBtn">📸 Загрузить фото</button>
+        <button class="button btn-secondary" id="infoBtn">📋 Инструкции</button>
+        <input type="file" id="photoInput" accept="image/*">
+    </div>
+
+    <div class="photo" id="photo">
+        <button class="back-btn" id="backBtn">← Назад</button>
+
+        <div class="photo-container">
+            <img class="photo-img" id="photoImg">
+            <canvas class="photo-canvas" id="canvas"></canvas>
         </div>
 
-        <!-- Main Screen -->
-        <div class="main-screen" id="mainScreen">
-            <div class="header">
-                <h1 class="header-title">DV Photo Check</h1>
-                <div class="attempts-counter">
-                    Попыток: <span id="attemptsCount">...</span>
-                </div>
-            </div>
-            <button class="button" id="uploadPhotoBtn">📸 Загрузить фото</button>
-            <button class="button button-secondary" id="instructionsBtn">📋 Инструкции</button>
+        <div class="info" id="info" style="display: none;">
+            <p><strong>Линии:</strong></p>
+            <p>🔴 Макушка: <span id="topStatus" class="manual">MANUAL</span></p>
+            <p>🔵 Подбородок: <span id="bottomStatus" class="manual">MANUAL</span></p>
+            <p>🟢 Глаза: <span id="eyeStatus" class="manual">MANUAL</span></p>
+            <p style="margin-top: 12px; font-size: 12px; color: #999;">Потяните линии вверх/вниз</p>
         </div>
 
-        <!-- Photo Upload Screen -->
-        <div class="photo-screen" id="photoScreen">
-            <div class="back-button" id="backFromPhoto">← Назад</div>
-            <input type="file" id="photoInput" class="hidden-input" accept="image/*">
+        <div class="spinner" id="spinner">
+            <div class="spin"></div>
+            <div>Анализирую лицо...</div>
+        </div>
 
-            <div class="loading-spinner" id="loadingSpinner">
-                <div class="spinner"></div>
-                <div>Анализирую лицо...</div>
-            </div>
+        <button class="button btn-primary" id="submitBtn" style="display: none;">✓ Проверить</button>
+        <button class="button btn-secondary" id="newPhotoBtn" style="display: none;">📸 Новое фото</button>
 
-            <div class="photo-container" id="photoContainer">
-                <img class="photo-preview" id="photoPreview" style="display: none;">
-                <canvas class="photo-canvas" id="photoCanvas"></canvas>
-            </div>
-
-            <div class="line-info" id="lineInfo" style="display: none;">
-                <p><strong>Линии:</strong></p>
-                <p>🔴 Макушка (красная): <span id="topLineStatus"></span></p>
-                <p>🔵 Подбородок (синяя): <span id="bottomLineStatus"></span></p>
-                <p>🟢 Глаза (зелёная): <span id="eyeLineStatus"></span></p>
-                <p style="margin-top: 12px; font-size: 12px; color: #999;">Потяните линии вверх/вниз для корректировки</p>
-            </div>
-
-            <button class="button" id="cropPhotoBtn" style="display: none;">✓ Обрезать фото</button>
-            <button class="button button-secondary" id="uploadNewPhotoBtn" style="display: none;">📸 Загрузить новое</button>
-
-            <div class="validation-results" id="validationResults">
-                <div class="result-status" id="resultStatus"></div>
-                <div class="criteria-list" id="criteriaList"></div>
-            </div>
+        <div class="results" id="results">
+            <div class="result-status" id="resultStatus"></div>
+            <div class="criteria" id="criteria"></div>
         </div>
     </div>
 
     <script>
-        console.log("🔵 DV Photo App Starting...");
+        console.log("🔵 DV Photo Validator Starting...");
 
-        // Initialize Telegram
         const tg = window.Telegram.WebApp;
         tg.ready();
 
-        // App State
-        let appState = {
+        const state = {
             userId: tg.initDataUnsafe?.user?.id || 'anonymous',
             attempts: 3,
-            currentPhoto: null,
-            croppedPhoto: null,
+            photo: null,
             canvas: null,
             ctx: null,
             img: null,
             lines: { top: 0, bottom: 0, eyes: 0 },
-            detections: { top: null, bottom: null, eyes: null },
-            touchStartY: null,
-            draggingLine: null,
-            modelsLoaded: false
+            detections: { top: 'MANUAL', bottom: 'MANUAL', eyes: 'MANUAL' },
+            modelsLoaded: false,
+            dragging: null,
+            touchStartY: null
         };
 
-        // API Configuration
-        const API_URL = 'https://dv-lottery-api-ob49.onrender.com';
+        const API = 'https://dv-lottery-api-ob49.onrender.com';
 
-        // Load attempts and models on start
-        async function initializeApp() {
-            console.log("⏳ Initializing...");
-
+        // ИНИЦИАЛИЗАЦИЯ
+        async function init() {
+            console.log("⏳ Initializing app...");
             try {
-                // Load user attempts
-                await loadUserAttempts();
+                // Загружаем попытки
+                await loadAttempts();
 
-                // Load Face-API models from local files
-                await loadModels();
-
-                console.log("✅ App initialized successfully");
-            } catch(error) {
-                console.error("❌ Init error:", error);
+                // Загружаем модели Face-API - используем ssdMobilenetv1 как в GPT версии!
+                console.log("🤖 Loading Face-API models from: models/");
+                await faceapi.nets.ssdMobilenetv1.loadFromUri('models/');
+                await faceapi.nets.faceLandmark68Net.loadFromUri('models/');
+                state.modelsLoaded = true;
+                console.log("✅ Models loaded successfully");
+            } catch (e) {
+                console.error("❌ Init error:", e);
+                state.modelsLoaded = false;
             }
         }
 
-        async function loadUserAttempts() {
+        async function loadAttempts() {
             try {
-                console.log("📊 Loading attempts for user:", appState.userId);
-                const response = await fetch(`${API_URL}/api/user/${appState.userId}`);
-                const data = await response.json();
-                appState.attempts = data.attempts;
-                console.log("✅ Attempts loaded:", appState.attempts);
-                updateAttemptsCounter();
-            } catch (error) {
-                console.error("❌ Error loading attempts:", error);
-                appState.attempts = 3;
-                updateAttemptsCounter();
+                console.log("📊 Loading attempts for user:", state.userId);
+                const res = await fetch(`${API}/api/user/${state.userId}`);
+                const data = await res.json();
+                state.attempts = data.attempts;
+                console.log("✅ Attempts loaded:", state.attempts);
+            } catch (e) {
+                console.error("❌ Load attempts error:", e);
+                state.attempts = 3;
             }
+            document.getElementById('attempts').textContent = state.attempts;
         }
 
-        async function loadModels() {
-            try {
-                console.log("🤖 Loading Face-API models from local files...");
-                const MODEL_URL = 'models/';
-
-                await Promise.all([
-                    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-                    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-                ]);
-
-                appState.modelsLoaded = true;
-                console.log("✅ Face-API models loaded successfully");
-            } catch (error) {
-                console.error("❌ Error loading models:", error);
-                appState.modelsLoaded = false;
-            }
-        }
-
-        // Initialize after 3 second splash
+        // Splash -> Main
         setTimeout(() => {
-            document.getElementById('splashScreen').style.display = 'none';
-            document.getElementById('mainScreen').classList.add('active');
-            initializeApp();
+            document.getElementById('splash').style.display = 'none';
+            document.getElementById('main').classList.add('active');
+            init();
         }, 3000);
 
-        // Upload Photo
-        document.getElementById('uploadPhotoBtn').addEventListener('click', () => {
-            if (appState.attempts <= 0) {
+        // UPLOAD
+        document.getElementById('uploadBtn').addEventListener('click', () => {
+            if (state.attempts <= 0) {
                 tg.showAlert('Попытки закончились');
                 return;
             }
             document.getElementById('photoInput').click();
         });
 
-        document.getElementById('photoInput').addEventListener('change', handlePhotoUpload);
-
-        async function handlePhotoUpload(event) {
-            const file = event.target.files[0];
+        document.getElementById('photoInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
-            reader.onload = async (e) => {
-                appState.currentPhoto = e.target.result;
-                document.getElementById('photoPreview').src = appState.currentPhoto;
-                document.getElementById('photoPreview').style.display = 'block';
-                document.getElementById('loadingSpinner').classList.add('active');
-                document.getElementById('lineInfo').style.display = 'none';
+            reader.onload = async (ev) => {
+                state.photo = ev.target.result;
+                document.getElementById('photoImg').src = state.photo;
+                document.getElementById('photoImg').onload = async () => {
+                    document.getElementById('main').classList.remove('active');
+                    document.getElementById('photo').classList.add('active');
 
-                const container = document.getElementById('photoContainer');
-                appState.canvas = document.getElementById('photoCanvas');
-                appState.ctx = appState.canvas.getContext('2d');
-                appState.img = document.getElementById('photoPreview');
+                    state.canvas = document.getElementById('canvas');
+                    state.ctx = state.canvas.getContext('2d');
+                    state.img = document.getElementById('photoImg');
 
-                appState.img.onload = async () => {
-                    appState.canvas.width = appState.img.naturalWidth;
-                    appState.canvas.height = appState.img.naturalHeight;
+                    state.canvas.width = state.img.naturalWidth;
+                    state.canvas.height = state.img.naturalHeight;
 
-                    // Detect face landmarks
-                    if (appState.modelsLoaded) {
-                        await detectFaceAndSetLines();
+                    document.getElementById('spinner').classList.add('active');
+                    document.getElementById('info').style.display = 'none';
+
+                    // АНАЛИЗИРУЕМ ЛИЦО
+                    if (state.modelsLoaded) {
+                        await detectFace();
                     } else {
-                        console.warn("⚠️ Models not loaded, using default positions");
+                        console.warn("⚠️ Models not loaded, using defaults");
                         setDefaultLines();
                     }
 
-                    document.getElementById('loadingSpinner').classList.remove('active');
-                    document.getElementById('lineInfo').style.display = 'block';
-                    document.getElementById('cropPhotoBtn').style.display = 'block';
-                    document.getElementById('uploadNewPhotoBtn').style.display = 'block';
+                    document.getElementById('spinner').classList.remove('active');
+                    document.getElementById('info').style.display = 'block';
+                    document.getElementById('submitBtn').style.display = 'block';
+                    document.getElementById('newPhotoBtn').style.display = 'block';
 
-                    setupCanvasInteraction();
+                    setupCanvas();
                     drawLines();
                 };
-
-                document.getElementById('mainScreen').classList.remove('active');
-                document.getElementById('photoScreen').classList.add('active');
             };
             reader.readAsDataURL(file);
-        }
+        });
 
-        // Detect Face and Set Lines
-        async function detectFaceAndSetLines() {
+        // ДЕТЕКТИРОВАНИЕ ЛИЦА - используем ssdMobilenetv1
+        async function detectFace() {
             try {
-                console.log("🔍 Detecting face...");
+                console.log("🔍 Detecting face with ssdMobilenetv1...");
                 const detection = await faceapi
-                    .detectSingleFace(appState.img, new faceapi.TinyFaceDetectorOptions())
+                    .detectSingleFace(state.img, new faceapi.SsdMobilenetv1Options())
                     .withFaceLandmarks();
 
                 if (detection && detection.landmarks) {
-                    console.log("✅ Face detected");
+                    console.log("✅ Face detected successfully");
                     const landmarks = detection.landmarks.positions;
-                    const height = appState.canvas.height;
+                    const h = state.canvas.height;
 
-                    const topPoint = Math.min(...landmarks.map(p => p.y));
-                    const bottomPoint = Math.max(...landmarks.map(p => p.y));
+                    // Находим координаты
+                    const topY = Math.min(...landmarks.map(p => p.y));
+                    const bottomY = Math.max(...landmarks.map(p => p.y));
+
+                    // Глаза это точки 36-47
                     const eyePoints = landmarks.slice(36, 48);
-                    const eyeCenter = eyePoints.reduce((sum, p) => sum + p.y, 0) / eyePoints.length;
+                    const eyeY = eyePoints.reduce((sum, p) => sum + p.y, 0) / eyePoints.length;
 
-                    appState.lines.top = (topPoint / height) * 100;
-                    appState.lines.bottom = (bottomPoint / height) * 100;
-                    appState.lines.eyes = (eyeCenter / height) * 100;
+                    state.lines.top = (topY / h) * 100;
+                    state.lines.bottom = (bottomY / h) * 100;
+                    state.lines.eyes = (eyeY / h) * 100;
 
-                    appState.detections.top = 'DETECTED';
-                    appState.detections.bottom = 'DETECTED';
-                    appState.detections.eyes = 'DETECTED';
+                    state.detections.top = 'DETECTED';
+                    state.detections.bottom = 'DETECTED';
+                    state.detections.eyes = 'DETECTED';
+
+                    console.log("📍 Lines set:", state.lines);
                 } else {
-                    console.log("⚠️ Face not detected, using defaults");
+                    console.log("⚠️ Face not detected");
                     setDefaultLines();
                 }
-
-                updateLineStatus();
-            } catch (error) {
-                console.error('❌ Error detecting face:', error);
+            } catch (e) {
+                console.error("❌ Detect error:", e);
                 setDefaultLines();
             }
+            updateStatus();
         }
 
         function setDefaultLines() {
-            appState.lines.top = 15;
-            appState.lines.bottom = 70;
-            appState.lines.eyes = 45;
-
-            appState.detections.top = 'MANUAL';
-            appState.detections.bottom = 'MANUAL';
-            appState.detections.eyes = 'MANUAL';
-
-            updateLineStatus();
+            state.lines.top = 15;
+            state.lines.bottom = 70;
+            state.lines.eyes = 45;
+            state.detections.top = 'MANUAL';
+            state.detections.bottom = 'MANUAL';
+            state.detections.eyes = 'MANUAL';
+            updateStatus();
         }
 
-        // Update Line Status Display
-        function updateLineStatus() {
-            document.getElementById('topLineStatus').innerHTML = 
-                `<span class="${appState.detections.top === 'DETECTED' ? 'detected' : 'manual'}">${appState.detections.top}</span>`;
-            document.getElementById('bottomLineStatus').innerHTML = 
-                `<span class="${appState.detections.bottom === 'DETECTED' ? 'detected' : 'manual'}">${appState.detections.bottom}</span>`;
-            document.getElementById('eyeLineStatus').innerHTML = 
-                `<span class="${appState.detections.eyes === 'DETECTED' ? 'detected' : 'manual'}">${appState.detections.eyes}</span>`;
+        function updateStatus() {
+            document.getElementById('topStatus').textContent = state.detections.top;
+            document.getElementById('topStatus').className = state.detections.top === 'DETECTED' ? 'detected' : 'manual';
+
+            document.getElementById('bottomStatus').textContent = state.detections.bottom;
+            document.getElementById('bottomStatus').className = state.detections.bottom === 'DETECTED' ? 'detected' : 'manual';
+
+            document.getElementById('eyeStatus').textContent = state.detections.eyes;
+            document.getElementById('eyeStatus').className = state.detections.eyes === 'DETECTED' ? 'detected' : 'manual';
         }
 
-        // Setup Canvas Interaction
-        function setupCanvasInteraction() {
-            appState.canvas.addEventListener('touchstart', handleTouchStart);
-            appState.canvas.addEventListener('touchmove', handleTouchMove);
-            appState.canvas.addEventListener('touchend', handleTouchEnd);
-            appState.canvas.addEventListener('mousedown', handleMouseDown);
-            appState.canvas.addEventListener('mousemove', handleMouseMove);
-            appState.canvas.addEventListener('mouseup', handleMouseUp);
+        // CANVAS INTERACTION
+        function setupCanvas() {
+            state.canvas.addEventListener('mousedown', onMouseDown);
+            state.canvas.addEventListener('mousemove', onMouseMove);
+            state.canvas.addEventListener('mouseup', () => state.dragging = null);
+            state.canvas.addEventListener('touchstart', onTouchStart);
+            state.canvas.addEventListener('touchmove', onTouchMove);
+            state.canvas.addEventListener('touchend', () => state.dragging = null);
         }
 
-        function handleTouchStart(e) {
-            appState.touchStartY = e.touches[0].clientY;
-            checkLineClick(e.touches[0].clientX, e.touches[0].clientY);
-        }
-
-        function handleTouchMove(e) {
-            if (!appState.draggingLine) return;
-            e.preventDefault();
-            const currentY = e.touches[0].clientY;
-            adjustLinePosition(currentY - (appState.touchStartY || currentY));
-            appState.touchStartY = currentY;
-            drawLines();
-        }
-
-        function handleTouchEnd() {
-            appState.draggingLine = null;
-            appState.touchStartY = null;
-        }
-
-        function handleMouseDown(e) {
-            checkLineClick(e.clientX, e.clientY);
-        }
-
-        function handleMouseMove(e) {
-            if (!appState.draggingLine) return;
-            const rect = appState.canvas.getBoundingClientRect();
+        function onMouseDown(e) {
+            const rect = state.canvas.getBoundingClientRect();
             const y = ((e.clientY - rect.top) / rect.height) * 100;
-            appState.lines[appState.draggingLine] = Math.max(0, Math.min(100, y));
+            checkLine(y);
+        }
+
+        function onMouseMove(e) {
+            if (!state.dragging) return;
+            const rect = state.canvas.getBoundingClientRect();
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+            state.lines[state.dragging] = Math.max(0, Math.min(100, y));
             drawLines();
         }
 
-        function handleMouseUp() {
-            appState.draggingLine = null;
+        function onTouchStart(e) {
+            state.touchStartY = e.touches[0].clientY;
+            const rect = state.canvas.getBoundingClientRect();
+            const y = ((e.touches[0].clientY - rect.top) / rect.height) * 100;
+            checkLine(y);
         }
 
-        function checkLineClick(x, y) {
-            const rect = appState.canvas.getBoundingClientRect();
-            const canvasY = ((y - rect.top) / rect.height) * 100;
+        function onTouchMove(e) {
+            if (!state.dragging) return;
+            e.preventDefault();
+            const rect = state.canvas.getBoundingClientRect();
+            const y = ((e.touches[0].clientY - rect.top) / rect.height) * 100;
+            state.lines[state.dragging] = Math.max(0, Math.min(100, y));
+            drawLines();
+        }
 
+        function checkLine(y) {
             const threshold = 5;
-            if (Math.abs(canvasY - appState.lines.top) < threshold) {
-                appState.draggingLine = 'top';
-            } else if (Math.abs(canvasY - appState.lines.bottom) < threshold) {
-                appState.draggingLine = 'bottom';
-            } else if (Math.abs(canvasY - appState.lines.eyes) < threshold) {
-                appState.draggingLine = 'eyes';
+            if (Math.abs(y - state.lines.top) < threshold) {
+                state.dragging = 'top';
+            } else if (Math.abs(y - state.lines.bottom) < threshold) {
+                state.dragging = 'bottom';
+            } else if (Math.abs(y - state.lines.eyes) < threshold) {
+                state.dragging = 'eyes';
             }
         }
 
-        function adjustLinePosition(delta) {
-            if (!appState.draggingLine) return;
-            const rect = appState.canvas.getBoundingClientRect();
-            const percentDelta = (delta / rect.height) * 100;
-            appState.lines[appState.draggingLine] = Math.max(0, Math.min(100, appState.lines[appState.draggingLine] + percentDelta));
-        }
-
-        // Draw Lines
+        // РИСУЕМ ЛИНИИ
         function drawLines() {
-            if (!appState.ctx || !appState.canvas) return;
-            appState.ctx.clearRect(0, 0, appState.canvas.width, appState.canvas.height);
-            const height = appState.canvas.height;
+            state.ctx.clearRect(0, 0, state.canvas.width, state.canvas.height);
+            const h = state.canvas.height;
 
-            // Red line - top
-            appState.ctx.strokeStyle = '#F44336';
-            appState.ctx.lineWidth = 3;
-            appState.ctx.beginPath();
-            appState.ctx.moveTo(0, (appState.lines.top / 100) * height);
-            appState.ctx.lineTo(appState.canvas.width, (appState.lines.top / 100) * height);
-            appState.ctx.stroke();
+            // Red - top
+            state.ctx.strokeStyle = '#F44336';
+            state.ctx.lineWidth = 3;
+            state.ctx.beginPath();
+            state.ctx.moveTo(0, (state.lines.top / 100) * h);
+            state.ctx.lineTo(state.canvas.width, (state.lines.top / 100) * h);
+            state.ctx.stroke();
 
-            // Blue line - bottom
-            appState.ctx.strokeStyle = '#2196F3';
-            appState.ctx.lineWidth = 3;
-            appState.ctx.beginPath();
-            appState.ctx.moveTo(0, (appState.lines.bottom / 100) * height);
-            appState.ctx.lineTo(appState.canvas.width, (appState.lines.bottom / 100) * height);
-            appState.ctx.stroke();
+            // Blue - bottom
+            state.ctx.strokeStyle = '#2196F3';
+            state.ctx.lineWidth = 3;
+            state.ctx.beginPath();
+            state.ctx.moveTo(0, (state.lines.bottom / 100) * h);
+            state.ctx.lineTo(state.canvas.width, (state.lines.bottom / 100) * h);
+            state.ctx.stroke();
 
-            // Green dashed line - eyes
-            appState.ctx.strokeStyle = '#4CAF50';
-            appState.ctx.lineWidth = 2;
-            appState.ctx.setLineDash([5, 5]);
-            appState.ctx.beginPath();
-            appState.ctx.moveTo(0, (appState.lines.eyes / 100) * height);
-            appState.ctx.lineTo(appState.canvas.width, (appState.lines.eyes / 100) * height);
-            appState.ctx.stroke();
-            appState.ctx.setLineDash([]);
+            // Green - eyes
+            state.ctx.strokeStyle = '#4CAF50';
+            state.ctx.lineWidth = 2;
+            state.ctx.setLineDash([5, 5]);
+            state.ctx.beginPath();
+            state.ctx.moveTo(0, (state.lines.eyes / 100) * h);
+            state.ctx.lineTo(state.canvas.width, (state.lines.eyes / 100) * h);
+            state.ctx.stroke();
+            state.ctx.setLineDash([]);
         }
 
-        // Crop Photo
-        document.getElementById('cropPhotoBtn').addEventListener('click', async () => {
-            document.getElementById('loadingSpinner').classList.add('active');
+        // SUBMIT
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+            document.getElementById('spinner').classList.add('active');
 
             try {
-                const response = await fetch(`${API_URL}/api/process-photo`, {
+                const res = await fetch(`${API}/api/process-photo`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        userId: appState.userId,
-                        photo: appState.currentPhoto,
-                        lines: appState.lines
+                        userId: state.userId,
+                        photo: state.photo,
+                        lines: state.lines
                     })
                 });
 
-                const result = await response.json();
+                const result = await res.json();
 
                 if (result.success) {
-                    appState.croppedPhoto = result.croppedPhoto;
-                    displayValidationResults(result.validation);
-                    appState.attempts = result.remainingAttempts;
-                    updateAttemptsCounter();
-                } else {
-                    tg.showAlert(result.error || 'Ошибка обработки');
+                    const statusEl = document.getElementById('resultStatus');
+                    const criteriaEl = document.getElementById('criteria');
+                    const allValid = result.validation.criteria.every(c => c.passed);
+
+                    statusEl.className = `result-status ${allValid ? 'success' : 'error'}`;
+                    statusEl.textContent = allValid ? '✅ Фото OK' : '❌ Фото не подходит';
+
+                    criteriaEl.innerHTML = result.validation.criteria.map(c => `
+                        <div class="criteria-item">
+                            <div class="criteria-icon">${c.passed ? '✅' : '❌'}</div>
+                            <div class="criteria-label">${c.name}</div>
+                            <div class="criteria-value">${c.value}</div>
+                        </div>
+                    `).join('');
+
+                    document.getElementById('results').classList.add('active');
+                    state.attempts = result.remainingAttempts;
+                    document.getElementById('attempts').textContent = state.attempts;
                 }
-            } catch (error) {
-                console.error('Error:', error);
-                tg.showAlert('Ошибка отправки');
+            } catch (e) {
+                console.error(e);
+                tg.showAlert('Ошибка обработки');
             } finally {
-                document.getElementById('loadingSpinner').classList.remove('active');
+                document.getElementById('spinner').classList.remove('active');
             }
         });
 
-        // Display Validation Results
-        function displayValidationResults(validation) {
-            const resultsDiv = document.getElementById('validationResults');
-            const statusDiv = document.getElementById('resultStatus');
-            const criteriaList = document.getElementById('criteriaList');
-
-            resultsDiv.classList.add('active');
-
-            const allValid = validation.criteria.every(c => c.passed);
-            statusDiv.className = `result-status ${allValid ? 'success' : 'error'}`;
-            statusDiv.textContent = allValid ? '✅ Фото соответствует требованиям' : '❌ Фото не соответствует требованиям';
-
-            criteriaList.innerHTML = validation.criteria.map(criterion => `
-                <div class="criteria-item">
-                    <svg class="criteria-icon" viewBox="0 0 24 24" fill="${criterion.passed ? '#4CAF50' : '#F44336'}">
-                        ${criterion.passed ? 
-                            '<path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>' :
-                            '<path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>'
-                        }
-                    </svg>
-                    <div class="criteria-label">${criterion.name}</div>
-                    <div class="criteria-value">${criterion.value}</div>
-                </div>
-            `).join('');
-        }
-
-        // Update Attempts Counter
-        function updateAttemptsCounter() {
-            document.getElementById('attemptsCount').textContent = appState.attempts;
-        }
-
-        // Back Button
-        document.getElementById('backFromPhoto').addEventListener('click', () => {
-            appState.currentPhoto = null;
-            appState.croppedPhoto = null;
-            document.getElementById('photoPreview').style.display = 'none';
-            document.getElementById('lineInfo').style.display = 'none';
-            document.getElementById('cropPhotoBtn').style.display = 'none';
-            document.getElementById('uploadNewPhotoBtn').style.display = 'none';
-            document.getElementById('validationResults').classList.remove('active');
-            document.getElementById('photoScreen').classList.remove('active');
-            document.getElementById('mainScreen').classList.add('active');
+        // BACK
+        document.getElementById('backBtn').addEventListener('click', () => {
+            document.getElementById('photo').classList.remove('active');
+            document.getElementById('main').classList.add('active');
+            document.getElementById('results').classList.remove('active');
+            document.getElementById('submitBtn').style.display = 'none';
+            document.getElementById('newPhotoBtn').style.display = 'none';
         });
 
-        document.getElementById('uploadNewPhotoBtn').addEventListener('click', () => {
+        document.getElementById('newPhotoBtn').addEventListener('click', () => {
             document.getElementById('photoInput').click();
         });
 
-        document.getElementById('instructionsBtn').addEventListener('click', () => {
-            tg.showAlert('📋 Требования:\n\n• Квадратное фото 600×600 пикселей\n• Голова занимает 50-69% высоты\n• Оба глаза открыты\n• Светлый фон\n• Фото не старше 6 месяцев');
+        document.getElementById('infoBtn').addEventListener('click', () => {
+            tg.showAlert('DV Photo Validator\n\n✓ Квадратное 600×600\n✓ Голова 50-69%\n✓ Оба глаза открыты\n✓ Светлый фон\n✓ Не старше 6 месяцев');
         });
     </script>
 </body>
