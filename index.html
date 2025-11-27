@@ -5,15 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DV Photo Validator Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script async defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/dist/face-api.js"></script>
+    <!-- Локальный Face-API -->
+    <script src="models/face-api.min.js"></script>
     <style>
         :root {
-            --tg-theme-bg-color: #ffffff;
-            --tg-theme-text-color: #000000;
-            --tg-theme-hint-color: #999999;
-            --tg-theme-link-color: #2481cc;
-            --tg-theme-button-color: #2481cc;
-            --tg-theme-button-text-color: #ffffff;
             --primary-blue: #2196F3;
             --success-green: #4CAF50;
             --error-red: #F44336;
@@ -28,10 +23,9 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-            background: var(--tg-theme-bg-color);
-            color: var(--tg-theme-text-color);
+            background: #ffffff;
+            color: #000000;
             overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
         }
 
         .app-container {
@@ -41,6 +35,7 @@
             flex-direction: column;
         }
 
+        /* Splash Screen */
         .splash-screen {
             display: flex;
             flex-direction: column;
@@ -59,7 +54,6 @@
             height: auto;
             object-fit: contain;
             margin-bottom: 30px;
-            animation: fadeIn 0.5s ease-in-out;
         }
 
         .splash-title {
@@ -68,16 +62,15 @@
             color: white;
             text-align: center;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
 
         .splash-subtitle {
             font-size: 16px;
             color: rgba(255,255,255,0.9);
             text-align: center;
-            margin-bottom: 40px;
         }
 
+        /* Main Screen */
         .main-screen {
             padding: 20px;
             display: none;
@@ -85,7 +78,6 @@
 
         .main-screen.active {
             display: block;
-            animation: slideIn 0.3s;
         }
 
         .header {
@@ -121,7 +113,6 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         .button:active {
@@ -133,10 +124,7 @@
             color: #333;
         }
 
-        .button-success {
-            background: var(--success-green);
-        }
-
+        /* Photo Screen */
         .photo-screen {
             display: none;
             padding: 20px;
@@ -144,7 +132,6 @@
 
         .photo-screen.active {
             display: block;
-            animation: slideIn 0.3s;
         }
 
         .back-button {
@@ -154,10 +141,6 @@
             color: var(--primary-blue);
             cursor: pointer;
             font-size: 16px;
-        }
-
-        .back-button svg {
-            margin-right: 8px;
         }
 
         .photo-container {
@@ -205,12 +188,12 @@
             color: #666;
         }
 
-        .line-info .detected {
+        .detected {
             color: var(--success-green);
             font-weight: bold;
         }
 
-        .line-info .manual {
+        .manual {
             color: var(--warning-orange);
             font-weight: bold;
         }
@@ -310,17 +293,6 @@
             to { opacity: 1; }
         }
 
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -329,12 +301,14 @@
 </head>
 <body>
     <div class="app-container">
+        <!-- Splash Screen -->
         <div class="splash-screen" id="splashScreen">
-            <img class="splash-logo" src="https://raw.githubusercontent.com/Werih1/dv-photo-miniapp/main/images/dv-lottery-logo.jpg" alt="DV Lottery Logo" id="splashLogo">
+            <img class="splash-logo" src="images/dv-lottery-logo.jpg" alt="DV Lottery Logo">
             <div class="splash-title">DV Photo Validator</div>
             <div class="splash-subtitle">Проверка фото для лотереи Green Card</div>
         </div>
 
+        <!-- Main Screen -->
         <div class="main-screen" id="mainScreen">
             <div class="header">
                 <h1 class="header-title">DV Photo Check</h1>
@@ -346,14 +320,9 @@
             <button class="button button-secondary" id="instructionsBtn">📋 Инструкции</button>
         </div>
 
+        <!-- Photo Upload Screen -->
         <div class="photo-screen" id="photoScreen">
-            <div class="back-button" id="backFromPhoto">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
-                </svg>
-                Назад
-            </div>
-
+            <div class="back-button" id="backFromPhoto">← Назад</div>
             <input type="file" id="photoInput" class="hidden-input" accept="image/*">
 
             <div class="loading-spinner" id="loadingSpinner">
@@ -374,7 +343,7 @@
                 <p style="margin-top: 12px; font-size: 12px; color: #999;">Потяните линии вверх/вниз для корректировки</p>
             </div>
 
-            <button class="button button-success" id="cropPhotoBtn" style="display: none;">✓ Обрезать фото</button>
+            <button class="button" id="cropPhotoBtn" style="display: none;">✓ Обрезать фото</button>
             <button class="button button-secondary" id="uploadNewPhotoBtn" style="display: none;">📸 Загрузить новое</button>
 
             <div class="validation-results" id="validationResults">
@@ -385,7 +354,7 @@
     </div>
 
     <script>
-        console.log("🔵 Script starting...");
+        console.log("🔵 DV Photo App Starting...");
 
         // Initialize Telegram
         const tg = window.Telegram.WebApp;
@@ -400,45 +369,41 @@
             canvas: null,
             ctx: null,
             img: null,
-            lines: {
-                top: 0,
-                bottom: 0,
-                eyes: 0
-            },
-            detections: {
-                top: null,
-                bottom: null,
-                eyes: null
-            },
+            lines: { top: 0, bottom: 0, eyes: 0 },
+            detections: { top: null, bottom: null, eyes: null },
             touchStartY: null,
-            draggingLine: null
+            draggingLine: null,
+            modelsLoaded: false
         };
-
-        console.log("👤 User ID:", appState.userId);
 
         // API Configuration
         const API_URL = 'https://dv-lottery-api-ob49.onrender.com';
-        console.log("🔗 API URL:", API_URL);
 
-        // MAIN: Load attempts from backend
+        // Load attempts and models on start
+        async function initializeApp() {
+            console.log("⏳ Initializing...");
+
+            try {
+                // Load user attempts
+                await loadUserAttempts();
+
+                // Load Face-API models from local files
+                await loadModels();
+
+                console.log("✅ App initialized successfully");
+            } catch(error) {
+                console.error("❌ Init error:", error);
+            }
+        }
+
         async function loadUserAttempts() {
             try {
-                console.log("⏳ Loading attempts...");
-                const url = `${API_URL}/api/user/${appState.userId}`;
-                console.log("📍 Fetch URL:", url);
-
-                const response = await fetch(url);
-                console.log("📦 Response status:", response.status);
-
+                console.log("📊 Loading attempts for user:", appState.userId);
+                const response = await fetch(`${API_URL}/api/user/${appState.userId}`);
                 const data = await response.json();
-                console.log("✅ Backend response:", data);
-
                 appState.attempts = data.attempts;
-                console.log("💾 Stored attempts:", appState.attempts);
-
+                console.log("✅ Attempts loaded:", appState.attempts);
                 updateAttemptsCounter();
-                console.log("✨ UI updated");
-
             } catch (error) {
                 console.error("❌ Error loading attempts:", error);
                 appState.attempts = 3;
@@ -446,38 +411,30 @@
             }
         }
 
-        // Initialize app
-        console.log("⏱️ Starting 3 second timer...");
-        setTimeout(async () => {
-            console.log("🚀 Timer finished, loading...");
-
-            document.getElementById('splashScreen').style.display = 'none';
-            document.getElementById('mainScreen').classList.add('active');
-
-            // Load attempts FIRST
-            await loadUserAttempts();
-
-            // Then load Face-API models
-            loadFaceApiModels();
-        }, 3000);
-
-        // Load Face-API Models
-        async function loadFaceApiModels() {
+        async function loadModels() {
             try {
-                console.log('🤖 Loading Face-API models...');
-                const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/model/';
+                console.log("🤖 Loading Face-API models from local files...");
+                const MODEL_URL = 'models/';
 
                 await Promise.all([
                     faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
                     faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
                 ]);
 
-                console.log('✅ Face-API models loaded');
+                appState.modelsLoaded = true;
+                console.log("✅ Face-API models loaded successfully");
             } catch (error) {
-                console.error('Error loading Face-API:', error);
-                tg.showAlert('Ошибка загрузки моделей');
+                console.error("❌ Error loading models:", error);
+                appState.modelsLoaded = false;
             }
         }
+
+        // Initialize after 3 second splash
+        setTimeout(() => {
+            document.getElementById('splashScreen').style.display = 'none';
+            document.getElementById('mainScreen').classList.add('active');
+            initializeApp();
+        }, 3000);
 
         // Upload Photo
         document.getElementById('uploadPhotoBtn').addEventListener('click', () => {
@@ -511,7 +468,13 @@
                     appState.canvas.width = appState.img.naturalWidth;
                     appState.canvas.height = appState.img.naturalHeight;
 
-                    await detectFaceAndSetLines();
+                    // Detect face landmarks
+                    if (appState.modelsLoaded) {
+                        await detectFaceAndSetLines();
+                    } else {
+                        console.warn("⚠️ Models not loaded, using default positions");
+                        setDefaultLines();
+                    }
 
                     document.getElementById('loadingSpinner').classList.remove('active');
                     document.getElementById('lineInfo').style.display = 'block';
@@ -528,13 +491,16 @@
             reader.readAsDataURL(file);
         }
 
+        // Detect Face and Set Lines
         async function detectFaceAndSetLines() {
             try {
+                console.log("🔍 Detecting face...");
                 const detection = await faceapi
                     .detectSingleFace(appState.img, new faceapi.TinyFaceDetectorOptions())
                     .withFaceLandmarks();
 
                 if (detection && detection.landmarks) {
+                    console.log("✅ Face detected");
                     const landmarks = detection.landmarks.positions;
                     const height = appState.canvas.height;
 
@@ -551,24 +517,30 @@
                     appState.detections.bottom = 'DETECTED';
                     appState.detections.eyes = 'DETECTED';
                 } else {
-                    appState.lines.top = 15;
-                    appState.lines.bottom = 70;
-                    appState.lines.eyes = 45;
-
-                    appState.detections.top = 'MANUAL';
-                    appState.detections.bottom = 'MANUAL';
-                    appState.detections.eyes = 'MANUAL';
+                    console.log("⚠️ Face not detected, using defaults");
+                    setDefaultLines();
                 }
 
                 updateLineStatus();
             } catch (error) {
-                console.error('Error detecting face:', error);
-                appState.lines.top = 15;
-                appState.lines.bottom = 70;
-                appState.lines.eyes = 45;
+                console.error('❌ Error detecting face:', error);
+                setDefaultLines();
             }
         }
 
+        function setDefaultLines() {
+            appState.lines.top = 15;
+            appState.lines.bottom = 70;
+            appState.lines.eyes = 45;
+
+            appState.detections.top = 'MANUAL';
+            appState.detections.bottom = 'MANUAL';
+            appState.detections.eyes = 'MANUAL';
+
+            updateLineStatus();
+        }
+
+        // Update Line Status Display
         function updateLineStatus() {
             document.getElementById('topLineStatus').innerHTML = 
                 `<span class="${appState.detections.top === 'DETECTED' ? 'detected' : 'manual'}">${appState.detections.top}</span>`;
@@ -578,6 +550,7 @@
                 `<span class="${appState.detections.eyes === 'DETECTED' ? 'detected' : 'manual'}">${appState.detections.eyes}</span>`;
         }
 
+        // Setup Canvas Interaction
         function setupCanvasInteraction() {
             appState.canvas.addEventListener('touchstart', handleTouchStart);
             appState.canvas.addEventListener('touchmove', handleTouchMove);
@@ -643,11 +616,13 @@
             appState.lines[appState.draggingLine] = Math.max(0, Math.min(100, appState.lines[appState.draggingLine] + percentDelta));
         }
 
+        // Draw Lines
         function drawLines() {
             if (!appState.ctx || !appState.canvas) return;
             appState.ctx.clearRect(0, 0, appState.canvas.width, appState.canvas.height);
             const height = appState.canvas.height;
 
+            // Red line - top
             appState.ctx.strokeStyle = '#F44336';
             appState.ctx.lineWidth = 3;
             appState.ctx.beginPath();
@@ -655,6 +630,7 @@
             appState.ctx.lineTo(appState.canvas.width, (appState.lines.top / 100) * height);
             appState.ctx.stroke();
 
+            // Blue line - bottom
             appState.ctx.strokeStyle = '#2196F3';
             appState.ctx.lineWidth = 3;
             appState.ctx.beginPath();
@@ -662,6 +638,7 @@
             appState.ctx.lineTo(appState.canvas.width, (appState.lines.bottom / 100) * height);
             appState.ctx.stroke();
 
+            // Green dashed line - eyes
             appState.ctx.strokeStyle = '#4CAF50';
             appState.ctx.lineWidth = 2;
             appState.ctx.setLineDash([5, 5]);
@@ -670,19 +647,11 @@
             appState.ctx.lineTo(appState.canvas.width, (appState.lines.eyes / 100) * height);
             appState.ctx.stroke();
             appState.ctx.setLineDash([]);
-
-            appState.ctx.strokeStyle = 'rgba(33, 150, 243, 0.3)';
-            appState.ctx.setLineDash([5, 5]);
-            appState.ctx.beginPath();
-            appState.ctx.moveTo(appState.canvas.width / 2, 0);
-            appState.ctx.lineTo(appState.canvas.width / 2, appState.canvas.height);
-            appState.ctx.stroke();
-            appState.ctx.setLineDash([]);
         }
 
+        // Crop Photo
         document.getElementById('cropPhotoBtn').addEventListener('click', async () => {
             document.getElementById('loadingSpinner').classList.add('active');
-            document.getElementById('cropPhotoBtn').style.display = 'none';
 
             try {
                 const response = await fetch(`${API_URL}/api/process-photo`, {
@@ -699,8 +668,6 @@
 
                 if (result.success) {
                     appState.croppedPhoto = result.croppedPhoto;
-                    document.getElementById('photoPreview').src = appState.croppedPhoto;
-                    drawLines();
                     displayValidationResults(result.validation);
                     appState.attempts = result.remainingAttempts;
                     updateAttemptsCounter();
@@ -715,6 +682,7 @@
             }
         });
 
+        // Display Validation Results
         function displayValidationResults(validation) {
             const resultsDiv = document.getElementById('validationResults');
             const statusDiv = document.getElementById('resultStatus');
@@ -740,11 +708,12 @@
             `).join('');
         }
 
+        // Update Attempts Counter
         function updateAttemptsCounter() {
             document.getElementById('attemptsCount').textContent = appState.attempts;
-            console.log("📊 UI: Попыток =", appState.attempts);
         }
 
+        // Back Button
         document.getElementById('backFromPhoto').addEventListener('click', () => {
             appState.currentPhoto = null;
             appState.croppedPhoto = null;
@@ -764,8 +733,6 @@
         document.getElementById('instructionsBtn').addEventListener('click', () => {
             tg.showAlert('📋 Требования:\n\n• Квадратное фото 600×600 пикселей\n• Голова занимает 50-69% высоты\n• Оба глаза открыты\n• Светлый фон\n• Фото не старше 6 месяцев');
         });
-
-        console.log("✅ All listeners attached");
     </script>
 </body>
 </html>
