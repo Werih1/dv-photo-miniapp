@@ -386,6 +386,35 @@
             margin-bottom: 12px;
         }
 
+        .pricing-description-toggle {
+            font-size: 12px;
+            color: #194E84;
+            font-weight: 600;
+            text-decoration: underline;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+        }
+
+        .pricing-description-toggle:active {
+            opacity: 0.7;
+        }
+
+        .pricing-description {
+            display: none;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 12px;
+            padding: 10px;
+            background: rgba(25, 78, 132, 0.05);
+            border-radius: 8px;
+        }
+
+        .pricing-description.active {
+            display: block;
+        }
+
         .btn-buy {
             background: linear-gradient(135deg, #194E84 0%, #1a5a99 100%);
             color: white;
@@ -535,7 +564,7 @@
         <div class="tab-content" id="pricingTab">
             <button class="back-btn" id="backBtn3">← Назад</button>
             <div class="promo-input-group">
-                <input type="text" id="promoCode" placeholder="GIFT2026" autocomplete="off">
+                <input type="text" id="promoCode" autocomplete="off">
                 <button id="applyPromoBtn">Применить</button>
             </div>
             <div class="pricing-section" id="pricingList"></div>
@@ -569,7 +598,7 @@
                 btn_apply: 'Применить',
                 btn_back: '← Назад',
                 btn_buy: 'Купить',
-                promo_placeholder: 'GIFT2026',
+                description_toggle: 'Описание тарифа',
                 promo_success: '✓ Промокод принят! +5 попыток',
                 promo_invalid: '✗ Неверный промокод',
                 upload_success: '✅ Фото загружено!',
@@ -580,9 +609,24 @@
                     { date: '25.11.2025', title: 'Промокод GIFT2026', text: 'Используйте промокод GIFT2026 для получения +5 дополнительных попыток' }
                 ],
                 pricing: [
-                    { name: 'Соло Plan', attempts: '10 попыток', price: '99 ⭐' },
-                    { name: 'Семейный DV', attempts: '30 попыток', price: '249 ⭐' },
-                    { name: 'Agency PRO', attempts: 'Безлимит', price: '2499 ⭐' }
+                    { 
+                        name: 'Соло Plan', 
+                        attempts: '10 попыток', 
+                        price: '99 ⭐',
+                        description: 'Идеально подходит, если подаётесь один.\n10 проверок достаточно, чтобы сделать несколько попыток и при необходимости спокойно перефотографироваться.\nПодойдёт тем, кто уже имел опыт использования инструментов для проверки фото и хочет получить всё необходимое без переплаты.'
+                    },
+                    { 
+                        name: 'Семейный DV', 
+                        attempts: '30 попыток', 
+                        price: '249 ⭐',
+                        description: 'Лучшее решение для подачи всей семьи.\nПодходит, если подаётесь вместе с супругом/супругой — проверки хватит на все фото в спокойном темпе.\nЕсли у вас есть дети, 30 проверок более чем достаточно для всех членов семьи, включая повторные снимки при необходимости.'
+                    },
+                    { 
+                        name: 'Agency PRO', 
+                        attempts: 'Безлимит', 
+                        price: '2499 ⭐',
+                        description: 'Максимальная свобода без ограничений.\nПодходит для фотоателье, агентств, частных фотографов, визовых специалистов, блогеров и малого бизнеса.\nВ период массовой подачи анкет тариф окупается за 1–2 дня активной работы.\nБезлимитное количество проверок на 6 месяцев с даты покупки — профессиональное решение для тех, кто работает с большим потоком клиентов.'
+                    }
                 ],
                 how_works: [
                     { title: 'Шаг 1: Загрузите фото', text: 'Нажмите кнопку "Загрузить фото" и выберите качественное фото вашего лица' },
@@ -608,7 +652,7 @@
                 btn_apply: 'Apply',
                 btn_back: '← Back',
                 btn_buy: 'Buy',
-                promo_placeholder: 'GIFT2026',
+                description_toggle: 'Plan Description',
                 promo_success: '✓ Promo code accepted! +5 attempts',
                 promo_invalid: '✗ Invalid promo code',
                 upload_success: '✅ Photo uploaded!',
@@ -619,9 +663,24 @@
                     { date: '25.11.2025', title: 'Promo Code GIFT2026', text: 'Use promo code GIFT2026 to get +5 additional attempts' }
                 ],
                 pricing: [
-                    { name: 'Solo Plan', attempts: '10 attempts', price: '99 ⭐' },
-                    { name: 'Family DV', attempts: '30 attempts', price: '249 ⭐' },
-                    { name: 'Agency PRO', attempts: 'Unlimited', price: '2499 ⭐' }
+                    { 
+                        name: 'Solo Plan', 
+                        attempts: '10 attempts', 
+                        price: '99 ⭐',
+                        description: 'Perfect if you\'re applying alone.\n10 checks are enough to make several attempts and comfortably retake photos if needed.\nIdeal for those who already have experience using photo verification tools and want everything necessary without overpaying.'
+                    },
+                    { 
+                        name: 'Family DV', 
+                        attempts: '30 attempts', 
+                        price: '249 ⭐',
+                        description: 'Best solution for submitting with your whole family.\nPerfect if you\'re applying with your spouse — checks are enough for all photos at a comfortable pace.\nIf you have children, 30 checks are more than enough for all family members, including retakes if needed.'
+                    },
+                    { 
+                        name: 'Agency PRO', 
+                        attempts: 'Unlimited', 
+                        price: '2499 ⭐',
+                        description: 'Maximum freedom without limits.\nPerfect for photo studios, agencies, professional photographers, visa specialists, bloggers and small businesses.\nDuring peak application periods, the plan pays for itself in 1-2 days of active work.\nUnlimited checks for 6 months from purchase date — a professional solution for those working with high client volumes.'
+                    }
                 ],
                 how_works: [
                     { title: 'Step 1: Upload photo', text: 'Click "Upload photo" and select a quality photo of your face' },
@@ -647,7 +706,7 @@
                 btn_apply: 'Appliquer',
                 btn_back: '← Retour',
                 btn_buy: 'Acheter',
-                promo_placeholder: 'GIFT2026',
+                description_toggle: 'Description du plan',
                 promo_success: '✓ Code promo accepté! +5 tentatives',
                 promo_invalid: '✗ Code promo invalide',
                 upload_success: '✅ Photo téléchargée!',
@@ -658,9 +717,24 @@
                     { date: '25.11.2025', title: 'Code GIFT2026', text: 'Utilisez GIFT2026 pour +5 tentatives supplémentaires' }
                 ],
                 pricing: [
-                    { name: 'Plan Solo', attempts: '10 tentatives', price: '99 ⭐' },
-                    { name: 'Famille DV', attempts: '30 tentatives', price: '249 ⭐' },
-                    { name: 'Agence PRO', attempts: 'Illimité', price: '2499 ⭐' }
+                    { 
+                        name: 'Plan Solo', 
+                        attempts: '10 tentatives', 
+                        price: '99 ⭐',
+                        description: 'Parfait si vous postulez seul.\n10 vérifications suffisent pour faire plusieurs tentatives et reprendre les photos tranquillement si nécessaire.\nIdéal pour ceux qui ont déjà de l\'expérience avec les outils de vérification de photos et qui veulent tout le nécessaire sans surpayer.'
+                    },
+                    { 
+                        name: 'Famille DV', 
+                        attempts: '30 tentatives', 
+                        price: '249 ⭐',
+                        description: 'Meilleure solution pour toute la famille.\nParfait si vous postulez avec votre conjoint — les vérifications suffisent pour toutes les photos à votre rythme.\nSi vous avez des enfants, 30 vérifications sont plus que suffisantes pour tous les membres de la famille, y compris les reprises si nécessaire.'
+                    },
+                    { 
+                        name: 'Agence PRO', 
+                        attempts: 'Illimité', 
+                        price: '2499 ⭐',
+                        description: 'Liberté maximale sans limites.\nParfait pour les studios photo, agences, photographes professionnels, spécialistes visa, blogueurs et petites entreprises.\nPendant les périodes de forte activité, le plan se rembourse en 1-2 jours de travail actif.\nVérifications illimitées pendant 6 mois à partir de la date d\'achat — une solution professionnelle pour ceux travaillant avec de gros volumes de clients.'
+                    }
                 ],
                 how_works: [
                     { title: 'Étape 1: Télécharger photo', text: 'Cliquez sur "Télécharger" et sélectionnez une photo de qualité' },
@@ -686,7 +760,7 @@
                 btn_apply: 'تطبيق',
                 btn_back: '← رجوع',
                 btn_buy: 'شراء',
-                promo_placeholder: 'GIFT2026',
+                description_toggle: 'وصف الخطة',
                 promo_success: '✓ تم قبول رمز الترويج! +5 محاولات',
                 promo_invalid: '✗ رمز ترويج غير صحيح',
                 upload_success: '✅ تم تحميل الصورة!',
@@ -697,9 +771,24 @@
                     { date: '25.11.2025', title: 'رمز GIFT2026', text: 'استخدم GIFT2026 للحصول على +5 محاولات' }
                 ],
                 pricing: [
-                    { name: 'خطة سولو', attempts: '10 محاولات', price: '99 ⭐' },
-                    { name: 'عائلة DV', attempts: '30 محاولة', price: '249 ⭐' },
-                    { name: 'وكالة PRO', attempts: 'غير محدود', price: '2499 ⭐' }
+                    { 
+                        name: 'خطة سولو', 
+                        attempts: '10 محاولات', 
+                        price: '99 ⭐',
+                        description: 'مثالي إذا كنت تتقدم وحدك.\n10 فحوصات كافية لعمل عدة محاولات وإعادة التقاط الصور براحة إذا لزم الأمر.\nمثالي لمن لديهم بالفعل خبرة في استخدام أدوات التحقق من الصور ويريدون كل ما يلزمهم دون دفع الكثير.'
+                    },
+                    { 
+                        name: 'عائلة DV', 
+                        attempts: '30 محاولة', 
+                        price: '249 ⭐',
+                        description: 'الحل الأفضل لتقديم العائلة بأكملها.\nمثالي إذا كنت تتقدم مع زوجتك — الفحوصات كافية لجميع الصور بوتيرة مريحة.\nإذا كان لديك أطفال، فإن 30 فحصًا أكثر من كافٍ لجميع أفراد الأسرة، بما في ذلك الصور المكررة إذا لزم الأمر.'
+                    },
+                    { 
+                        name: 'وكالة PRO', 
+                        attempts: 'غير محدود', 
+                        price: '2499 ⭐',
+                        description: 'حرية قصوى بدون قيود.\nمثالي لاستوديوهات الصور والوكالات والمصورين المحترفين واختصاصيي التأشيرات والمدونين والشركات الصغيرة.\nخلال فترات التقديم الضخمة، تعود تكاليف الخطة في 1-2 يوم من العمل النشط.\nفحوصات غير محدودة لمدة 6 أشهر من تاريخ الشراء — حل احترافي لمن يعملون مع أعداد كبيرة من العملاء.'
+                    }
                 ],
                 how_works: [
                     { title: 'الخطوة 1: تحميل الصورة', text: 'انقر على "تحميل صورة" واختر صورة جيدة الجودة' },
@@ -720,7 +809,8 @@
             attempts: 3,
             isAdmin: false,
             languageSelected: false,
-            userId: null
+            userId: null,
+            agencyProExpiry: null
         };
 
         const LANGUAGES = ['ru', 'en', 'fr', 'ar'];
@@ -748,8 +838,26 @@
             // Set attempts based on admin status
             appState.attempts = appState.isAdmin ? 999 : 3;
 
+            // Check if Agency PRO expired
+            checkAgencyProExpiry();
+
             setupEventListeners();
             startLanguageAnimation();
+        }
+
+        function checkAgencyProExpiry() {
+            const expiry = localStorage.getItem('agencyProExpiry_' + appState.userId);
+            if (expiry) {
+                const expiryDate = new Date(expiry);
+                if (new Date() > expiryDate) {
+                    // Expired, reset to 3 attempts
+                    appState.attempts = 3;
+                    localStorage.removeItem('agencyProExpiry_' + appState.userId);
+                } else {
+                    // Still valid
+                    appState.attempts = 999;
+                }
+            }
         }
 
         function startLanguageAnimation() {
@@ -839,7 +947,6 @@
             document.getElementById('textDVForm').textContent = content.btn_dv_form;
             document.getElementById('textSupport').textContent = content.btn_support;
             document.getElementById('uploadBtn').textContent = content.btn_upload;
-            document.getElementById('promoCode').placeholder = content.promo_placeholder;
             document.getElementById('applyPromoBtn').textContent = content.btn_apply;
             document.getElementById('attemptsLabel').textContent = content.attempts_label;
             
@@ -871,12 +978,14 @@
             const content = CONTENT[appState.currentLang];
             const list = document.getElementById('pricingList');
             
-            list.innerHTML = content.pricing.map(p => `
+            list.innerHTML = content.pricing.map((p, idx) => `
                 <div class="pricing-card">
                     <div class="pricing-name">${p.name}</div>
                     <div class="pricing-attempts">${p.attempts}</div>
                     <div class="pricing-price">${p.price}</div>
-                    <button class="btn-buy" onclick="buyPlan('${p.name}')">${content.btn_buy}</button>
+                    <div class="pricing-description-toggle" onclick="toggleDescription(${idx})">${content.description_toggle}</div>
+                    <div class="pricing-description" id="desc_${idx}">${p.description.replace(/\n/g, '<br>')}</div>
+                    <button class="btn-buy" onclick="buyPlan('${p.name}', ${idx})">${content.btn_buy}</button>
                 </div>
             `).join('');
         }
@@ -913,6 +1022,11 @@
             });
         }
 
+        function toggleDescription(idx) {
+            const desc = document.getElementById('desc_' + idx);
+            desc.classList.toggle('active');
+        }
+
         function showSection(section) {
             document.getElementById('menuView').style.display = 'none';
             
@@ -922,6 +1036,7 @@
 
         function backToMenu() {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.pricing-description').forEach(d => d.classList.remove('active'));
             document.getElementById('menuView').style.display = 'flex';
         }
 
@@ -939,7 +1054,15 @@
             }
         }
 
-        function buyPlan(planName) {
+        function buyPlan(planName, idx) {
+            if (planName.includes('Agency')) {
+                // Agency PRO - set expiry to 6 months from now
+                const expiry = new Date();
+                expiry.setMonth(expiry.getMonth() + 6);
+                localStorage.setItem('agencyProExpiry_' + appState.userId, expiry.toISOString());
+                appState.attempts = 999;
+            }
+            
             window.Telegram?.WebApp?.openLink('https://t.me/Stars4tonBot?start=buy_' + planName.replace(/\s+/g, '_'));
         }
 
