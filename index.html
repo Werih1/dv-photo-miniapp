@@ -21,7 +21,7 @@
             overflow: hidden;
         }
 
-        /* ===== SPLASH SCREEN ===== */
+        /* ===== SPLASH SCREEN WITH LANGUAGE SELECTION ===== */
         .splash {
             display: flex;
             flex-direction: column;
@@ -43,57 +43,64 @@
 
         .splash-content {
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
         }
 
         .splash-logo {
             width: 180px;
             height: 180px;
-            margin-bottom: 30px;
             object-fit: contain;
             filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
         }
 
         .splash-title {
             font-size: 28px;
             font-weight: bold;
             color: white;
-            margin-bottom: 10px;
         }
 
         .splash-subtitle {
             font-size: 15px;
             color: rgba(255,255,255,0.9);
+            height: 20px;
+            min-height: 20px;
+            font-weight: 500;
         }
 
-        /* ===== LANGUAGE SELECTOR ===== */
-        .lang-selector {
-            position: fixed;
-            top: 16px;
-            right: 16px;
+        .language-selector-splash {
             display: flex;
-            gap: 8px;
-            z-index: 999;
-            background: rgba(255,255,255,0.95);
-            padding: 8px;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .lang-btn-splash {
+            width: 56px;
+            height: 56px;
+            border: 3px solid white;
             border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .lang-btn {
-            width: 40px;
-            height: 40px;
-            border: 2px solid transparent;
-            border-radius: 8px;
-            background: none;
+            background: rgba(255,255,255,0.2);
             cursor: pointer;
-            font-size: 20px;
-            transition: all 0.2s;
-            padding: 4px;
+            font-size: 24px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
         }
 
-        .lang-btn.active {
-            border-color: #667eea;
-            background: rgba(102, 126, 234, 0.1);
+        .lang-btn-splash:active {
+            transform: scale(1.1);
+            background: rgba(255,255,255,0.4);
+            box-shadow: 0 0 20px rgba(255,255,255,0.5);
         }
 
         /* ===== MAIN APP ===== */
@@ -114,26 +121,31 @@
             display: flex;
             gap: 0;
             width: 100%;
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: 2px solid #e0e0e0;
             background: white;
             padding: 0;
             position: sticky;
             top: 0;
             z-index: 100;
+            overflow-x: auto;
+            overflow-y: hidden;
         }
 
         .tab {
             flex: 1;
-            padding: 12px 8px;
+            min-width: 80px;
+            padding: 14px 12px;
             border: none;
             background: white;
             color: #999;
-            font-size: 12px;
-            font-weight: 500;
+            font-size: 11px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
             position: relative;
             text-transform: uppercase;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
         }
 
         .tab.active {
@@ -144,11 +156,11 @@
         .tab.active::after {
             content: '';
             position: absolute;
-            bottom: -1px;
+            bottom: -2px;
             left: 0;
             right: 0;
-            height: 2px;
-            background: #667eea;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
         }
 
         /* ===== TAB CONTENT ===== */
@@ -156,7 +168,8 @@
             display: none;
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 16px;
+            -webkit-overflow-scrolling: touch;
         }
 
         .tab-content.active {
@@ -173,7 +186,7 @@
         .header h1 {
             font-size: 22px;
             font-weight: bold;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
 
         .attempts-badge {
@@ -187,38 +200,6 @@
             box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
         }
 
-        .news-section {
-            margin-top: 20px;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-            border-radius: 12px;
-            padding: 16px;
-            border-left: 4px solid #667eea;
-        }
-
-        .news-title {
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: #667eea;
-            font-size: 14px;
-        }
-
-        .news-item {
-            background: white;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            font-size: 13px;
-            line-height: 1.5;
-            border-left: 3px solid #667eea;
-        }
-
-        .news-date {
-            font-size: 11px;
-            color: #999;
-            margin-top: 6px;
-        }
-
-        /* ===== UPLOAD SECTION ===== */
         .upload-section {
             display: flex;
             flex-direction: column;
@@ -228,10 +209,10 @@
 
         .button {
             width: 100%;
-            padding: 16px;
+            padding: 14px;
             border: none;
             border-radius: 12px;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
@@ -252,11 +233,6 @@
             opacity: 0.9;
         }
 
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
         .btn-secondary {
             background: #f0f0f0;
             color: #333;
@@ -266,33 +242,74 @@
             background: #e0e0e0;
         }
 
-        /* ===== PHOTO EDITOR ===== */
-        .photo-editor {
-            display: none;
-            width: 100%;
-            height: 100%;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .photo-editor.active {
-            display: flex;
-        }
-
-        .canvas-container {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 1;
-            background: #f5f5f5;
+        /* ===== NEWS SECTION ===== */
+        .news-section {
+            margin-top: 20px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
             border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 16px;
+            border-left: 4px solid #667eea;
         }
 
-        canvas {
-            display: block;
-            width: 100%;
-            height: 100%;
+        .news-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #667eea;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .news-item {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            line-height: 1.6;
+            border-left: 3px solid #667eea;
+        }
+
+        .news-date {
+            font-size: 11px;
+            color: #999;
+            margin-top: 6px;
+        }
+
+        /* ===== NEWS TAB FULL ===== */
+        .news-full-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .news-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .news-card-date {
+            font-size: 12px;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .news-card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .news-card-text {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #555;
         }
 
         /* ===== PRICING ===== */
@@ -314,16 +331,24 @@
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 14px;
+            background: white;
+            color: #333;
         }
 
         .promo-input-group button {
-            padding: 12px 20px;
-            background: #667eea;
+            padding: 12px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             border-radius: 8px;
             font-weight: 600;
+            font-size: 12px;
             cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .promo-input-group button:active {
+            transform: scale(0.95);
         }
 
         .pricing-card {
@@ -332,6 +357,7 @@
             padding: 16px;
             border: 2px solid #e0e0e0;
             transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         .pricing-card:active {
@@ -343,18 +369,18 @@
             font-size: 16px;
             font-weight: 600;
             color: #333;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
 
         .pricing-attempts {
             font-size: 13px;
             color: #667eea;
             font-weight: 500;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .pricing-price {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 700;
             color: #667eea;
         }
@@ -371,12 +397,13 @@
             border-radius: 12px;
             padding: 16px;
             border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         .instruction-block h3 {
             font-size: 14px;
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             color: #333;
         }
 
@@ -391,24 +418,40 @@
         .instruction-block li {
             margin-bottom: 6px;
         }
+
+        /* ===== SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ddd;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
     </style>
 </head>
 <body>
-    <!-- SPLASH SCREEN -->
+    <!-- SPLASH SCREEN WITH LANGUAGE SELECTION -->
     <div class="splash" id="splashScreen">
         <div class="splash-content">
             <img src="images/dv-lottery-logo.jpg" alt="DV Lottery" class="splash-logo">
             <div class="splash-title">DV Photo Validator</div>
-            <div class="splash-subtitle">Проверка фото для лотереи</div>
+            <div class="splash-subtitle" id="splashSubtitle">Выберете язык</div>
+            <div class="language-selector-splash">
+                <button class="lang-btn-splash" data-lang="ru" title="Русский">🇷🇺</button>
+                <button class="lang-btn-splash" data-lang="en" title="English">🇬🇧</button>
+                <button class="lang-btn-splash" data-lang="fr" title="Français">🇫🇷</button>
+                <button class="lang-btn-splash" data-lang="ar" title="العربية">🇸🇦</button>
+            </div>
         </div>
-    </div>
-
-    <!-- LANGUAGE SELECTOR -->
-    <div class="lang-selector">
-        <button class="lang-btn active" data-lang="ru" title="Русский">🇷🇺</button>
-        <button class="lang-btn" data-lang="en" title="English">🇬🇧</button>
-        <button class="lang-btn" data-lang="fr" title="Français">🇫🇷</button>
-        <button class="lang-btn" data-lang="ar" title="العربية">🇸🇦</button>
     </div>
 
     <!-- MAIN APP -->
@@ -416,34 +459,34 @@
         <!-- TABS -->
         <div class="tabs">
             <button class="tab active" data-tab="home">ГЛАВНАЯ</button>
+            <button class="tab" data-tab="news">НОВОСТИ</button>
             <button class="tab" data-tab="pricing">ТАРИФЫ</button>
-            <button class="tab" data-tab="instructions">ИНСТРУКЦИИ</button>
+            <button class="tab" data-tab="instructions">ТРЕБОВАНИЯ</button>
         </div>
 
         <!-- HOME TAB -->
         <div class="tab-content active" id="homeTab">
             <div class="header">
-                <h1>DV Photo Check</h1>
-                <div class="attempts-badge">Попыток: <span id="attemptsCount">3</span></div>
-            </div>
-
-            <div class="news-section">
-                <div class="news-title">📰 НОВОСТИ</div>
-                <div id="newsList"></div>
+                <h1 id="homeTitle">DV Photo Check</h1>
+                <div class="attempts-badge"><span id="attemptsLabel">Попыток:</span> <span id="attemptsCount">3</span></div>
             </div>
 
             <div class="upload-section">
                 <button class="button btn-primary" id="uploadBtn">📸 ЗАГРУЗИТЬ ФОТО</button>
-                <button class="button btn-secondary" id="instructionsBtn">📋 ИНСТРУКЦИИ</button>
             </div>
 
             <input type="file" id="photoInput" accept="image/*" style="display: none;">
         </div>
 
+        <!-- NEWS TAB -->
+        <div class="tab-content" id="newsTab">
+            <div class="news-full-container" id="newsFullList"></div>
+        </div>
+
         <!-- PRICING TAB -->
         <div class="tab-content" id="pricingTab">
             <div class="promo-input-group">
-                <input type="text" id="promoCode" placeholder="GIFT2026">
+                <input type="text" id="promoCode" placeholder="GIFT2026" autocomplete="off">
                 <button id="applyPromoBtn">Применить</button>
             </div>
 
@@ -457,105 +500,198 @@
     </div>
 
     <script>
-        // ===== LANGUAGE SYSTEM =====
-        const LANGUAGES = {
+        // ===== MULTILINGUAL CONTENT DATABASE =====
+        const CONTENT = {
             ru: {
+                selectLanguage: 'Выберете язык',
                 title: 'DV Photo Validator',
-                subtitle: 'Проверка фото для лотереи',
                 attempts_label: 'Попыток:',
                 btn_upload: '📸 ЗАГРУЗИТЬ ФОТО',
-                btn_instructions: '📋 ИНСТРУКЦИИ',
-                news_label: '📰 НОВОСТИ',
-                promo_placeholder: 'GIFT2026',
-                btn_apply: 'Применить',
                 tab_home: 'ГЛАВНАЯ',
+                tab_news: 'НОВОСТИ',
                 tab_pricing: 'ТАРИФЫ',
-                tab_instructions: 'ИНСТРУКЦИИ',
+                tab_instructions: 'ТРЕБОВАНИЯ',
+                btn_apply: 'Применить',
+                promo_placeholder: 'GIFT2026',
+                promo_success: '✓ Промокод принят! +5 попыток',
+                promo_invalid: '✗ Неверный промокод',
+                upload_success: '✅ Фото загружено!',
+                news: [
+                    { date: '27.11.2025', title: 'Новое обновление', text: 'Улучшена точность распознавания лиц и добавлена поддержка 4 языков' },
+                    { date: '26.11.2025', title: 'Поддержка языков', text: 'Теперь приложение доступно на Русском, Английском, Французском и Арабском языках' },
+                    { date: '25.11.2025', title: 'Промокод GIFT2026', text: 'Используйте промокод GIFT2026 для получения +5 дополнительных попыток' }
+                ],
+                pricing: [
+                    { name: 'Соло Plan', attempts: '10 попыток', price: '99 ⭐' },
+                    { name: 'Семейный DV', attempts: '30 попыток', price: '249 ⭐' },
+                    { name: 'Agency PRO', attempts: 'Безлимит', price: '2499 ⭐' }
+                ],
+                requirements: [
+                    {
+                        title: 'Технические требования',
+                        items: ['Размер: 600x600 пикселей', 'Формат: JPEG', 'Максимум: 240 КБ', 'Цветовая глубина: 24-бит']
+                    },
+                    {
+                        title: 'Требования к фото',
+                        items: ['Не старше 6 месяцев', 'Однотонный белый фон', 'Нейтральное выражение лица', 'Глаза полностью открыты', 'Без очков и головных уборов']
+                    }
+                ]
             },
             en: {
+                selectLanguage: 'Select language',
                 title: 'DV Photo Validator',
-                subtitle: 'Photo validation for lottery',
                 attempts_label: 'Attempts:',
                 btn_upload: '📸 UPLOAD PHOTO',
-                btn_instructions: '📋 INSTRUCTIONS',
-                news_label: '📰 NEWS',
-                promo_placeholder: 'GIFT2026',
-                btn_apply: 'Apply',
                 tab_home: 'HOME',
+                tab_news: 'NEWS',
                 tab_pricing: 'PRICING',
-                tab_instructions: 'INSTRUCTIONS',
+                tab_instructions: 'REQUIREMENTS',
+                btn_apply: 'Apply',
+                promo_placeholder: 'GIFT2026',
+                promo_success: '✓ Promo code accepted! +5 attempts',
+                promo_invalid: '✗ Invalid promo code',
+                upload_success: '✅ Photo uploaded!',
+                news: [
+                    { date: '27.11.2025', title: 'New Update', text: 'Improved face detection accuracy and added support for 4 languages' },
+                    { date: '26.11.2025', title: 'Language Support', text: 'Now available in Russian, English, French, and Arabic' },
+                    { date: '25.11.2025', title: 'Promo Code GIFT2026', text: 'Use promo code GIFT2026 to get +5 additional attempts' }
+                ],
+                pricing: [
+                    { name: 'Solo Plan', attempts: '10 attempts', price: '99 ⭐' },
+                    { name: 'Family DV', attempts: '30 attempts', price: '249 ⭐' },
+                    { name: 'Agency PRO', attempts: 'Unlimited', price: '2499 ⭐' }
+                ],
+                requirements: [
+                    {
+                        title: 'Technical Requirements',
+                        items: ['Size: 600x600 pixels', 'Format: JPEG', 'Maximum: 240 KB', 'Color depth: 24-bit']
+                    },
+                    {
+                        title: 'Photo Requirements',
+                        items: ['Not older than 6 months', 'Plain white background', 'Neutral facial expression', 'Eyes fully open', 'No glasses or headwear']
+                    }
+                ]
             },
             fr: {
+                selectLanguage: 'Choisir la langue',
                 title: 'Validateur Photo DV',
-                subtitle: 'Validation photo pour loterie',
                 attempts_label: 'Tentatives:',
                 btn_upload: '📸 TÉLÉCHARGER',
-                btn_instructions: '📋 INSTRUCTIONS',
-                news_label: '📰 NOUVELLES',
-                promo_placeholder: 'GIFT2026',
-                btn_apply: 'Appliquer',
                 tab_home: 'ACCUEIL',
+                tab_news: 'ACTUALITÉS',
                 tab_pricing: 'TARIFS',
-                tab_instructions: 'INSTRUCTIONS',
+                tab_instructions: 'CONDITIONS',
+                btn_apply: 'Appliquer',
+                promo_placeholder: 'GIFT2026',
+                promo_success: '✓ Code promo accepté! +5 tentatives',
+                promo_invalid: '✗ Code promo invalide',
+                upload_success: '✅ Photo téléchargée!',
+                news: [
+                    { date: '27.11.2025', title: 'Nouvelle mise à jour', text: 'Précision améliorée de la détection des visages et support de 4 langues' },
+                    { date: '26.11.2025', title: 'Support multilingue', text: 'Maintenant disponible en russe, anglais, français et arabe' },
+                    { date: '25.11.2025', title: 'Code promo GIFT2026', text: 'Utilisez le code promo GIFT2026 pour obtenir +5 tentatives supplémentaires' }
+                ],
+                pricing: [
+                    { name: 'Plan Solo', attempts: '10 tentatives', price: '99 ⭐' },
+                    { name: 'Famille DV', attempts: '30 tentatives', price: '249 ⭐' },
+                    { name: 'Agence PRO', attempts: 'Illimité', price: '2499 ⭐' }
+                ],
+                requirements: [
+                    {
+                        title: 'Conditions techniques',
+                        items: ['Taille: 600x600 pixels', 'Format: JPEG', 'Maximum: 240 KB', 'Profondeur de couleur: 24-bit']
+                    },
+                    {
+                        title: 'Conditions de photo',
+                        items: ['Pas plus de 6 mois', 'Fond blanc uni', 'Expression faciale neutre', 'Yeux complètement ouverts', 'Sans lunettes ni couvre-chef']
+                    }
+                ]
             },
             ar: {
+                selectLanguage: 'اختر اللغة',
                 title: 'مدقق صور الجنسية',
-                subtitle: 'التحقق من الصور للرسم',
                 attempts_label: 'المحاولات:',
                 btn_upload: '📸 تحميل صورة',
-                btn_instructions: '📋 التعليمات',
-                news_label: '📰 الأخبار',
-                promo_placeholder: 'GIFT2026',
-                btn_apply: 'تطبيق',
                 tab_home: 'الرئيسية',
+                tab_news: 'الأخبار',
                 tab_pricing: 'الأسعار',
-                tab_instructions: 'التعليمات',
+                tab_instructions: 'المتطلبات',
+                btn_apply: 'تطبيق',
+                promo_placeholder: 'GIFT2026',
+                promo_success: '✓ تم قبول رمز الترويج! +5 محاولات',
+                promo_invalid: '✗ رمز ترويج غير صحيح',
+                upload_success: '✅ تم تحميل الصورة!',
+                news: [
+                    { date: '27.11.2025', title: 'تحديث جديد', text: 'تحسين دقة كشف الوجوه وإضافة دعم 4 لغات' },
+                    { date: '26.11.2025', title: 'دعم متعدد اللغات', text: 'متاح الآن باللغات الروسية والإنجليزية والفرنسية والعربية' },
+                    { date: '25.11.2025', title: 'رمز GIFT2026', text: 'استخدم رمز GIFT2026 للحصول على +5 محاولات إضافية' }
+                ],
+                pricing: [
+                    { name: 'خطة سولو', attempts: '10 محاولات', price: '99 ⭐' },
+                    { name: 'عائلة DV', attempts: '30 محاولة', price: '249 ⭐' },
+                    { name: 'وكالة PRO', attempts: 'غير محدود', price: '2499 ⭐' }
+                ],
+                requirements: [
+                    {
+                        title: 'المتطلبات التقنية',
+                        items: ['الحجم: 600x600 بكسل', 'الصيغة: JPEG', 'الحد الأقصى: 240 كيلوبايت', 'عمق اللون: 24 بت']
+                    },
+                    {
+                        title: 'متطلبات الصورة',
+                        items: ['ليس أكثر من 6 أشهر', 'خلفية بيضاء موحدة', 'تعبير وجه محايد', 'العيون مفتوحة بالكامل', 'بدون نظارات أو غطاء الرأس']
+                    }
+                ]
             }
         };
 
         // ===== APP STATE =====
         let appState = {
-            currentLang: 'ru',
+            currentLang: null,
             attempts: 3,
             isAdmin: false,
+            languageSelected: false
         };
 
+        // ===== ANIMATION FOR LANGUAGE SELECTION =====
+        const LANGUAGES = ['ru', 'en', 'fr', 'ar'];
+        let currentLangIndex = 0;
+        let animationInterval = null;
+
         // ===== INITIALIZATION =====
-        window.addEventListener('load', async () => {
-            await initApp();
+        window.addEventListener('load', () => {
+            initApp();
         });
 
-        async function initApp() {
-            console.log('Initializing app...');
-            
+        function initApp() {
             if (window.Telegram?.WebApp) {
                 Telegram.WebApp.ready();
                 Telegram.WebApp.expand();
             }
 
             setupEventListeners();
-            await hideSplashScreen();
-            setLanguage('ru');
-            populateContent();
+            startLanguageAnimation();
         }
 
-        async function hideSplashScreen() {
-            return new Promise(resolve => {
+        function startLanguageAnimation() {
+            const subtitleEl = document.getElementById('splashSubtitle');
+            
+            animationInterval = setInterval(() => {
+                currentLangIndex = (currentLangIndex + 1) % LANGUAGES.length;
+                const lang = LANGUAGES[currentLangIndex];
+                subtitleEl.style.opacity = '0.5';
+                
                 setTimeout(() => {
-                    document.getElementById('splashScreen').classList.add('hidden');
-                    document.getElementById('mainApp').classList.add('active');
-                    resolve();
-                }, 3000);
-            });
+                    subtitleEl.textContent = CONTENT[lang].selectLanguage;
+                    subtitleEl.style.opacity = '1';
+                }, 150);
+            }, 2000);
         }
 
         function setupEventListeners() {
-            // Language selection
-            document.querySelectorAll('.lang-btn').forEach(btn => {
+            // Language selection buttons
+            document.querySelectorAll('.lang-btn-splash').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    setLanguage(btn.dataset.lang);
+                    selectLanguage(btn.dataset.lang);
                 });
             });
 
@@ -574,7 +710,7 @@
             document.getElementById('photoInput').addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (file) {
-                    alert('✅ Фото загружено!\n\nФункция редактирования будет вскоре добавлена.');
+                    alert(CONTENT[appState.currentLang].upload_success);
                     appState.attempts--;
                     document.getElementById('attemptsCount').textContent = appState.attempts;
                 }
@@ -583,26 +719,92 @@
             document.getElementById('applyPromoBtn').addEventListener('click', applyPromoCode);
         }
 
-        function setLanguage(lang) {
+        function selectLanguage(lang) {
+            if (animationInterval) clearInterval(animationInterval);
+            
             appState.currentLang = lang;
-            document.documentElement.setAttribute('data-lang', lang);
-            updateUIText();
+            appState.languageSelected = true;
+            
+            // Hide splash and show app
+            setTimeout(() => {
+                document.getElementById('splashScreen').classList.add('hidden');
+                document.getElementById('mainApp').classList.add('active');
+                
+                // Update all content
+                updateAllContent();
+                populateAllContent();
+            }, 300);
         }
 
-        function updateUIText() {
-            const lang = LANGUAGES[appState.currentLang];
+        function updateAllContent() {
+            const content = CONTENT[appState.currentLang];
             
-            document.querySelector('.splash-title').textContent = lang.title;
-            document.querySelector('.splash-subtitle').textContent = lang.subtitle;
-            document.getElementById('uploadBtn').textContent = lang.btn_upload;
-            document.getElementById('instructionsBtn').textContent = lang.btn_instructions;
-            document.getElementById('promoCode').placeholder = lang.promo_placeholder;
-            document.getElementById('applyPromoBtn').textContent = lang.btn_apply;
+            // Update buttons and labels
+            document.getElementById('homeTitle').textContent = content.title;
+            document.getElementById('attemptsLabel').textContent = content.attempts_label;
+            document.getElementById('uploadBtn').textContent = content.btn_upload;
+            document.getElementById('promoCode').placeholder = content.promo_placeholder;
+            document.getElementById('applyPromoBtn').textContent = content.btn_apply;
             
+            // Update tabs
             document.querySelectorAll('.tab').forEach(tab => {
-                const key = 'tab_' + tab.dataset.tab;
-                if (lang[key]) tab.textContent = lang[key];
+                const tabName = tab.dataset.tab;
+                const key = 'tab_' + tabName;
+                if (content[key]) tab.textContent = content[key];
             });
+
+            // Set RTL for Arabic
+            if (appState.currentLang === 'ar') {
+                document.documentElement.setAttribute('dir', 'rtl');
+                document.documentElement.lang = 'ar';
+            } else {
+                document.documentElement.removeAttribute('dir');
+                document.documentElement.lang = appState.currentLang;
+            }
+        }
+
+        function populateAllContent() {
+            populateNews();
+            populatePricing();
+            populateInstructions();
+        }
+
+        function populateNews() {
+            const content = CONTENT[appState.currentLang];
+            const list = document.getElementById('newsFullList');
+            
+            list.innerHTML = content.news.map(n => `
+                <div class="news-card">
+                    <div class="news-card-date">${n.date}</div>
+                    <div class="news-card-title">${n.title}</div>
+                    <div class="news-card-text">${n.text}</div>
+                </div>
+            `).join('');
+        }
+
+        function populatePricing() {
+            const content = CONTENT[appState.currentLang];
+            const list = document.getElementById('pricingList');
+            
+            list.innerHTML = content.pricing.map(p => `
+                <div class="pricing-card">
+                    <div class="pricing-name">${p.name}</div>
+                    <div class="pricing-attempts">${p.attempts}</div>
+                    <div class="pricing-price">${p.price}</div>
+                </div>
+            `).join('');
+        }
+
+        function populateInstructions() {
+            const content = CONTENT[appState.currentLang];
+            const list = document.getElementById('instructionsList');
+            
+            list.innerHTML = content.requirements.map(r => `
+                <div class="instruction-block">
+                    <h3>${r.title}</h3>
+                    <ol>${r.items.map(i => `<li>${i}</li>`).join('')}</ol>
+                </div>
+            `).join('');
         }
 
         function switchTab(tabName) {
@@ -613,84 +815,28 @@
             document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
         }
 
-        function populateContent() {
-            populateNews();
-            populatePricing();
-            populateInstructions();
-        }
-
-        function populateNews() {
-            const news = [
-                { text: 'Обновление: улучшена точность распознавания лиц', date: '27.11.2025' },
-                { text: 'Поддержка 4 языков: РУ, EN, FR, AR', date: '26.11.2025' },
-                { text: 'Промокод GIFT2026 для +5 попыток', date: '25.11.2025' }
-            ];
-
-            const list = document.getElementById('newsList');
-            list.innerHTML = news.map(n => 
-                `<div class="news-item">${n.text}<div class="news-date">${n.date}</div></div>`
-            ).join('');
-        }
-
-        function populatePricing() {
-            const plans = [
-                { name: 'Соло Plan', attempts: '10', price: '99 ⭐' },
-                { name: 'Семейный DV', attempts: '30', price: '249 ⭐' },
-                { name: 'Agency PRO', attempts: '∞', price: '2499 ⭐' }
-            ];
-
-            const list = document.getElementById('pricingList');
-            list.innerHTML = plans.map(p => `
-                <div class="pricing-card">
-                    <div class="pricing-name">${p.name}</div>
-                    <div class="pricing-attempts">${p.attempts} попыток</div>
-                    <div class="pricing-price">${p.price}</div>
-                </div>
-            `).join('');
-        }
-
-        function populateInstructions() {
-            const instructions = [
-                {
-                    title: 'Требования к фото',
-                    content: `
-                        <li>Размер: 600x600 пикселей</li>
-                        <li>Формат: JPEG</li>
-                        <li>Максимум: 240 КБ</li>
-                        <li>Цветовая глубина: 24-бит</li>
-                    `
-                },
-                {
-                    title: 'Требования к изображению',
-                    content: `
-                        <li>Фото не старше 6 месяцев</li>
-                        <li>Однотонный белый фон</li>
-                        <li>Нейтральное выражение лица</li>
-                        <li>Глаза полностью открыты</li>
-                    `
-                }
-            ];
-
-            const list = document.getElementById('instructionsList');
-            list.innerHTML = instructions.map(i => `
-                <div class="instruction-block">
-                    <h3>${i.title}</h3>
-                    <ol>${i.content}</ol>
-                </div>
-            `).join('');
-        }
-
         function applyPromoCode() {
             const code = document.getElementById('promoCode').value.toUpperCase();
+            const content = CONTENT[appState.currentLang];
+            
             if (code === 'GIFT2026') {
                 appState.attempts += 5;
                 document.getElementById('attemptsCount').textContent = appState.attempts;
-                alert('✓ Промокод принят! +5 попыток');
+                alert(content.promo_success);
                 document.getElementById('promoCode').value = '';
             } else {
-                alert('✗ Неверный промокод');
+                alert(content.promo_invalid);
             }
         }
+
+        // Add CSS for smooth transitions
+        const style = document.createElement('style');
+        style.textContent = `
+            #splashSubtitle {
+                transition: opacity 0.3s ease;
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>
