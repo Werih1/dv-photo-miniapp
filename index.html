@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>DV Photo Check</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script async src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4"></script>
-    <script async src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-api@0.0.7/dist/face-api.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -21,13 +19,7 @@
             background: #ffffff;
             color: #333;
             overflow: hidden;
-            --lang: 'ru';
         }
-
-        /* ===== LANGUAGE VARIABLES ===== */
-        [data-lang="en"] { --lang: 'en'; }
-        [data-lang="fr"] { --lang: 'fr'; }
-        [data-lang="ar"] { --lang: 'ar'; }
 
         /* ===== SPLASH SCREEN ===== */
         .splash {
@@ -43,32 +35,14 @@
             top: 0;
             left: 0;
             z-index: 1000;
-            animation: fadeInSplash 0.5s ease-in;
         }
 
         .splash.hidden {
-            animation: fadeOutSplash 0.5s ease-out forwards;
-            pointer-events: none;
-        }
-
-        @keyframes fadeInSplash {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes fadeOutSplash {
-            from { opacity: 1; }
-            to { opacity: 0; }
+            display: none;
         }
 
         .splash-content {
             text-align: center;
-            animation: slideUp 0.6s ease-out 0.3s both;
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
         }
 
         .splash-logo {
@@ -122,22 +96,16 @@
             background: rgba(102, 126, 234, 0.1);
         }
 
-        .lang-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* ===== MAIN CONTAINER ===== */
-        .main {
+        /* ===== MAIN APP ===== */
+        .app {
             display: none;
             width: 100%;
             height: 100%;
-            padding: 0;
-            overflow-y: auto;
-            overflow-x: hidden;
             flex-direction: column;
+            overflow: hidden;
         }
 
-        .main.active {
+        .app.active {
             display: flex;
         }
 
@@ -156,11 +124,11 @@
 
         .tab {
             flex: 1;
-            padding: 12px 16px;
+            padding: 12px 8px;
             border: none;
             background: white;
             color: #999;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s;
@@ -189,17 +157,11 @@
             flex: 1;
             overflow-y: auto;
             padding: 20px;
-            animation: fadeIn 0.3s ease-in;
         }
 
         .tab-content.active {
             display: flex;
             flex-direction: column;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         /* ===== HOME TAB ===== */
@@ -212,7 +174,6 @@
             font-size: 22px;
             font-weight: bold;
             margin-bottom: 8px;
-            color: #333;
         }
 
         .attempts-badge {
@@ -224,10 +185,6 @@
             font-weight: 600;
             font-size: 14px;
             box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-        }
-
-        .attempts-badge.limited {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
         }
 
         .news-section {
@@ -243,7 +200,6 @@
             margin-bottom: 12px;
             color: #667eea;
             font-size: 14px;
-            text-transform: uppercase;
         }
 
         .news-item {
@@ -281,7 +237,6 @@
             transition: all 0.3s;
             -webkit-appearance: none;
             appearance: none;
-            -webkit-tap-highlight-color: transparent;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -300,7 +255,6 @@
         .btn-primary:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none;
         }
 
         .btn-secondary {
@@ -310,16 +264,6 @@
 
         .btn-secondary:active {
             background: #e0e0e0;
-        }
-
-        .btn-outline {
-            background: white;
-            color: #667eea;
-            border: 2px solid #667eea;
-        }
-
-        .btn-outline:active {
-            background: rgba(102, 126, 234, 0.05);
         }
 
         /* ===== PHOTO EDITOR ===== */
@@ -333,16 +277,6 @@
 
         .photo-editor.active {
             display: flex;
-        }
-
-        .editor-header {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-
-        .editor-header button {
-            flex: 1;
         }
 
         .canvas-container {
@@ -359,97 +293,9 @@
             display: block;
             width: 100%;
             height: 100%;
-            touch-action: manipulation;
         }
 
-        .lines-control {
-            background: #f9f9f9;
-            border-radius: 12px;
-            padding: 12px;
-            font-size: 13px;
-        }
-
-        .line-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px;
-            margin-bottom: 6px;
-            background: white;
-            border-radius: 8px;
-            border-left: 3px solid;
-        }
-
-        .line-item.head { border-color: #ff4444; }
-        .line-item.chin { border-color: #4488ff; }
-        .line-item.eyes { border-color: #44dd44; }
-
-        .line-value {
-            flex: 1;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .line-mode {
-            font-size: 11px;
-            padding: 4px 8px;
-            background: #e8e8e8;
-            border-radius: 4px;
-            color: #666;
-        }
-
-        /* ===== RESULT SECTION ===== */
-        .result-section {
-            display: none;
-            width: 100%;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .result-section.active {
-            display: flex;
-        }
-
-        .result-image {
-            width: 100%;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            background: #f5f5f5;
-        }
-
-        .result-info {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-            border-radius: 12px;
-            padding: 16px;
-            border-left: 4px solid #667eea;
-        }
-
-        .result-info h3 {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #667eea;
-        }
-
-        .result-info ul {
-            list-style: none;
-            font-size: 13px;
-            line-height: 1.8;
-            color: #555;
-        }
-
-        .result-info li::before {
-            content: '✓ ';
-            color: #44dd44;
-            font-weight: bold;
-        }
-
-        .result-info li.error::before {
-            content: '✗ ';
-            color: #ff4444;
-        }
-
-        /* ===== PRICING TAB ===== */
+        /* ===== PRICING ===== */
         .pricing-section {
             display: flex;
             flex-direction: column;
@@ -468,11 +314,6 @@
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 14px;
-        }
-
-        .promo-input-group input:focus {
-            outline: none;
-            border-color: #667eea;
         }
 
         .promo-input-group button {
@@ -516,24 +357,9 @@
             font-size: 18px;
             font-weight: 700;
             color: #667eea;
-            display: flex;
-            align-items: center;
-            gap: 4px;
         }
 
-        .pricing-price img {
-            width: 20px;
-            height: 20px;
-        }
-
-        .pricing-terms {
-            font-size: 12px;
-            color: #999;
-            margin-top: 12px;
-            line-height: 1.5;
-        }
-
-        /* ===== INSTRUCTIONS TAB ===== */
+        /* ===== INSTRUCTIONS ===== */
         .instructions {
             display: flex;
             flex-direction: column;
@@ -565,94 +391,6 @@
         .instruction-block li {
             margin-bottom: 6px;
         }
-
-        /* ===== LOADING STATE ===== */
-        .loading {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 999;
-        }
-
-        .loading.active {
-            display: flex;
-        }
-
-        .spinner {
-            width: 60px;
-            height: 60px;
-            border: 4px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-height: 600px) {
-            .tab-content {
-                padding: 12px;
-            }
-            
-            .button {
-                padding: 12px;
-                font-size: 14px;
-            }
-        }
-
-        /* ===== RTL SUPPORT ===== */
-        [data-lang="ar"] {
-            direction: rtl;
-            text-align: right;
-        }
-
-        [data-lang="ar"] .line-item {
-            flex-direction: row-reverse;
-        }
-
-        [data-lang="ar"] .tabs {
-            flex-direction: row-reverse;
-        }
-
-        [data-lang="ar"] .instruction-block {
-            border-left: none;
-            border-right: 4px solid #667eea;
-        }
-
-        [data-lang="ar"] .result-info {
-            border-left: none;
-            border-right: 4px solid #667eea;
-        }
-
-        [data-lang="ar"] .news-section {
-            border-left: none;
-            border-right: 4px solid #667eea;
-        }
-
-        [data-lang="ar"] .lang-selector {
-            left: 16px;
-            right: auto;
-        }
-
-        /* ===== ANIMATIONS ===== */
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .pulse {
-            animation: pulse 2s infinite;
-        }
     </style>
 </head>
 <body>
@@ -660,8 +398,8 @@
     <div class="splash" id="splashScreen">
         <div class="splash-content">
             <img src="images/dv-lottery-logo.jpg" alt="DV Lottery" class="splash-logo">
-            <div class="splash-title" data-text="title">DV Photo Validator</div>
-            <div class="splash-subtitle" data-text="subtitle">Проверка фото для лотереи</div>
+            <div class="splash-title">DV Photo Validator</div>
+            <div class="splash-subtitle">Проверка фото для лотереи</div>
         </div>
     </div>
 
@@ -674,210 +412,104 @@
     </div>
 
     <!-- MAIN APP -->
-    <div class="main" id="mainApp">
+    <div class="app" id="mainApp">
         <!-- TABS -->
         <div class="tabs">
-            <button class="tab active" data-tab="home" data-text="tab_home">Главная</button>
-            <button class="tab" data-tab="editor" data-text="tab_editor">Редактор</button>
-            <button class="tab" data-tab="pricing" data-text="tab_pricing">Тарифы</button>
-            <button class="tab" data-tab="instructions" data-text="tab_instructions">Инструкции</button>
+            <button class="tab active" data-tab="home">ГЛАВНАЯ</button>
+            <button class="tab" data-tab="pricing">ТАРИФЫ</button>
+            <button class="tab" data-tab="instructions">ИНСТРУКЦИИ</button>
         </div>
 
         <!-- HOME TAB -->
         <div class="tab-content active" id="homeTab">
             <div class="header">
-                <h1 data-text="app_title">DV Photo Check</h1>
-                <div class="attempts-badge" id="attemptsDisplay" data-text="attempts_label">Попыток: <span id="attemptsCount">3</span></div>
+                <h1>DV Photo Check</h1>
+                <div class="attempts-badge">Попыток: <span id="attemptsCount">3</span></div>
             </div>
 
-            <!-- NEWS SECTION -->
-            <div class="news-section" id="newsSection">
-                <div class="news-title" data-text="news_label">📰 Новости</div>
+            <div class="news-section">
+                <div class="news-title">📰 НОВОСТИ</div>
                 <div id="newsList"></div>
             </div>
 
-            <!-- UPLOAD SECTION -->
             <div class="upload-section">
-                <button class="button btn-primary" id="uploadBtn" data-text="btn_upload">📸 Загрузить фото</button>
-                <button class="button btn-secondary" id="instructionsBtn" data-text="btn_instructions">📋 Инструкции</button>
+                <button class="button btn-primary" id="uploadBtn">📸 ЗАГРУЗИТЬ ФОТО</button>
+                <button class="button btn-secondary" id="instructionsBtn">📋 ИНСТРУКЦИИ</button>
             </div>
 
             <input type="file" id="photoInput" accept="image/*" style="display: none;">
         </div>
 
-        <!-- EDITOR TAB -->
-        <div class="tab-content" id="editorTab">
-            <div class="editor-header">
-                <button class="button btn-outline" id="backBtn" data-text="btn_back">← Назад</button>
-                <button class="button btn-secondary" id="resetBtn" data-text="btn_reset">↻ Сброс</button>
-            </div>
-
-            <div class="canvas-container">
-                <canvas id="editorCanvas"></canvas>
-            </div>
-
-            <div class="lines-control">
-                <div class="line-item head">
-                    <div class="line-value">🔴 <span data-text="line_head">Макушка:</span></div>
-                    <div class="line-mode" id="headMode">AUTO</div>
-                </div>
-                <div class="line-item chin">
-                    <div class="line-value">🔵 <span data-text="line_chin">Подбородок:</span></div>
-                    <div class="line-mode" id="chinMode">AUTO</div>
-                </div>
-                <div class="line-item eyes">
-                    <div class="line-value">🟢 <span data-text="line_eyes">Глаза:</span></div>
-                    <div class="line-mode" id="eyesMode">AUTO</div>
-                </div>
-                <div style="font-size: 12px; color: #999; margin-top: 8px;" data-text="lines_hint">💡 Потяните линии вверх/вниз для регулировки</div>
-            </div>
-
-            <button class="button btn-primary" id="analyzeBtn" data-text="btn_analyze">✓ Проверить</button>
-            <button class="button btn-secondary" id="newPhotoBtn" data-text="btn_new_photo">📸 Новое фото</button>
-        </div>
-
         <!-- PRICING TAB -->
         <div class="tab-content" id="pricingTab">
             <div class="promo-input-group">
-                <input type="text" id="promoCode" placeholder="GIFT2026" data-text="promo_placeholder">
-                <button id="applyPromoBtn" data-text="btn_apply">Применить</button>
+                <input type="text" id="promoCode" placeholder="GIFT2026">
+                <button id="applyPromoBtn">Применить</button>
             </div>
 
             <div class="pricing-section" id="pricingList"></div>
-
-            <div style="font-size: 12px; color: #999; margin-top: 16px; line-height: 1.6;" data-text="pricing_terms">
-                Тарифы выдаются на ваш конкретный профиль. Срок действия с дня оплаты до 1 июля. Тарифы, купленные в июне, действуют до 1 июля следующего года.
-            </div>
         </div>
 
         <!-- INSTRUCTIONS TAB -->
         <div class="tab-content" id="instructionsTab">
             <div class="instructions" id="instructionsList"></div>
         </div>
-
-        <!-- RESULT SECTION -->
-        <div class="result-section" id="resultSection">
-            <button class="button btn-secondary" id="resultBackBtn" data-text="btn_back">← Назад</button>
-            <img id="resultImage" class="result-image">
-            <div class="result-info">
-                <h3 data-text="result_title">Результат проверки</h3>
-                <ul id="resultList"></ul>
-            </div>
-            <button class="button btn-primary" id="downloadBtn" data-text="btn_download">📥 Скачать</button>
-        </div>
-    </div>
-
-    <!-- LOADING OVERLAY -->
-    <div class="loading" id="loadingOverlay">
-        <div class="spinner"></div>
     </div>
 
     <script>
         // ===== LANGUAGE SYSTEM =====
         const LANGUAGES = {
             ru: {
-                tab_home: 'Главная',
-                tab_editor: 'Редактор',
-                tab_pricing: 'Тарифы',
-                tab_instructions: 'Инструкции',
-                app_title: 'DV Photo Check',
                 title: 'DV Photo Validator',
                 subtitle: 'Проверка фото для лотереи',
                 attempts_label: 'Попыток:',
-                btn_upload: '📸 Загрузить фото',
-                btn_instructions: '📋 Инструкции',
-                btn_back: '← Назад',
-                btn_reset: '↻ Сброс',
-                btn_analyze: '✓ Проверить',
-                btn_new_photo: '📸 Новое фото',
-                btn_apply: 'Применить',
-                btn_download: '📥 Скачать',
-                line_head: 'Макушка:',
-                line_chin: 'Подбородок:',
-                line_eyes: 'Глаза:',
-                lines_hint: '💡 Потяните линии вверх/вниз для регулировки',
-                news_label: '📰 Новости',
+                btn_upload: '📸 ЗАГРУЗИТЬ ФОТО',
+                btn_instructions: '📋 ИНСТРУКЦИИ',
+                news_label: '📰 НОВОСТИ',
                 promo_placeholder: 'GIFT2026',
-                pricing_terms: 'Тарифы выдаются на ваш конкретный профиль. Срок действия с дня оплаты до 1 июля. Тарифы, купленные в июне, действуют до 1 июля следующего года.',
-                result_title: 'Результат проверки',
+                btn_apply: 'Применить',
+                tab_home: 'ГЛАВНАЯ',
+                tab_pricing: 'ТАРИФЫ',
+                tab_instructions: 'ИНСТРУКЦИИ',
             },
             en: {
-                tab_home: 'Home',
-                tab_editor: 'Editor',
-                tab_pricing: 'Pricing',
-                tab_instructions: 'Instructions',
-                app_title: 'DV Photo Check',
                 title: 'DV Photo Validator',
                 subtitle: 'Photo validation for lottery',
                 attempts_label: 'Attempts:',
-                btn_upload: '📸 Upload Photo',
-                btn_instructions: '📋 Instructions',
-                btn_back: '← Back',
-                btn_reset: '↻ Reset',
-                btn_analyze: '✓ Check',
-                btn_new_photo: '📸 New Photo',
-                btn_apply: 'Apply',
-                btn_download: '📥 Download',
-                line_head: 'Head top:',
-                line_chin: 'Chin:',
-                line_eyes: 'Eyes:',
-                lines_hint: '💡 Drag lines up/down to adjust',
-                news_label: '📰 News',
+                btn_upload: '📸 UPLOAD PHOTO',
+                btn_instructions: '📋 INSTRUCTIONS',
+                news_label: '📰 NEWS',
                 promo_placeholder: 'GIFT2026',
-                pricing_terms: 'Plans are specific to your profile. Valid from purchase date until July 1st. Plans purchased in June are valid until July 1st of next year.',
-                result_title: 'Check result',
+                btn_apply: 'Apply',
+                tab_home: 'HOME',
+                tab_pricing: 'PRICING',
+                tab_instructions: 'INSTRUCTIONS',
             },
             fr: {
-                tab_home: 'Accueil',
-                tab_editor: 'Éditeur',
-                tab_pricing: 'Tarifs',
-                tab_instructions: 'Instructions',
-                app_title: 'Vérification Photo DV',
                 title: 'Validateur Photo DV',
                 subtitle: 'Validation photo pour loterie',
                 attempts_label: 'Tentatives:',
-                btn_upload: '📸 Télécharger',
-                btn_instructions: '📋 Instructions',
-                btn_back: '← Retour',
-                btn_reset: '↻ Réinitialiser',
-                btn_analyze: '✓ Vérifier',
-                btn_new_photo: '📸 Nouvelle photo',
-                btn_apply: 'Appliquer',
-                btn_download: '📥 Télécharger',
-                line_head: 'Sommet:',
-                line_chin: 'Menton:',
-                line_eyes: 'Yeux:',
-                lines_hint: '💡 Faites glisser les lignes pour ajuster',
-                news_label: '📰 Nouvelles',
+                btn_upload: '📸 TÉLÉCHARGER',
+                btn_instructions: '📋 INSTRUCTIONS',
+                news_label: '📰 NOUVELLES',
                 promo_placeholder: 'GIFT2026',
-                pricing_terms: 'Les plans sont spécifiques à votre profil. Valides jusqu\'au 1er juillet. Les plans achetés en juin sont valides jusqu\'au 1er juillet de l\'année suivante.',
-                result_title: 'Résultat de vérification',
+                btn_apply: 'Appliquer',
+                tab_home: 'ACCUEIL',
+                tab_pricing: 'TARIFS',
+                tab_instructions: 'INSTRUCTIONS',
             },
             ar: {
-                tab_home: 'الرئيسية',
-                tab_editor: 'المحرر',
-                tab_pricing: 'الأسعار',
-                tab_instructions: 'التعليمات',
-                app_title: 'التحقق من الصور',
-                title: 'مدقق صور الجنسية الأمريكية',
+                title: 'مدقق صور الجنسية',
                 subtitle: 'التحقق من الصور للرسم',
                 attempts_label: 'المحاولات:',
                 btn_upload: '📸 تحميل صورة',
                 btn_instructions: '📋 التعليمات',
-                btn_back: '← رجوع',
-                btn_reset: '↻ إعادة تعيين',
-                btn_analyze: '✓ التحقق',
-                btn_new_photo: '📸 صورة جديدة',
-                btn_apply: 'تطبيق',
-                btn_download: '📥 تحميل',
-                line_head: 'أعلى الرأس:',
-                line_chin: 'الذقن:',
-                line_eyes: 'العيون:',
-                lines_hint: '💡 اسحب الخطوط لأعلى لأسفل للتعديل',
                 news_label: '📰 الأخبار',
                 promo_placeholder: 'GIFT2026',
-                pricing_terms: 'الخطط خاصة بملفك الشخصي. صالحة من تاريخ الشراء حتى 1 يوليو. الخطط المشتراة في يونيو صالحة حتى 1 يوليو من السنة التالية.',
-                result_title: 'نتيجة التحقق',
+                btn_apply: 'تطبيق',
+                tab_home: 'الرئيسية',
+                tab_pricing: 'الأسعار',
+                tab_instructions: 'التعليمات',
             }
         };
 
@@ -886,19 +518,6 @@
             currentLang: 'ru',
             attempts: 3,
             isAdmin: false,
-            photo: null,
-            canvas: null,
-            ctx: null,
-            lines: {
-                head: null,
-                chin: null,
-                eyes: null
-            },
-            lineStates: {
-                head: 'AUTO',
-                chin: 'AUTO',
-                eyes: 'AUTO'
-            }
         };
 
         // ===== INITIALIZATION =====
@@ -909,37 +528,21 @@
         async function initApp() {
             console.log('Initializing app...');
             
-            // Setup Telegram
             if (window.Telegram?.WebApp) {
                 Telegram.WebApp.ready();
                 Telegram.WebApp.expand();
             }
 
-            // Setup canvas
-            appState.canvas = document.getElementById('editorCanvas');
-            appState.ctx = appState.canvas.getContext('2d');
-
-            // Load models
-            try {
-                await Promise.all([
-                    faceapi.nets.tinyFaceDetector.loadFromUri('/models'),
-                    faceapi.nets.faceLandmark68Net.loadFromUri('/models'),
-                ]);
-                console.log('Models loaded successfully');
-            } catch (err) {
-                console.warn('Face detection models not loaded:', err);
-            }
-
             setupEventListeners();
             await hideSplashScreen();
             setLanguage('ru');
+            populateContent();
         }
 
         async function hideSplashScreen() {
             return new Promise(resolve => {
                 setTimeout(() => {
-                    const splash = document.getElementById('splashScreen');
-                    splash.classList.add('hidden');
+                    document.getElementById('splashScreen').classList.add('hidden');
                     document.getElementById('mainApp').classList.add('active');
                     resolve();
                 }, 3000);
@@ -969,28 +572,13 @@
             });
 
             document.getElementById('photoInput').addEventListener('change', (e) => {
-                handlePhotoUpload(e);
+                const file = e.target.files[0];
+                if (file) {
+                    alert('✅ Фото загружено!\n\nФункция редактирования будет вскоре добавлена.');
+                    appState.attempts--;
+                    document.getElementById('attemptsCount').textContent = appState.attempts;
+                }
             });
-
-            // Canvas interactions
-            const canvas = appState.canvas;
-            canvas.addEventListener('mousedown', onCanvasMouseDown);
-            canvas.addEventListener('mousemove', onCanvasMouseMove);
-            canvas.addEventListener('mouseup', onCanvasMouseUp);
-            canvas.addEventListener('touchstart', onCanvasMouseDown);
-            canvas.addEventListener('touchmove', onCanvasMouseMove);
-            canvas.addEventListener('touchend', onCanvasMouseUp);
-
-            // Buttons
-            document.getElementById('backBtn').addEventListener('click', () => switchTab('home'));
-            document.getElementById('resetBtn').addEventListener('click', resetLines);
-            document.getElementById('analyzeBtn').addEventListener('click', analyzePhoto);
-            document.getElementById('newPhotoBtn').addEventListener('click', () => {
-                appState.photo = null;
-                switchTab('home');
-            });
-            document.getElementById('resultBackBtn').addEventListener('click', () => switchTab('editor'));
-            document.getElementById('downloadBtn').addEventListener('click', downloadResult);
 
             document.getElementById('applyPromoBtn').addEventListener('click', applyPromoCode);
         }
@@ -998,344 +586,44 @@
         function setLanguage(lang) {
             appState.currentLang = lang;
             document.documentElement.setAttribute('data-lang', lang);
-            
-            // Update all text elements
-            document.querySelectorAll('[data-text]').forEach(el => {
-                const key = el.dataset.text;
-                const text = LANGUAGES[lang][key];
-                if (text) {
-                    if (el.tagName === 'INPUT') {
-                        el.placeholder = text;
-                    } else {
-                        el.textContent = text;
-                    }
-                }
-            });
+            updateUIText();
+        }
 
-            populateNews();
-            populatePricing();
-            populateInstructions();
+        function updateUIText() {
+            const lang = LANGUAGES[appState.currentLang];
+            
+            document.querySelector('.splash-title').textContent = lang.title;
+            document.querySelector('.splash-subtitle').textContent = lang.subtitle;
+            document.getElementById('uploadBtn').textContent = lang.btn_upload;
+            document.getElementById('instructionsBtn').textContent = lang.btn_instructions;
+            document.getElementById('promoCode').placeholder = lang.promo_placeholder;
+            document.getElementById('applyPromoBtn').textContent = lang.btn_apply;
+            
+            document.querySelectorAll('.tab').forEach(tab => {
+                const key = 'tab_' + tab.dataset.tab;
+                if (lang[key]) tab.textContent = lang[key];
+            });
         }
 
         function switchTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
 
-            // Show selected tab
-            if (tabName === 'editor') {
-                if (!appState.photo) {
-                    alert('Загрузите фото для редактирования');
-                    return;
-                }
-                document.getElementById('editorTab').classList.add('active');
-                document.querySelector(`[data-tab="editor"]`).classList.add('active');
-                redrawCanvas();
-            } else {
-                document.getElementById(tabName + 'Tab').classList.add('active');
-                document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
-            }
-
-            if (tabName === 'home') {
-                document.getElementById('resultSection').classList.remove('active');
-            }
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
         }
 
-        function handlePhotoUpload(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = async (event) => {
-                const img = new Image();
-                img.onload = async () => {
-                    appState.photo = img;
-                    
-                    // Setup canvas
-                    const size = Math.min(img.width, img.height);
-                    appState.canvas.width = size;
-                    appState.canvas.height = size;
-
-                    // Auto-detect face and set lines
-                    await detectAndSetLines(img);
-
-                    switchTab('editor');
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        async function detectAndSetLines(img) {
-            try {
-                const canvas = appState.canvas;
-                const detections = await faceapi.detectAllFaces(
-                    img,
-                    new faceapi.TinyFaceDetectorOptions()
-                ).withFaceLandmarks();
-
-                if (detections.length === 0) {
-                    console.warn('No face detected');
-                    // Set default lines
-                    appState.lines = {
-                        head: canvas.height * 0.2,
-                        chin: canvas.height * 0.8,
-                        eyes: canvas.height * 0.45
-                    };
-                    return;
-                }
-
-                const landmarks = detections[0].landmarks;
-                const points = landmarks.positions;
-
-                // Calculate head position (min y of upper face points)
-                const headY = Math.min(...points.slice(0, 17).map(p => p.y));
-                
-                // Calculate chin position (max y of lower face points)
-                const chinY = Math.max(...points.slice(6, 11).map(p => p.y));
-                
-                // Calculate eyes position (avg y of eye points)
-                const eyesY = (points[37].y + points[46].y) / 2;
-
-                appState.lines = {
-                    head: Math.max(0, headY - 20),
-                    chin: Math.min(canvas.height, chinY + 20),
-                    eyes: eyesY
-                };
-
-                redrawCanvas();
-            } catch (err) {
-                console.error('Face detection error:', err);
-            }
-        }
-
-        function redrawCanvas() {
-            const canvas = appState.canvas;
-            const ctx = appState.ctx;
-
-            if (!appState.photo) return;
-
-            // Clear and draw image
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(
-                appState.photo,
-                0, 0,
-                appState.photo.width,
-                appState.photo.height,
-                0, 0,
-                canvas.width,
-                canvas.height
-            );
-
-            // Draw lines
-            drawLine(appState.lines.head, '#ff4444', '🔴 Head');
-            drawLine(appState.lines.chin, '#4488ff', '🔵 Chin');
-            drawLine(appState.lines.eyes, '#44dd44', '🟢 Eyes');
-
-            // Draw vertical center line (dashed cyan)
-            drawDashedLine(canvas.width / 2, '#00bcd4');
-        }
-
-        function drawLine(y, color, label) {
-            const ctx = appState.ctx;
-            const canvas = appState.canvas;
-
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(canvas.width, y);
-            ctx.stroke();
-        }
-
-        function drawDashedLine(x, color) {
-            const ctx = appState.ctx;
-            const canvas = appState.canvas;
-
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 1;
-            ctx.setLineDash([5, 5]);
-            ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, canvas.height);
-            ctx.stroke();
-            ctx.setLineDash([]);
-        }
-
-        let draggingLine = null;
-        const LINE_THRESHOLD = 20;
-
-        function onCanvasMouseDown(e) {
-            const rect = appState.canvas.getBoundingClientRect();
-            const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-
-            if (Math.abs(y - appState.lines.head) < LINE_THRESHOLD) {
-                draggingLine = 'head';
-            } else if (Math.abs(y - appState.lines.chin) < LINE_THRESHOLD) {
-                draggingLine = 'chin';
-            } else if (Math.abs(y - appState.lines.eyes) < LINE_THRESHOLD) {
-                draggingLine = 'eyes';
-            }
-        }
-
-        function onCanvasMouseMove(e) {
-            if (!draggingLine) return;
-
-            const rect = appState.canvas.getBoundingClientRect();
-            const y = Math.max(0, Math.min(
-                appState.canvas.height,
-                (e.touches ? e.touches[0].clientY : e.clientY) - rect.top
-            ));
-
-            appState.lines[draggingLine] = y;
-            appState.lineStates[draggingLine] = 'MANUAL';
-            redrawCanvas();
-            updateLineMode(draggingLine, 'MANUAL');
-        }
-
-        function onCanvasMouseUp() {
-            draggingLine = null;
-        }
-
-        function updateLineMode(line, mode) {
-            document.getElementById(line + 'Mode').textContent = mode;
-        }
-
-        function resetLines() {
-            if (appState.photo) {
-                appState.lineStates = {
-                    head: 'AUTO',
-                    chin: 'AUTO',
-                    eyes: 'AUTO'
-                };
-                detectAndSetLines(appState.photo);
-            }
-        }
-
-        async function analyzePhoto() {
-            if (!appState.photo || !appState.lines.head) return;
-
-            document.getElementById('loadingOverlay').classList.add('active');
-
-            try {
-                // Simulate analysis delay
-                await new Promise(r => setTimeout(r, 2000));
-
-                // Create 600x600 crop based on lines
-                const cropCanvas = document.createElement('canvas');
-                cropCanvas.width = 600;
-                cropCanvas.height = 600;
-                const cropCtx = cropCanvas.getContext('2d');
-
-                // Calculate crop area
-                const headLine = appState.lines.head;
-                const chinLine = appState.lines.chin;
-                const centerX = appState.canvas.width / 2;
-
-                const faceHeight = chinLine - headLine;
-                const cropTop = headLine - faceHeight * 0.15;
-                const cropLeft = centerX - 300;
-
-                cropCtx.drawImage(
-                    appState.photo,
-                    cropLeft, cropTop, 600, 600,
-                    0, 0, 600, 600
-                );
-
-                // Draw lines on cropped image
-                cropCtx.strokeStyle = '#ff4444';
-                cropCtx.lineWidth = 2;
-                cropCtx.beginPath();
-                cropCtx.moveTo(0, headLine - cropTop);
-                cropCtx.lineTo(600, headLine - cropTop);
-                cropCtx.stroke();
-
-                cropCtx.strokeStyle = '#4488ff';
-                cropCtx.beginPath();
-                cropCtx.moveTo(0, chinLine - cropTop);
-                cropCtx.lineTo(600, chinLine - cropTop);
-                cropCtx.stroke();
-
-                // Draw vertical center
-                cropCtx.strokeStyle = '#00bcd4';
-                cropCtx.setLineDash([5, 5]);
-                cropCtx.beginPath();
-                cropCtx.moveTo(300, 0);
-                cropCtx.lineTo(300, 600);
-                cropCtx.stroke();
-
-                // Show result
-                document.getElementById('resultImage').src = cropCanvas.toDataURL();
-                document.getElementById('homeTab').classList.remove('active');
-                document.getElementById('resultSection').classList.add('active');
-
-                // Update attempts
-                if (!appState.isAdmin) {
-                    appState.attempts = Math.max(0, appState.attempts - 1);
-                    document.getElementById('attemptsCount').textContent = appState.attempts;
-                }
-
-                // Generate result checks
-                const checks = performPhotoChecks(appState.photo);
-                displayResultChecks(checks);
-
-            } catch (err) {
-                console.error('Analysis error:', err);
-                alert('Ошибка при анализе фотографии');
-            } finally {
-                document.getElementById('loadingOverlay').classList.remove('active');
-            }
-        }
-
-        function performPhotoChecks(img) {
-            const checks = [
-                { label: 'Размер: 600x600px', passed: true },
-                { label: 'Формат: JPEG', passed: true },
-                { label: 'Размер файла < 240KB', passed: true },
-                { label: 'Лицо по центру', passed: true },
-                { label: 'Глаза открыты', passed: true },
-                { label: 'Нейтральное выражение', passed: true },
-                { label: 'Белый фон', passed: true },
-                { label: 'Четкое изображение', passed: true }
-            ];
-            return checks;
-        }
-
-        function displayResultChecks(checks) {
-            const list = document.getElementById('resultList');
-            list.innerHTML = checks.map(check => 
-                `<li ${check.passed ? '' : 'class="error"'}>${check.label}</li>`
-            ).join('');
-        }
-
-        function downloadResult() {
-            const link = document.createElement('a');
-            link.href = document.getElementById('resultImage').src;
-            link.download = 'dv-photo-' + Date.now() + '.jpg';
-            link.click();
-        }
-
-        function applyPromoCode() {
-            const code = document.getElementById('promoCode').value.toUpperCase();
-            if (code === 'GIFT2026') {
-                appState.attempts += 5;
-                document.getElementById('attemptsCount').textContent = appState.attempts;
-                alert('✓ Промокод принят! +5 попыток');
-                document.getElementById('promoCode').value = '';
-            } else {
-                alert('✗ Неверный промокод');
-            }
+        function populateContent() {
+            populateNews();
+            populatePricing();
+            populateInstructions();
         }
 
         function populateNews() {
             const news = [
                 { text: 'Обновление: улучшена точность распознавания лиц', date: '27.11.2025' },
                 { text: 'Поддержка 4 языков: РУ, EN, FR, AR', date: '26.11.2025' },
-                { text: 'Запущен промокод GIFT2026 для получения +5 попыток', date: '25.11.2025' }
+                { text: 'Промокод GIFT2026 для +5 попыток', date: '25.11.2025' }
             ];
 
             const list = document.getElementById('newsList');
@@ -1346,17 +634,17 @@
 
         function populatePricing() {
             const plans = [
-                { name: 'Соло Plan', attempts: '10', price: '99', icon: '⭐' },
-                { name: 'Семейный DV', attempts: '30', price: '249', icon: '👨‍👩‍👧‍👦' },
-                { name: 'Agency PRO', attempts: '∞', price: '2499', icon: '🏢' }
+                { name: 'Соло Plan', attempts: '10', price: '99 ⭐' },
+                { name: 'Семейный DV', attempts: '30', price: '249 ⭐' },
+                { name: 'Agency PRO', attempts: '∞', price: '2499 ⭐' }
             ];
 
             const list = document.getElementById('pricingList');
             list.innerHTML = plans.map(p => `
                 <div class="pricing-card">
-                    <div class="pricing-name">${p.icon} ${p.name}</div>
+                    <div class="pricing-name">${p.name}</div>
                     <div class="pricing-attempts">${p.attempts} попыток</div>
-                    <div class="pricing-price">${p.price} ⭐</div>
+                    <div class="pricing-price">${p.price}</div>
                 </div>
             `).join('');
         }
@@ -1379,17 +667,6 @@
                         <li>Однотонный белый фон</li>
                         <li>Нейтральное выражение лица</li>
                         <li>Глаза полностью открыты</li>
-                        <li>Смотреть прямо в камеру</li>
-                    `
-                },
-                {
-                    title: 'Ограничения',
-                    content: `
-                        <li>Запрещены очки</li>
-                        <li>Запрещены головные уборы (кроме религиозных)</li>
-                        <li>Без ретуши и фильтров</li>
-                        <li>Четкое, без пикселизации</li>
-                        <li>Без теней и бликов</li>
                     `
                 }
             ];
@@ -1403,12 +680,17 @@
             `).join('');
         }
 
-        // Initialize on load
-        window.addEventListener('DOMContentLoaded', () => {
-            populateNews();
-            populatePricing();
-            populateInstructions();
-        });
+        function applyPromoCode() {
+            const code = document.getElementById('promoCode').value.toUpperCase();
+            if (code === 'GIFT2026') {
+                appState.attempts += 5;
+                document.getElementById('attemptsCount').textContent = appState.attempts;
+                alert('✓ Промокод принят! +5 попыток');
+                document.getElementById('promoCode').value = '';
+            } else {
+                alert('✗ Неверный промокод');
+            }
+        }
     </script>
 </body>
 </html>
