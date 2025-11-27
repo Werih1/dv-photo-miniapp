@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>DV Photo Check</title>
+    <title>DV-Lottery Photo Check</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         * {
@@ -21,16 +21,16 @@
             overflow: hidden;
         }
 
-        /* ===== SPLASH SCREEN WITH LANGUAGE SELECTION ===== */
+        /* ===== SPLASH SCREEN ===== */
         .splash {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
+            background: linear-gradient(rgba(25, 78, 132, 0.7), rgba(25, 78, 132, 0.7)), url('images/dv-lottery-logo.jpg') center/cover no-repeat;
+            padding: 40px 20px;
             position: fixed;
             top: 0;
             left: 0;
@@ -41,66 +41,66 @@
             display: none;
         }
 
-        .splash-content {
-            text-align: center;
+        .splash-top {
+            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 30px;
-        }
-
-        .splash-logo {
-            width: 180px;
-            height: 180px;
-            object-fit: contain;
-            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.15));
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .splash-title {
-            font-size: 28px;
-            font-weight: bold;
-            color: white;
+            justify-content: center;
         }
 
         .splash-subtitle {
-            font-size: 15px;
-            color: rgba(255,255,255,0.9);
-            height: 20px;
-            min-height: 20px;
+            font-size: 18px;
+            color: rgba(255,255,255,0.95);
+            height: 24px;
+            min-height: 24px;
             font-weight: 500;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .splash-bottom {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
         }
 
         .language-selector-splash {
             display: flex;
-            gap: 12px;
-            margin-top: 20px;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
         .lang-btn-splash {
-            width: 56px;
-            height: 56px;
+            width: 70px;
+            height: 70px;
             border: 3px solid white;
-            border-radius: 12px;
-            background: rgba(255,255,255,0.2);
+            border-radius: 14px;
+            background: rgba(255,255,255,0.15);
             cursor: pointer;
-            font-size: 24px;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             backdrop-filter: blur(10px);
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .lang-btn-splash img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 11px;
         }
 
         .lang-btn-splash:active {
-            transform: scale(1.1);
-            background: rgba(255,255,255,0.4);
-            box-shadow: 0 0 20px rgba(255,255,255,0.5);
+            transform: scale(1.08);
+            border-color: rgba(255,255,255,0.8);
+            box-shadow: 0 6px 20px rgba(255,255,255,0.3);
         }
 
         /* ===== MAIN APP ===== */
@@ -110,15 +110,126 @@
             height: 100%;
             flex-direction: column;
             overflow: hidden;
+            background: #f8f9fa;
         }
 
         .app.active {
             display: flex;
         }
 
-        /* ===== TABS ===== */
-        .tabs {
+        /* ===== APP HEADER ===== */
+        .app-header {
+            background: linear-gradient(135deg, #194E84 0%, #1a5a99 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .app-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .attempts-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.25);
+            color: white;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .app-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
             display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            -webkit-appearance: none;
+            appearance: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #194E84 0%, #1a5a99 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(25, 78, 132, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+
+        /* ===== MENU SECTIONS ===== */
+        .menu-sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .menu-item {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            min-height: 100px;
+            justify-content: center;
+        }
+
+        .menu-item-icon {
+            font-size: 24px;
+        }
+
+        .menu-item-text {
+            font-size: 12px;
+            font-weight: 600;
+            color: #194E84;
+            line-height: 1.3;
+        }
+
+        .menu-item:active {
+            border-color: #194E84;
+            background: rgba(25, 78, 132, 0.05);
+            transform: scale(0.98);
+        }
+
+        /* ===== TABS (HIDDEN BY DEFAULT) ===== */
+        .tabs {
+            display: none;
             gap: 0;
             width: 100%;
             border-bottom: 2px solid #e0e0e0;
@@ -129,6 +240,10 @@
             z-index: 100;
             overflow-x: auto;
             overflow-y: hidden;
+        }
+
+        .tabs.active {
+            display: flex;
         }
 
         .tab {
@@ -149,8 +264,8 @@
         }
 
         .tab.active {
-            color: #667eea;
-            background: rgba(102, 126, 234, 0.05);
+            color: #194E84;
+            background: rgba(25, 78, 132, 0.05);
         }
 
         .tab.active::after {
@@ -160,7 +275,7 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(90deg, #194E84 0%, #1a5a99 100%);
         }
 
         /* ===== TAB CONTENT ===== */
@@ -177,106 +292,24 @@
             flex-direction: column;
         }
 
-        /* ===== HOME TAB ===== */
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .header h1 {
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 12px;
-        }
-
-        .attempts-badge {
-            display: inline-block;
-            padding: 8px 16px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 14px;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-        }
-
-        .upload-section {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        .button {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            font-size: 14px;
+        /* ===== BACK BUTTON ===== */
+        .back-btn {
+            background: white;
+            border: 2px solid #194E84;
+            color: #194E84;
+            padding: 10px 16px;
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            -webkit-appearance: none;
-            appearance: none;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            width: fit-content;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        .back-btn:active {
+            background: rgba(25, 78, 132, 0.1);
         }
 
-        .btn-primary:active {
-            transform: scale(0.98);
-            opacity: 0.9;
-        }
-
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
-        }
-
-        .btn-secondary:active {
-            background: #e0e0e0;
-        }
-
-        /* ===== NEWS SECTION ===== */
-        .news-section {
-            margin-top: 20px;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-            border-radius: 12px;
-            padding: 16px;
-            border-left: 4px solid #667eea;
-        }
-
-        .news-title {
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: #667eea;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-        }
-
-        .news-item {
-            background: white;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 8px;
-            font-size: 13px;
-            line-height: 1.6;
-            border-left: 3px solid #667eea;
-        }
-
-        .news-date {
-            font-size: 11px;
-            color: #999;
-            margin-top: 6px;
-        }
-
-        /* ===== NEWS TAB FULL ===== */
+        /* ===== NEWS CARDS ===== */
         .news-full-container {
             display: flex;
             flex-direction: column;
@@ -287,13 +320,13 @@
             background: white;
             border-radius: 12px;
             padding: 16px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #194E84;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         .news-card-date {
             font-size: 12px;
-            color: #667eea;
+            color: #194E84;
             font-weight: 600;
             margin-bottom: 8px;
             text-transform: uppercase;
@@ -313,21 +346,18 @@
         }
 
         /* ===== PRICING ===== */
-        .pricing-section {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
         .promo-input-group {
             display: flex;
             gap: 8px;
             margin-bottom: 16px;
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
         }
 
         .promo-input-group input {
             flex: 1;
-            padding: 12px;
+            padding: 10px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 14px;
@@ -336,8 +366,8 @@
         }
 
         .promo-input-group button {
-            padding: 12px 16px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px 16px;
+            background: linear-gradient(135deg, #194E84 0%, #1a5a99 100%);
             color: white;
             border: none;
             border-radius: 8px;
@@ -347,8 +377,10 @@
             transition: all 0.3s;
         }
 
-        .promo-input-group button:active {
-            transform: scale(0.95);
+        .pricing-section {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
         .pricing-card {
@@ -361,8 +393,8 @@
         }
 
         .pricing-card:active {
-            border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+            border-color: #194E84;
+            box-shadow: 0 4px 12px rgba(25, 78, 132, 0.2);
         }
 
         .pricing-name {
@@ -374,7 +406,7 @@
 
         .pricing-attempts {
             font-size: 13px;
-            color: #667eea;
+            color: #194E84;
             font-weight: 500;
             margin-bottom: 10px;
         }
@@ -382,7 +414,24 @@
         .pricing-price {
             font-size: 20px;
             font-weight: 700;
-            color: #667eea;
+            color: #194E84;
+            margin-bottom: 12px;
+        }
+
+        .btn-buy {
+            background: linear-gradient(135deg, #194E84 0%, #1a5a99 100%);
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn-buy:active {
+            transform: scale(0.98);
         }
 
         /* ===== INSTRUCTIONS ===== */
@@ -396,7 +445,7 @@
             background: white;
             border-radius: 12px;
             padding: 16px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #194E84;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
@@ -419,6 +468,32 @@
             margin-bottom: 6px;
         }
 
+        /* ===== SUPPORT BUTTON ===== */
+        .support-button {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 2px solid #194E84;
+            margin-top: 16px;
+        }
+
+        .support-button a {
+            background: linear-gradient(135deg, #194E84 0%, #1a5a99 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .support-button a:active {
+            transform: scale(0.98);
+        }
+
         /* ===== SCROLLBAR ===== */
         ::-webkit-scrollbar {
             width: 6px;
@@ -439,83 +514,132 @@
     </style>
 </head>
 <body>
-    <!-- SPLASH SCREEN WITH LANGUAGE SELECTION -->
+    <!-- SPLASH SCREEN -->
     <div class="splash" id="splashScreen">
-        <div class="splash-content">
-            <img src="images/dv-lottery-logo.jpg" alt="DV Lottery" class="splash-logo">
-            <div class="splash-title">DV Photo Validator</div>
+        <div class="splash-top">
             <div class="splash-subtitle" id="splashSubtitle">Выберете язык</div>
+        </div>
+        
+        <div class="splash-bottom">
             <div class="language-selector-splash">
-                <button class="lang-btn-splash" data-lang="ru" title="Русский">🇷🇺</button>
-                <button class="lang-btn-splash" data-lang="en" title="English">🇬🇧</button>
-                <button class="lang-btn-splash" data-lang="fr" title="Français">🇫🇷</button>
-                <button class="lang-btn-splash" data-lang="ar" title="العربية">🇸🇦</button>
+                <button class="lang-btn-splash" data-lang="ru" title="Русский">
+                    <img src="images/russia.jpg" alt="Русский">
+                </button>
+                <button class="lang-btn-splash" data-lang="en" title="English">
+                    <img src="images/united.jpg" alt="English">
+                </button>
+                <button class="lang-btn-splash" data-lang="fr" title="Français">
+                    <img src="images/france.jpg" alt="Français">
+                </button>
+                <button class="lang-btn-splash" data-lang="ar" title="العربية">
+                    <img src="images/emirates.jpg" alt="العربية">
+                </button>
             </div>
         </div>
     </div>
 
     <!-- MAIN APP -->
     <div class="app" id="mainApp">
-        <!-- TABS -->
-        <div class="tabs">
+        <!-- APP HEADER -->
+        <div class="app-header">
+            <div class="app-title">DV-Lottery Photo Check</div>
+            <div class="attempts-badge"><span id="attemptsLabel">Осталось проверок:</span> <span id="attemptsCount">3</span></div>
+        </div>
+
+        <!-- MAIN MENU VIEW -->
+        <div id="menuView" class="app-content">
+            <div class="upload-section">
+                <button class="button btn-primary" id="uploadBtn">📸 ЗАГРУЗИТЬ ФОТО</button>
+            </div>
+
+            <div class="menu-sections">
+                <div class="menu-item" id="menuHowItWorks">
+                    <div class="menu-item-icon">❓</div>
+                    <div class="menu-item-text" id="textHowWorks">Как это работает</div>
+                </div>
+
+                <div class="menu-item" id="menuNews">
+                    <div class="menu-item-icon">📰</div>
+                    <div class="menu-item-text" id="textNews">Новости</div>
+                </div>
+
+                <div class="menu-item" id="menuPricing">
+                    <div class="menu-item-icon">💳</div>
+                    <div class="menu-item-text" id="textPricing">Тарифы</div>
+                </div>
+
+                <div class="menu-item" id="menuDVForm">
+                    <div class="menu-item-icon">📝</div>
+                    <div class="menu-item-text" id="textDVForm">Как заполнить DV 2027</div>
+                </div>
+
+                <div class="menu-item" id="menuSupport" style="grid-column: 1 / -1;">
+                    <div class="menu-item-icon">💬</div>
+                    <div class="menu-item-text" id="textSupport">Поддержка</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABS (shown when in sub-sections) -->
+        <div class="tabs" id="appTabs">
             <button class="tab active" data-tab="home">ГЛАВНАЯ</button>
             <button class="tab" data-tab="news">НОВОСТИ</button>
             <button class="tab" data-tab="pricing">ТАРИФЫ</button>
             <button class="tab" data-tab="instructions">ТРЕБОВАНИЯ</button>
         </div>
 
-        <!-- HOME TAB -->
-        <div class="tab-content active" id="homeTab">
-            <div class="header">
-                <h1 id="homeTitle">DV Photo Check</h1>
-                <div class="attempts-badge"><span id="attemptsLabel">Попыток:</span> <span id="attemptsCount">3</span></div>
-            </div>
-
-            <div class="upload-section">
-                <button class="button btn-primary" id="uploadBtn">📸 ЗАГРУЗИТЬ ФОТО</button>
-            </div>
-
-            <input type="file" id="photoInput" accept="image/*" style="display: none;">
+        <!-- HOW IT WORKS -->
+        <div class="tab-content" id="howWorksTab">
+            <button class="back-btn" id="backBtn1">← Назад</button>
+            <div class="instructions" id="howWorksList"></div>
         </div>
 
         <!-- NEWS TAB -->
         <div class="tab-content" id="newsTab">
+            <button class="back-btn" id="backBtn2">← Назад</button>
             <div class="news-full-container" id="newsFullList"></div>
         </div>
 
         <!-- PRICING TAB -->
         <div class="tab-content" id="pricingTab">
+            <button class="back-btn" id="backBtn3">← Назад</button>
             <div class="promo-input-group">
                 <input type="text" id="promoCode" placeholder="GIFT2026" autocomplete="off">
                 <button id="applyPromoBtn">Применить</button>
             </div>
-
             <div class="pricing-section" id="pricingList"></div>
         </div>
 
-        <!-- INSTRUCTIONS TAB -->
-        <div class="tab-content" id="instructionsTab">
-            <div class="instructions" id="instructionsList"></div>
+        <!-- DV FORM TAB -->
+        <div class="tab-content" id="dvFormTab">
+            <button class="back-btn" id="backBtn4">← Назад</button>
+            <div class="instructions" id="dvFormList"></div>
         </div>
     </div>
 
+    <input type="file" id="photoInput" accept="image/*" style="display: none;">
+
     <script>
-        // ===== MULTILINGUAL CONTENT DATABASE =====
+        // ===== MULTILINGUAL CONTENT =====
         const CONTENT = {
             ru: {
                 selectLanguage: 'Выберете язык',
-                title: 'DV Photo Validator',
-                attempts_label: 'Попыток:',
+                title: 'DV-Lottery Photo Check',
+                attempts_label: 'Осталось проверок:',
                 btn_upload: '📸 ЗАГРУЗИТЬ ФОТО',
-                tab_home: 'ГЛАВНАЯ',
-                tab_news: 'НОВОСТИ',
-                tab_pricing: 'ТАРИФЫ',
-                tab_instructions: 'ТРЕБОВАНИЯ',
+                btn_how_works: 'Как это работает',
+                btn_news: 'Новости',
+                btn_pricing: 'Тарифы',
+                btn_dv_form: 'Как заполнить DV 2027',
+                btn_support: 'Поддержка',
                 btn_apply: 'Применить',
+                btn_back: '← Назад',
+                btn_buy: 'Купить',
                 promo_placeholder: 'GIFT2026',
                 promo_success: '✓ Промокод принят! +5 попыток',
                 promo_invalid: '✗ Неверный промокод',
                 upload_success: '✅ Фото загружено!',
+                support_link: 'https://t.me/Stars4tonBot',
                 news: [
                     { date: '27.11.2025', title: 'Новое обновление', text: 'Улучшена точность распознавания лиц и добавлена поддержка 4 языков' },
                     { date: '26.11.2025', title: 'Поддержка языков', text: 'Теперь приложение доступно на Русском, Английском, Французском и Арабском языках' },
@@ -526,31 +650,35 @@
                     { name: 'Семейный DV', attempts: '30 попыток', price: '249 ⭐' },
                     { name: 'Agency PRO', attempts: 'Безлимит', price: '2499 ⭐' }
                 ],
-                requirements: [
-                    {
-                        title: 'Технические требования',
-                        items: ['Размер: 600x600 пикселей', 'Формат: JPEG', 'Максимум: 240 КБ', 'Цветовая глубина: 24-бит']
-                    },
-                    {
-                        title: 'Требования к фото',
-                        items: ['Не старше 6 месяцев', 'Однотонный белый фон', 'Нейтральное выражение лица', 'Глаза полностью открыты', 'Без очков и головных уборов']
-                    }
+                how_works: [
+                    { title: 'Шаг 1: Загрузите фото', text: 'Нажмите кнопку "Загрузить фото" и выберите качественное фото вашего лица' },
+                    { title: 'Шаг 2: Проверка требований', text: 'Система проверит соответствие фото всем требованиям DV лотереи' },
+                    { title: 'Шаг 3: Получите результат', text: 'За несколько секунд вы узнаете, подходит ли ваше фото' }
+                ],
+                dv_form: [
+                    { title: 'Основная информация', text: 'Заполните все поля формы DV лотереи полностью и без ошибок' },
+                    { title: 'Фото', text: 'Загрузите фото, проверенное нашим сервисом' },
+                    { title: 'Отправка', text: 'Проверьте все данные и отправьте заявку на официальном сайте' }
                 ]
             },
             en: {
                 selectLanguage: 'Select language',
-                title: 'DV Photo Validator',
-                attempts_label: 'Attempts:',
+                title: 'DV-Lottery Photo Check',
+                attempts_label: 'Attempts left:',
                 btn_upload: '📸 UPLOAD PHOTO',
-                tab_home: 'HOME',
-                tab_news: 'NEWS',
-                tab_pricing: 'PRICING',
-                tab_instructions: 'REQUIREMENTS',
+                btn_how_works: 'How it works',
+                btn_news: 'News',
+                btn_pricing: 'Pricing',
+                btn_dv_form: 'How to fill DV 2027',
+                btn_support: 'Support',
                 btn_apply: 'Apply',
+                btn_back: '← Back',
+                btn_buy: 'Buy',
                 promo_placeholder: 'GIFT2026',
                 promo_success: '✓ Promo code accepted! +5 attempts',
                 promo_invalid: '✗ Invalid promo code',
                 upload_success: '✅ Photo uploaded!',
+                support_link: 'https://t.me/Stars4tonBot',
                 news: [
                     { date: '27.11.2025', title: 'New Update', text: 'Improved face detection accuracy and added support for 4 languages' },
                     { date: '26.11.2025', title: 'Language Support', text: 'Now available in Russian, English, French, and Arabic' },
@@ -561,85 +689,93 @@
                     { name: 'Family DV', attempts: '30 attempts', price: '249 ⭐' },
                     { name: 'Agency PRO', attempts: 'Unlimited', price: '2499 ⭐' }
                 ],
-                requirements: [
-                    {
-                        title: 'Technical Requirements',
-                        items: ['Size: 600x600 pixels', 'Format: JPEG', 'Maximum: 240 KB', 'Color depth: 24-bit']
-                    },
-                    {
-                        title: 'Photo Requirements',
-                        items: ['Not older than 6 months', 'Plain white background', 'Neutral facial expression', 'Eyes fully open', 'No glasses or headwear']
-                    }
+                how_works: [
+                    { title: 'Step 1: Upload photo', text: 'Click "Upload photo" and select a quality photo of your face' },
+                    { title: 'Step 2: Check requirements', text: 'The system will verify that your photo meets all DV lottery requirements' },
+                    { title: 'Step 3: Get result', text: 'Within seconds, you will know if your photo is suitable' }
+                ],
+                dv_form: [
+                    { title: 'Basic Information', text: 'Fill all DV lottery form fields completely and without errors' },
+                    { title: 'Photo', text: 'Upload a photo verified by our service' },
+                    { title: 'Submission', text: 'Check all data and submit the application on the official website' }
                 ]
             },
             fr: {
                 selectLanguage: 'Choisir la langue',
-                title: 'Validateur Photo DV',
-                attempts_label: 'Tentatives:',
+                title: 'Vérification Photo DV-Lottery',
+                attempts_label: 'Tentatives restantes:',
                 btn_upload: '📸 TÉLÉCHARGER',
-                tab_home: 'ACCUEIL',
-                tab_news: 'ACTUALITÉS',
-                tab_pricing: 'TARIFS',
-                tab_instructions: 'CONDITIONS',
+                btn_how_works: 'Comment ça marche',
+                btn_news: 'Actualités',
+                btn_pricing: 'Tarifs',
+                btn_dv_form: 'Comment remplir DV 2027',
+                btn_support: 'Support',
                 btn_apply: 'Appliquer',
+                btn_back: '← Retour',
+                btn_buy: 'Acheter',
                 promo_placeholder: 'GIFT2026',
                 promo_success: '✓ Code promo accepté! +5 tentatives',
                 promo_invalid: '✗ Code promo invalide',
                 upload_success: '✅ Photo téléchargée!',
+                support_link: 'https://t.me/Stars4tonBot',
                 news: [
                     { date: '27.11.2025', title: 'Nouvelle mise à jour', text: 'Précision améliorée de la détection des visages et support de 4 langues' },
-                    { date: '26.11.2025', title: 'Support multilingue', text: 'Maintenant disponible en russe, anglais, français et arabe' },
-                    { date: '25.11.2025', title: 'Code promo GIFT2026', text: 'Utilisez le code promo GIFT2026 pour obtenir +5 tentatives supplémentaires' }
+                    { date: '26.11.2025', title: 'Support multilingue', text: 'Disponible en russe, anglais, français et arabe' },
+                    { date: '25.11.2025', title: 'Code GIFT2026', text: 'Utilisez GIFT2026 pour +5 tentatives supplémentaires' }
                 ],
                 pricing: [
                     { name: 'Plan Solo', attempts: '10 tentatives', price: '99 ⭐' },
                     { name: 'Famille DV', attempts: '30 tentatives', price: '249 ⭐' },
                     { name: 'Agence PRO', attempts: 'Illimité', price: '2499 ⭐' }
                 ],
-                requirements: [
-                    {
-                        title: 'Conditions techniques',
-                        items: ['Taille: 600x600 pixels', 'Format: JPEG', 'Maximum: 240 KB', 'Profondeur de couleur: 24-bit']
-                    },
-                    {
-                        title: 'Conditions de photo',
-                        items: ['Pas plus de 6 mois', 'Fond blanc uni', 'Expression faciale neutre', 'Yeux complètement ouverts', 'Sans lunettes ni couvre-chef']
-                    }
+                how_works: [
+                    { title: 'Étape 1: Télécharger photo', text: 'Cliquez sur "Télécharger" et sélectionnez une photo de qualité' },
+                    { title: 'Étape 2: Vérifier les exigences', text: 'Le système vérifiera que votre photo répond à tous les critères' },
+                    { title: 'Étape 3: Obtenir le résultat', text: 'En quelques secondes, vous saurez si votre photo convient' }
+                ],
+                dv_form: [
+                    { title: 'Informations de base', text: 'Remplissez tous les champs du formulaire DV correctement' },
+                    { title: 'Photo', text: 'Téléchargez une photo vérifiée par notre service' },
+                    { title: 'Soumission', text: 'Vérifiez les données et soumettez la demande' }
                 ]
             },
             ar: {
                 selectLanguage: 'اختر اللغة',
-                title: 'مدقق صور الجنسية',
-                attempts_label: 'المحاولات:',
+                title: 'التحقق من صور اليانصيب',
+                attempts_label: 'المحاولات المتبقية:',
                 btn_upload: '📸 تحميل صورة',
-                tab_home: 'الرئيسية',
-                tab_news: 'الأخبار',
-                tab_pricing: 'الأسعار',
-                tab_instructions: 'المتطلبات',
+                btn_how_works: 'كيفية العمل',
+                btn_news: 'الأخبار',
+                btn_pricing: 'الأسعار',
+                btn_dv_form: 'كيفية ملء DV 2027',
+                btn_support: 'الدعم',
                 btn_apply: 'تطبيق',
+                btn_back: '← رجوع',
+                btn_buy: 'شراء',
                 promo_placeholder: 'GIFT2026',
                 promo_success: '✓ تم قبول رمز الترويج! +5 محاولات',
                 promo_invalid: '✗ رمز ترويج غير صحيح',
                 upload_success: '✅ تم تحميل الصورة!',
+                support_link: 'https://t.me/Stars4tonBot',
                 news: [
                     { date: '27.11.2025', title: 'تحديث جديد', text: 'تحسين دقة كشف الوجوه وإضافة دعم 4 لغات' },
-                    { date: '26.11.2025', title: 'دعم متعدد اللغات', text: 'متاح الآن باللغات الروسية والإنجليزية والفرنسية والعربية' },
-                    { date: '25.11.2025', title: 'رمز GIFT2026', text: 'استخدم رمز GIFT2026 للحصول على +5 محاولات إضافية' }
+                    { date: '26.11.2025', title: 'دعم متعدد اللغات', text: 'متاح باللغات الروسية والإنجليزية والفرنسية والعربية' },
+                    { date: '25.11.2025', title: 'رمز GIFT2026', text: 'استخدم GIFT2026 للحصول على +5 محاولات' }
                 ],
                 pricing: [
                     { name: 'خطة سولو', attempts: '10 محاولات', price: '99 ⭐' },
                     { name: 'عائلة DV', attempts: '30 محاولة', price: '249 ⭐' },
                     { name: 'وكالة PRO', attempts: 'غير محدود', price: '2499 ⭐' }
                 ],
-                requirements: [
-                    {
-                        title: 'المتطلبات التقنية',
-                        items: ['الحجم: 600x600 بكسل', 'الصيغة: JPEG', 'الحد الأقصى: 240 كيلوبايت', 'عمق اللون: 24 بت']
-                    },
-                    {
-                        title: 'متطلبات الصورة',
-                        items: ['ليس أكثر من 6 أشهر', 'خلفية بيضاء موحدة', 'تعبير وجه محايد', 'العيون مفتوحة بالكامل', 'بدون نظارات أو غطاء الرأس']
-                    }
+                how_works: [
+                    { title: 'الخطوة 1: تحميل الصورة', text: 'انقر على "تحميل صورة" واختر صورة جيدة الجودة' },
+                    { title: 'الخطوة 2: التحقق من المتطلبات', text: 'سيتحقق النظام من أن صورتك تفي بجميع المتطلبات' },
+                    { title: 'الخطوة 3: الحصول على النتيجة', text: 'في ثوان معدودة ستعرف ما إذا كانت صورتك مناسبة' }
+                ],
+                dv_form: [
+                    { title: 'المعلومات الأساسية', text: 'ملء جميع حقول النموذج بشكل صحيح وكامل' },
+                    { title: 'الصورة', text: 'حمل صورة تم التحقق منها من خلال خدمتنا' },
+                    { title: 'الإرسال', text: 'تحقق من جميع البيانات وأرسل الطلب' }
                 ]
             }
         };
@@ -648,11 +784,10 @@
         let appState = {
             currentLang: null,
             attempts: 3,
-            isAdmin: false,
-            languageSelected: false
+            languageSelected: false,
+            currentView: 'menu'
         };
 
-        // ===== ANIMATION FOR LANGUAGE SELECTION =====
         const LANGUAGES = ['ru', 'en', 'fr', 'ar'];
         let currentLangIndex = 0;
         let animationInterval = null;
@@ -678,28 +813,36 @@
             animationInterval = setInterval(() => {
                 currentLangIndex = (currentLangIndex + 1) % LANGUAGES.length;
                 const lang = LANGUAGES[currentLangIndex];
-                subtitleEl.style.opacity = '0.5';
+                subtitleEl.style.opacity = '0';
                 
                 setTimeout(() => {
                     subtitleEl.textContent = CONTENT[lang].selectLanguage;
                     subtitleEl.style.opacity = '1';
-                }, 150);
+                }, 300);
             }, 2000);
         }
 
         function setupEventListeners() {
-            // Language selection buttons
+            // Language selection
             document.querySelectorAll('.lang-btn-splash').forEach(btn => {
                 btn.addEventListener('click', () => {
                     selectLanguage(btn.dataset.lang);
                 });
             });
 
-            // Tab switching
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    switchTab(tab.dataset.tab);
-                });
+            // Menu items
+            document.getElementById('menuHowItWorks').addEventListener('click', () => showSection('howWorks'));
+            document.getElementById('menuNews').addEventListener('click', () => showSection('news'));
+            document.getElementById('menuPricing').addEventListener('click', () => showSection('pricing'));
+            document.getElementById('menuDVForm').addEventListener('click', () => showSection('dvForm'));
+            document.getElementById('menuSupport').addEventListener('click', () => {
+                const link = CONTENT[appState.currentLang].support_link;
+                window.open(link, '_blank');
+            });
+
+            // Back buttons
+            ['backBtn1', 'backBtn2', 'backBtn3', 'backBtn4'].forEach(id => {
+                document.getElementById(id).addEventListener('click', () => backToMenu());
             });
 
             // Upload
@@ -725,48 +868,43 @@
             appState.currentLang = lang;
             appState.languageSelected = true;
             
-            // Hide splash and show app
             setTimeout(() => {
                 document.getElementById('splashScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.add('active');
-                
-                // Update all content
                 updateAllContent();
-                populateAllContent();
+                
+                if (appState.currentLang === 'ar') {
+                    document.documentElement.setAttribute('dir', 'rtl');
+                    document.documentElement.lang = 'ar';
+                } else {
+                    document.documentElement.removeAttribute('dir');
+                    document.documentElement.lang = appState.currentLang;
+                }
             }, 300);
         }
 
         function updateAllContent() {
             const content = CONTENT[appState.currentLang];
             
-            // Update buttons and labels
-            document.getElementById('homeTitle').textContent = content.title;
-            document.getElementById('attemptsLabel').textContent = content.attempts_label;
+            document.getElementById('textHowWorks').textContent = content.btn_how_works;
+            document.getElementById('textNews').textContent = content.btn_news;
+            document.getElementById('textPricing').textContent = content.btn_pricing;
+            document.getElementById('textDVForm').textContent = content.btn_dv_form;
+            document.getElementById('textSupport').textContent = content.btn_support;
             document.getElementById('uploadBtn').textContent = content.btn_upload;
             document.getElementById('promoCode').placeholder = content.promo_placeholder;
             document.getElementById('applyPromoBtn').textContent = content.btn_apply;
+            document.getElementById('attemptsLabel').textContent = content.attempts_label;
             
-            // Update tabs
-            document.querySelectorAll('.tab').forEach(tab => {
-                const tabName = tab.dataset.tab;
-                const key = 'tab_' + tabName;
-                if (content[key]) tab.textContent = content[key];
-            });
-
-            // Set RTL for Arabic
-            if (appState.currentLang === 'ar') {
-                document.documentElement.setAttribute('dir', 'rtl');
-                document.documentElement.lang = 'ar';
-            } else {
-                document.documentElement.removeAttribute('dir');
-                document.documentElement.lang = appState.currentLang;
-            }
+            populateAllContent();
         }
 
         function populateAllContent() {
             populateNews();
             populatePricing();
-            populateInstructions();
+            populateHowWorks();
+            populateDVForm();
+            updateBackButtons();
         }
 
         function populateNews() {
@@ -791,28 +929,56 @@
                     <div class="pricing-name">${p.name}</div>
                     <div class="pricing-attempts">${p.attempts}</div>
                     <div class="pricing-price">${p.price}</div>
+                    <button class="btn-buy" onclick="buyPlan('${p.name}')">${content.btn_buy}</button>
                 </div>
             `).join('');
         }
 
-        function populateInstructions() {
+        function populateHowWorks() {
             const content = CONTENT[appState.currentLang];
-            const list = document.getElementById('instructionsList');
+            const list = document.getElementById('howWorksList');
             
-            list.innerHTML = content.requirements.map(r => `
+            list.innerHTML = content.how_works.map(h => `
                 <div class="instruction-block">
-                    <h3>${r.title}</h3>
-                    <ol>${r.items.map(i => `<li>${i}</li>`).join('')}</ol>
+                    <h3>${h.title}</h3>
+                    <p>${h.text}</p>
                 </div>
             `).join('');
         }
 
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+        function populateDVForm() {
+            const content = CONTENT[appState.currentLang];
+            const list = document.getElementById('dvFormList');
+            
+            list.innerHTML = content.dv_form.map(d => `
+                <div class="instruction-block">
+                    <h3>${d.title}</h3>
+                    <p>${d.text}</p>
+                </div>
+            `).join('');
+        }
 
+        function updateBackButtons() {
+            const content = CONTENT[appState.currentLang];
+            ['backBtn1', 'backBtn2', 'backBtn3', 'backBtn4'].forEach(id => {
+                const btn = document.getElementById(id);
+                btn.textContent = content.btn_back;
+            });
+        }
+
+        function showSection(section) {
+            document.getElementById('menuView').style.display = 'none';
+            document.getElementById('appTabs').classList.remove('active');
+            
+            const tabName = section === 'howWorks' ? 'howWorks' : section === 'dvForm' ? 'dvForm' : section;
             document.getElementById(tabName + 'Tab').classList.add('active');
-            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById('appTabs').classList.add('active');
+        }
+
+        function backToMenu() {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById('appTabs').classList.remove('active');
+            document.getElementById('menuView').style.display = 'flex';
         }
 
         function applyPromoCode() {
@@ -829,11 +995,19 @@
             }
         }
 
-        // Add CSS for smooth transitions
+        function buyPlan(planName) {
+            // Open Telegram Stars payment or external payment link
+            window.Telegram?.WebApp?.openLink('https://t.me/Stars4tonBot?start=buy_' + planName.replace(/\s+/g, '_'));
+        }
+
+        // Smooth transitions
         const style = document.createElement('style');
         style.textContent = `
             #splashSubtitle {
                 transition: opacity 0.3s ease;
+            }
+            .app-content {
+                transition: all 0.3s ease;
             }
         `;
         document.head.appendChild(style);
