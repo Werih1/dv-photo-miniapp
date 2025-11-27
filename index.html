@@ -422,11 +422,32 @@
         const API_URL = 'https://dv-lottery-api-ob49.onrender.com';
 
         // Initialize app with 3 second splash
-        setTimeout(() => {
+        setTimeout(async () => {
             document.getElementById('splashScreen').style.display = 'none';
             document.getElementById('mainScreen').classList.add('active');
+
+            // Load attempts from backend
+            await loadUserAttempts();
+
+            // Load Face-API models
             loadFaceApiModels();
         }, 3000);
+
+        // Load user attempts from backend
+        async function loadUserAttempts() {
+            try {
+                console.log('Loading attempts for user:', appState.userId);
+                const response = await fetch(`${API_URL}/api/user/${appState.userId}`);
+                const data = await response.json();
+                appState.attempts = data.attempts;
+                console.log('✅ Loaded attempts:', appState.attempts, 'Type:', data.type);
+                updateAttemptsCounter();
+            } catch (error) {
+                console.error('Error loading attempts:', error);
+                appState.attempts = 3;
+                updateAttemptsCounter();
+            }
+        }
 
         // Load Face-API Models
         async function loadFaceApiModels() {
@@ -756,4 +777,5 @@
     </script>
 </body>
 </html>
+
 
