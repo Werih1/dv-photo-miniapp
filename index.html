@@ -6,537 +6,94 @@
     <title>DV-Lottery Photo Check</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #ffffff;
-            color: #333;
-            overflow: hidden;
-        }
-
-        /* ===== SPLASH SCREEN ===== */
-        .splash {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(rgba(25, 78, 132, 0.65), rgba(25, 78, 132, 0.65)), url('images/logo.png') center/cover no-repeat;
-            padding: 30px 20px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1000;
-        }
-
-        .splash.hidden {
-            display: none;
-        }
-
-        .splash-top {
-            flex: 0.5;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .splash-title {
-            font-size: 32px;
-            font-weight: 700;
-            color: white;
-            text-align: center;
-            line-height: 1.2;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            letter-spacing: -0.5px;
-        }
-
-        .splash-middle {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .splash-bottom {
-            flex: 1;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-            justify-content: center;
-        }
-
-        .splash-subtitle {
-            font-size: 16px;
-            color: rgba(255,255,255,0.95);
-            height: 22px;
-            min-height: 22px;
-            font-weight: 500;
-            text-align: center;
-            margin-bottom: 12px;
-        }
-
-        .language-selector-splash {
-            display: flex;
-            gap: 14px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .lang-btn-splash {
-            width: 65px;
-            height: 65px;
-            border: 3px solid white;
-            border-radius: 14px;
-            background: rgba(255,255,255,0.15);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(10px);
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .lang-btn-splash img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 11px;
-        }
-
-        .lang-btn-splash:active {
-            transform: scale(1.08);
-            border-color: rgba(255,255,255,0.8);
-            box-shadow: 0 6px 20px rgba(255,255,255,0.3);
-        }
-
-        /* ===== MAIN APP ===== */
-        .app {
-            display: none;
-            width: 100%;
-            height: 100%;
-            flex-direction: column;
-            overflow: hidden;
-            background: #f8f9fa;
-        }
-
-        .app.active {
-            display: flex;
-        }
-
-        /* ===== APP HEADER ===== */
-        .app-header {
-            background: linear-gradient(135deg, #194E84 0%, #1a5a99 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .app-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .attempts-badge {
-            display: inline-block;
-            padding: 8px 16px;
-            background: rgba(255,255,255,0.25);
-            color: white;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 13px;
-            backdrop-filter: blur(10px);
-        }
-
-        /* ===== MAIN CONTENT ===== */
-        .app-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .upload-section {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .button {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            -webkit-appearance: none;
-            appearance: none;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #194E84 0%, #1a5a99 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(25, 78, 132, 0.3);
-        }
-
-        .btn-primary:active {
-            transform: scale(0.98);
-            opacity: 0.9;
-        }
-
-        /* ===== MENU SECTIONS ===== */
-        .menu-sections {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 16px;
-        }
-
-        .menu-item {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            border: 2px solid transparent;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            min-height: 100px;
-            justify-content: center;
-        }
-
-        .menu-item-icon {
-            font-size: 24px;
-        }
-
-        .menu-item-text {
-            font-size: 12px;
-            font-weight: 600;
-            color: #194E84;
-            line-height: 1.3;
-        }
-
-        .menu-item:active {
-            border-color: #194E84;
-            background: rgba(25, 78, 132, 0.05);
-            transform: scale(0.98);
-        }
-
-        /* ===== TAB CONTENT ===== */
-        .tab-content {
-            display: none;
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .tab-content.active {
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* ===== BACK BUTTON ===== */
-        .back-btn {
-            background: white;
-            border: 2px solid #194E84;
-            color: #194E84;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-bottom: 16px;
-            width: fit-content;
-        }
-
-        .back-btn:active {
-            background: rgba(25, 78, 132, 0.1);
-        }
-
-        /* ===== NEWS CARDS ===== */
-        .news-full-container {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .news-card {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            border-left: 4px solid #194E84;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .news-card-date {
-            font-size: 12px;
-            color: #194E84;
-            font-weight: 600;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
-
-        .news-card-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .news-card-text {
-            font-size: 13px;
-            line-height: 1.6;
-            color: #555;
-        }
-
-        /* ===== PRICING ===== */
-        .promo-input-group {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-            background: white;
-            padding: 12px;
-            border-radius: 12px;
-        }
-
-        .promo-input-group input {
-            flex: 1;
-            padding: 10px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            background: white;
-            color: #333;
-        }
-
-        .promo-input-group input::placeholder {
-            color: #999;
-            font-style: italic;
-        }
-
-        /* ===== PAGINATION ===== */
-        .pagination {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
-        }
-
-        .pagination-btn {
-            padding: 8px 12px;
-            border: 2px solid #194E84;
-            background: white;
-            color: #194E84;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 12px;
-        }
-
-        .pagination-btn:active,
-        .pagination-btn.active {
-            background: #194E84;
-            color: white;
-        }
-
-        .promo-input-group button {
-            padding: 10px 16px;
-            background: linear-gradient(135deg, #194E84 0%, #1a5a99 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .pricing-section {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .pricing-card {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            border: 2px solid #e0e0e0;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .pricing-card:active {
-            border-color: #194E84;
-            box-shadow: 0 4px 12px rgba(25, 78, 132, 0.2);
-        }
-
-        .pricing-name {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .pricing-attempts {
-            font-size: 13px;
-            color: #194E84;
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-
-        .pricing-price {
-            font-size: 20px;
-            font-weight: 700;
-            color: #194E84;
-            margin-bottom: 12px;
-        }
-
-        .pricing-description-toggle {
-            font-size: 12px;
-            color: #194E84;
-            font-weight: 600;
-            text-decoration: underline;
-            cursor: pointer;
-            margin-bottom: 12px;
-            transition: all 0.3s;
-        }
-
-        .pricing-description-toggle:active {
-            opacity: 0.7;
-        }
-
-        .pricing-description {
-            display: none;
-            font-size: 12px;
-            line-height: 1.6;
-            color: #666;
-            margin-bottom: 12px;
-            padding: 10px;
-            background: rgba(25, 78, 132, 0.05);
-            border-radius: 8px;
-        }
-
-        .pricing-description.active {
-            display: block;
-        }
-
-        .btn-buy {
-            background: linear-gradient(135deg, #194E84 0%, #1a5a99 100%);
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 12px;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        .btn-buy:active {
-            transform: scale(0.98);
-        }
-
-        /* ===== INSTRUCTIONS ===== */
-        .instructions {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .instruction-block {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            border-left: 4px solid #194E84;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .instruction-block h3 {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #333;
-        }
-
-        .instruction-block p {
-            font-size: 13px;
-            line-height: 1.8;
-            color: #555;
-        }
-
-        .how-works-unified {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .how-works-section {
-            margin-bottom: 16px;
-        }
-
-        .how-works-section:last-child {
-            margin-bottom: 0;
-        }
-
-        .how-works-section h3 {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #333;
-        }
-
-        .how-works-section p {
-            font-size: 13px;
-            line-height: 1.8;
-            color: #555;
-        }
-
-        /* ===== SCROLLBAR ===== */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #ddd;
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #999;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #fff; color: #333; overflow: hidden; }
+
+        /* SPLASH SCREEN */
+        .splash { display: flex; flex-direction: column; align-items: center; justify-content: space-between; width: 100%; height: 100%; background: linear-gradient(rgba(25, 78, 132, 0.65), rgba(25, 78, 132, 0.65)), url('images/logo.png') center/cover no-repeat; padding: 30px 20px; position: fixed; top: 0; left: 0; z-index: 1000; }
+        .splash.hidden { display: none; }
+        .splash-top { flex: 0.5; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .splash-title { font-size: 32px; font-weight: 700; color: white; text-align: center; line-height: 1.2; text-shadow: 0 2px 8px rgba(0,0,0,0.3); letter-spacing: -0.5px; }
+        .splash-middle { flex: 1; display: flex; align-items: center; justify-content: center; }
+        .splash-bottom { flex: 1; width: 100%; display: flex; flex-direction: column; align-items: center; gap: 16px; justify-content: center; }
+        .splash-subtitle { font-size: 16px; color: rgba(255,255,255,0.95); height: 22px; min-height: 22px; font-weight: 500; text-align: center; margin-bottom: 12px; }
+        .language-selector-splash { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+        .lang-btn-splash { width: 65px; height: 65px; border: 3px solid white; border-radius: 14px; background: rgba(255,255,255,0.15); cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .lang-btn-splash img { width: 100%; height: 100%; object-fit: cover; border-radius: 11px; }
+        .lang-btn-splash.active { transform: scale(1.08); border-color: rgba(255,255,255,0.8); box-shadow: 0 6px 20px rgba(255,255,255,0.3); }
+
+        /* MAIN APP */
+        .app { display: none; width: 100%; height: 100%; flex-direction: column; overflow: hidden; background: #f8f9fa; }
+        .app.active { display: flex; }
+
+        /* APP HEADER */
+        .app-header { background: linear-gradient(135deg, #194E84 0%, #1a5a99 100%); color: white; padding: 20px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .app-title { font-size: 20px; font-weight: bold; margin-bottom: 10px; }
+        .attempts-badge { display: inline-block; padding: 8px 16px; background: rgba(255,255,255,0.25); color: white; border-radius: 20px; font-weight: 600; font-size: 13px; backdrop-filter: blur(10px); }
+
+        /* MAIN CONTENT */
+        .app-content { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+        .upload-section { display: flex; flex-direction: column; gap: 12px; }
+        .button { width: 100%; padding: 14px; border: none; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; -webkit-appearance: none; appearance: none; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-primary { background: linear-gradient(135deg, #194E84 0%, #1a5a99 100%); color: white; box-shadow: 0 4px 12px rgba(25, 78, 132, 0.3); }
+        .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+
+        /* MENU SECTIONS */
+        .menu-sections { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+        .menu-item { background: white; border-radius: 12px; padding: 16px; text-align: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 2px solid transparent; display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: 100px; justify-content: center; }
+        .menu-item-icon { font-size: 24px; }
+        .menu-item-text { font-size: 12px; font-weight: 600; color: #194E84; line-height: 1.3; }
+        .menu-item.active { border-color: #194E84; background: rgba(25, 78, 132, 0.05); transform: scale(0.98); }
+
+        /* TAB CONTENT */
+        .tab-content { display: none; flex: 1; overflow-y: auto; padding: 16px; -webkit-overflow-scrolling: touch; }
+        .tab-content.active { display: flex; flex-direction: column; }
+        .back-btn { background: white; border: 2px solid #194E84; color: #194E84; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 16px; width: fit-content; }
+        .back-btn:active { background: rgba(25, 78, 132, 0.1); }
+
+        /* NEWS CARDS */
+        .news-full-container { display: flex; flex-direction: column; gap: 16px; }
+        .news-card { background: white; border-radius: 12px; padding: 16px; border-left: 4px solid #194E84; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .news-card-date { font-size: 12px; color: #194E84; font-weight: 600; margin-bottom: 8px; text-transform: uppercase; }
+        .news-card-title { font-size: 15px; font-weight: 600; color: #333; margin-bottom: 8px; }
+        .news-card-text { font-size: 13px; line-height: 1.6; color: #555; }
+
+        /* PRICING */
+        .promo-input-group { display: flex; gap: 8px; margin-bottom: 16px; background: white; padding: 12px; border-radius: 12px; }
+        .promo-input-group input { flex: 1; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; background: white; color: #333; }
+        .promo-input-group input::placeholder { color: #999; font-style: italic; }
+        .pagination { display: flex; gap: 8px; justify-content: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0; }
+        .pagination-btn { padding: 8px 12px; border: 2px solid #194E84; background: white; color: #194E84; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s; font-size: 12px; }
+        .pagination-btn.active { background: #194E84; color: white; }
+        .promo-input-group button { padding: 10px 16px; background: linear-gradient(135deg, #194E84 0%, #1a5a99 100%); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; transition: all 0.3s; }
+        .pricing-section { display: flex; flex-direction: column; gap: 16px; }
+        .pricing-card { background: white; border-radius: 12px; padding: 16px; border: 2px solid #e0e0e0; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .pricing-card.active { border-color: #194E84; box-shadow: 0 4px 12px rgba(25, 78, 132, 0.2); }
+        .pricing-name { font-size: 16px; font-weight: 600; color: #333; margin-bottom: 8px; }
+        .pricing-attempts { font-size: 13px; color: #194E84; font-weight: 500; margin-bottom: 10px; }
+        .pricing-price { font-size: 20px; font-weight: 700; color: #194E84; margin-bottom: 12px; }
+        .pricing-description-toggle { font-size: 12px; color: #194E84; font-weight: 600; text-decoration: underline; cursor: pointer; margin-bottom: 12px; transition: all 0.3s; }
+        .pricing-description { display: none; font-size: 12px; line-height: 1.6; color: #666; margin-bottom: 12px; padding: 10px; background: rgba(25, 78, 132, 0.05); border-radius: 8px; }
+        .pricing-description.active { display: block; }
+        .btn-buy { background: linear-gradient(135deg, #194E84 0%, #1a5a99 100%); color: white; padding: 10px; border: none; border-radius: 8px; font-weight: 600; font-size: 12px; cursor: pointer; width: 100%; }
+        .btn-buy:active { transform: scale(0.98); }
+
+        /* INSTRUCTIONS */
+        .instructions { display: flex; flex-direction: column; gap: 16px; }
+        .instruction-block { background: white; border-radius: 12px; padding: 16px; border-left: 4px solid #194E84; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .instruction-block h3 { font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333; }
+        .instruction-block p { font-size: 13px; line-height: 1.8; color: #555; }
+        .how-works-unified { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .how-works-section { margin-bottom: 16px; }
+        .how-works-section:last-child { margin-bottom: 0; }
+        .how-works-section h3 { font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #333; }
+        .how-works-section p { font-size: 13px; line-height: 1.8; color: #555; }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #999; }
     </style>
 </head>
 <body>
@@ -545,11 +102,9 @@
         <div class="splash-top">
             <div class="splash-title">DV-Lottery<br>Photo Check</div>
         </div>
-        
         <div class="splash-middle"></div>
-
         <div class="splash-bottom">
-            <div class="splash-subtitle" id="splashSubtitle">Выберите язык</div>
+            <div class="splash-subtitle" id="splashSubtitle"></div>
             <div class="language-selector-splash">
                 <button class="lang-btn-splash" data-lang="ru" title="Русский">
                     <img src="images/russia.png" alt="Русский">
@@ -571,72 +126,67 @@
     <div class="app" id="mainApp">
         <!-- APP HEADER -->
         <div class="app-header">
-            <div class="app-title">DV-Lottery Photo Check</div>
-            <div class="attempts-badge"><span id="attemptsLabel">Осталось проверок:</span> <span id="attemptsCount">3</span></div>
+            <div class="app-title" id="appTitle">DV-Lottery Photo Check</div>
+            <div class="attempts-badge"><span id="attemptsLabel"></span> <span id="attemptsCount">3</span></div>
         </div>
 
         <!-- MAIN MENU VIEW -->
         <div id="menuView" class="app-content">
             <div class="upload-section">
-                <button class="button btn-primary" id="uploadBtn">📸 ЗАГРУЗИТЬ ФОТО</button>
+                <button class="button btn-primary" id="uploadBtn"></button>
             </div>
-
             <div class="menu-sections">
                 <div class="menu-item" id="menuHowItWorks">
                     <div class="menu-item-icon">❓</div>
-                    <div class="menu-item-text" id="textHowWorks">Как это работает</div>
+                    <div class="menu-item-text" id="textHowWorks"></div>
                 </div>
-
                 <div class="menu-item" id="menuNews">
                     <div class="menu-item-icon">📰</div>
-                    <div class="menu-item-text" id="textNews">Новости</div>
+                    <div class="menu-item-text" id="textNews"></div>
                 </div>
-
                 <div class="menu-item" id="menuPricing">
-                    <div class="menu-item-icon">💳</div>
-                    <div class="menu-item-text" id="textPricing">Тарифы</div>
+                    <div class="menu-item-icon">💰</div>
+                    <div class="menu-item-text" id="textPricing"></div>
                 </div>
-
                 <div class="menu-item" id="menuDVForm">
-                    <div class="menu-item-icon">📝</div>
-                    <div class="menu-item-text" id="textDVForm">Как заполнить DV 2027</div>
+                    <div class="menu-item-icon">📋</div>
+                    <div class="menu-item-text" id="textDVForm">DV-2027</div>
                 </div>
-
-                <div class="menu-item" id="menuSupport" style="grid-column: 1 / -1;">
+                <div class="menu-item" id="menuSupport" style="grid-column: 1 -1;">
                     <div class="menu-item-icon" style="font-size: 32px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0088cc 0%, #0077b6 100%); border-radius: 8px; color: white;">
                         <img src="images/TGlogo.png" alt="Telegram" style="width: 20px; height: 20px; object-fit: contain;">
                     </div>
-                    <div class="menu-item-text" id="textSupport">Мы в Telegram</div>
+                    <div class="menu-item-text" id="textSupport">Telegram</div>
                 </div>
             </div>
         </div>
 
         <!-- HOW IT WORKS -->
         <div class="tab-content" id="howWorksTab">
-            <button class="back-btn" id="backBtn1">← Назад</button>
-            <div class="instructions" id="howWorksList"></div>
+            <button class="back-btn" id="backBtn1"></button>
+            <div class="instructions" id="howWorksListdiv"></div>
         </div>
 
         <!-- NEWS TAB -->
         <div class="tab-content" id="newsTab">
-            <button class="back-btn" id="backBtn2">← Назад</button>
-            <div class="news-full-container" id="newsFullList"></div>
+            <button class="back-btn" id="backBtn2"></button>
+            <div class="news-full-container" id="newsFullListdiv"></div>
         </div>
 
         <!-- PRICING TAB -->
         <div class="tab-content" id="pricingTab">
-            <button class="back-btn" id="backBtn3">← Назад</button>
+            <button class="back-btn" id="backBtn3"></button>
             <div class="promo-input-group">
                 <input type="text" id="promoCode" autocomplete="off" placeholder="">
-                <button id="applyPromoBtn">Применить</button>
+                <button id="applyPromoBtn"></button>
             </div>
-            <div class="pricing-section" id="pricingList"></div>
+            <div class="pricing-section" id="pricingListdiv"></div>
         </div>
 
         <!-- DV FORM TAB -->
         <div class="tab-content" id="dvFormTab">
-            <button class="back-btn" id="backBtn4">← Назад</button>
-            <div class="instructions" id="dvFormList"></div>
+            <button class="back-btn" id="backBtn4"></button>
+            <div class="instructions" id="dvFormListdiv"></div>
         </div>
     </div>
 
@@ -645,307 +195,180 @@
     <!-- PHOTO CHECKER MODAL -->
     <div id="photoCheckerModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 2000; overflow-y: auto;">
         <div style="max-width: 100%; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh;">
-            
-            <!-- BACK BUTTON -->
-            <button onclick="closePhotoChecker()" style="align-self: flex-start; background: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 20px;">← Назад</button>
-            
-            <!-- CANVAS FOR PHOTO + LINES -->
+            <button onclick="closePhotoChecker()" style="align-self: flex-start; background: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 20px;">✕</button>
             <div style="position: relative; width: 100%; max-width: 600px; aspect-ratio: 1; background: white; border-radius: 12px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
                 <canvas id="photoCanvas" style="width: 100%; height: 100%; display: block; cursor: grab; touch-action: none;"></canvas>
             </div>
-            
-            <!-- LINE INDICATORS -->
             <div style="width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; font-size: 13px; color: white;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 20px; height: 20px; background: #8B0000; border-radius: 50%; border: 2px solid white;"></div>
-                    <span id="lineRedLabel">Бордовая линия: верхняя точка головы</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 20px; height: 20px; background: #00008B; border-radius: 50%; border: 2px solid white;"></div>
-                    <span id="lineBlueLabel">Синяя линия: нижняя точка подбородка</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 20px; height: 20px; background: #006400; border-radius: 50%; border: 2px solid white;"></div>
-                    <span id="lineGreenLabel">Зеленая линия: центр глаз</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 20px; height: 20px; background: #8B6F47; border-radius: 50%; border: 2px solid white;"></div>
-                    <span id="lineBrownLabel">Коричневая линия: центр фото</span>
-                </div>
+                <div style="display: flex; align-items: center; gap: 10px;"><div style="width: 20px; height: 20px; background: #8B0000; border-radius: 50%; border: 2px solid white;"></div><span id="lineRedLabel"></span></div>
+                <div style="display: flex; align-items: center; gap: 10px;"><div style="width: 20px; height: 20px; background: #00008B; border-radius: 50%; border: 2px solid white;"></div><span id="lineBlueLabel"></span></div>
+                <div style="display: flex; align-items: center; gap: 10px;"><div style="width: 20px; height: 20px; background: #006400; border-radius: 50%; border: 2px solid white;"></div><span id="lineGreenLabel"></span></div>
+                <div style="display: flex; align-items: center; gap: 10px;"><div style="width: 20px; height: 20px; background: #8B6F47; border-radius: 50%; border: 2px solid white;"></div><span id="lineBrownLabel"></span></div>
             </div>
-            
-            <!-- BUTTONS -->
             <div style="width: 100%; max-width: 600px; display: flex; gap: 12px;">
-                <button onclick="startPhotoCheck()" style="flex: 1; background: #4CAF50; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Начать проверку</button>
-                <button onclick="closePhotoChecker()" style="flex: 1; background: #f44336; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Отмена</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // ADMIN IDS
-        const ADMIN_IDS = [380950248, 375133882];
-
-    <input type="file" id="photoInput" accept="image/*" style="display: none;">
-
-    <!-- PHOTO CHECKER MODAL -->
-    <div id="photoCheckerModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 2000; overflow-y: auto;">
-        <div style="max-width: 100%; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh;">
-            
-            <!-- BACK BUTTON -->
-            <button onclick="closePhotoChecker()" style="align-self: flex-start; background: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 20px;">← Назад</button>
-            
-            <!-- CANVAS FOR PHOTO + LINES -->
-            <div style="position: relative; width: 100%; max-width: 600px; background: white; border-radius: 12px; overflow: hidden; margin-bottom: 20px;">
-                <canvas id="photoCanvas" style="width: 100%; display: block; cursor: crosshair;"></canvas>
-            </div>
-            
-            <!-- LINE INDICATORS -->
-            <div style="width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; font-size: 13px; color: white;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 20px; height: 20px; background: #8B0000; border-radius: 50%; border: 2px solid white;"></div>
-                    <span id="lineRedLabel">Бордовая линия: верхняя точка головы</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 20px; height: 20px; background: #00008B; border-radius: 50%; border: 2px solid white;"></div>
-                    <span id="lineBlueLabel">Синяя линия: нижняя точка подбородка</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 20px; height: 20px; background: #006400; border-radius: 50%; border: 2px solid white;"></div>
-                    <span id="lineGreenLabel">Зеленая линия: центр глаз</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 20px; height: 20px; background: #8B6F47; border-radius: 50%; border: 2px solid white;"></div>
-                    <span id="lineBrownLabel">Коричневая линия: центр фото</span>
-                </div>
-            </div>
-            
-            <!-- BUTTONS -->
-            <div style="width: 100%; max-width: 600px; display: flex; gap: 12px;">
-                <button onclick="startPhotoCheck()" style="flex: 1; background: #4CAF50; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Начать проверку</button>
-                <button onclick="closePhotoChecker()" style="flex: 1; background: #f44336; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Отмена</button>
+                <button onclick="startPhotoCheck()" style="flex: 1; background: #4CAF50; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">✓</button>
+                <button onclick="closePhotoChecker()" style="flex: 1; background: #f44336; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">✕</button>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
     <script>
-        // ADMIN IDS
         const ADMIN_IDS = [380950248, 375133882];
 
-        // ===== MULTILINGUAL CONTENT =====
+        // ===== TRANSLATIONS =====
         const CONTENT = {
             ru: {
                 selectLanguage: 'Выберите язык',
                 title: 'DV-Lottery Photo Check',
-                attempts_label: 'Осталось проверок:',
-                btn_upload: '📸 ЗАГРУЗИТЬ ФОТО',
-                btn_how_works: 'Как это работает',
-                btn_news: 'Новости',
-                btn_pricing: 'Тарифы',
-                btn_dv_form: 'Как заполнить DV-2027',
-                btn_support: 'Мы в Telegram',
-                promo_placeholder: 'Введите промокод',
-                btn_apply: 'Применить',
-                btn_back: '← Назад',
-                btn_buy: 'Купить',
-                description_toggle: 'Описание тарифа',
-                promo_success: '✓ Промокод принят! +5 попыток',
-                promo_invalid: '✗ Неверный промокод',
-                upload_success: '✅ Фото загружено!',
-                support_link: 'https://t.me/USAvisaPhoto',
+                attemptslabel: 'Попытки',
+                btnupload: 'Загрузить фото',
+                btnhowworks: 'Как это работает',
+                btnnews: 'Новости',
+                btnpricing: 'Цены',
+                btndvform: 'DV-2027',
+                btnsupport: 'Telegram',
+                promoplaceholder: 'Код...',
+                btnapply: 'Применить',
+                btnback: 'Назад',
+                btnbuy: 'Купить',
+                descriptiontoggle: 'Описание',
+                promosuccess: 'Код принят! +5',
+                promoinvalid: 'Неверный код',
+                uploadsuccess: 'Фото загружено!',
+                supportlink: 'https://t.me/USAvisaPhoto',
                 pricing: [
-                    { 
-                        name: 'Соло Plan', 
-                        attempts: '10 попыток', 
-                        price: '99 ⭐',
-                        description: 'Идеально подходит, если подаётесь один.\n10 проверок достаточно, чтобы сделать несколько попыток и при необходимости спокойно перефотографироваться.\nПодойдёт тем, кто уже имел опыт использования инструментов для проверки фото и хочет получить всё необходимое без переплаты.'
-                    },
-                    { 
-                        name: 'Семейный DV', 
-                        attempts: '30 попыток', 
-                        price: '249 ⭐',
-                        description: 'Лучшее решение для подачи всей семьи.\nПодходит, если подаётесь вместе с супругом/супругой — проверки хватит на все фото в спокойном темпе.\nЕсли у вас есть дети, 30 проверок более чем достаточно для всех членов семьи, включая повторные снимки при необходимости.'
-                    },
-                    { 
-                        name: 'Agency PRO', 
-                        attempts: 'Безлимит', 
-                        price: '2499 ⭐',
-                        description: 'Максимальная свобода без ограничений.\nПодходит для фотоателье, агентств, частных фотографов, визовых специалистов, блогеров и малого бизнеса.\nВ период массовой подачи анкет тариф окупается за 1–2 дня активной работы.\nБезлимитное количество проверок на 6 месяцев с даты покупки — профессиональное решение для тех, кто работает с большим потоком клиентов.'
-                    }
+                    { name: 'Бесплатно', attempts: '3 проверки', price: '$0', description: '3 бесплатные проверки. Полный анализ качества. Скачивание результатов.' },
+                    { name: 'Стандарт', attempts: '10 проверок', price: '$2.99', description: '10 проверок. Быстрая обработка. Скачивание в HD.' },
+                    { name: 'Премиум', attempts: '30 проверок', price: '$6.99', description: '30 проверок. Приоритетная поддержка. Пакетная обработка.' },
+                    { name: 'Агентство PRO', attempts: 'Безлимит', price: '$24.99', description: 'Безлимитные проверки 6 месяцев. Приоритет. Поддержка 24/7.' }
                 ],
-                how_works: [
-                    { title: 'Что это?', text: 'DV-Lottery Photo Check — инструмент, который помогает быстро и точно проверить вашу фотографию перед подачей заявки на участие в лотерее Green Card 🇺🇸' },
-                    { title: 'Как работает?', text: 'Загрузите фото → система автоматически анализирует все ключевые параметры → вы мгновенно получаете результат и рекомендации под проверенной фотографией.' },
-                    { title: 'Что мы проверяем?', text: '✓ Размер и разрешение\n✓ Яркость, чёткость и контраст лица\n✓ Корректный однотонный фон\n✓ Положение головы и уровень глаз\n✓ Формат файла и технические требования' },
-                    { title: 'Зачем это нужно?', text: 'Фотография — один из самых частых причин отклонения заявки.\nПроверка помогает убедиться, что ваше фото соответствует официальным стандартам и готово к подаче.' },
-                    { title: 'Как начать?', text: 'Мы предоставляем 3 бесплатные проверки, чтобы вы могли спокойно протестировать сервис и подготовить своё фото.\nЕсли вам потребуется больше, вы в любой момент можете оформить дополнительные проверки в разделе Тарифы — выбрав удобный для себя вариант.\nПериодически мы публикуем промокоды на бесплатные проверки в нашем Telegram-канале.\nПодписаться на него можно через раздел "Мы в Telegram" в главном меню.' }
+                howworks: [
+                    { title: 'Что это?', text: 'DV-Lottery Photo Check помогает проверить фото перед подачей на Green Card Lottery.' },
+                    { title: 'Как работает?', text: 'Загрузите фото, поставьте линии, нажмите проверить. Система проанализирует и выдаст результат.' },
+                    { title: 'Что проверяем?', text: 'Размер 600x600. Качество. Положение головы. Фон. Освещение. Формат JPEG.' },
+                    { title: 'Почему важно?', text: 'Фото - частая причина отказа. Мы гарантируем соответствие требованиям.' },
+                    { title: 'Как начать?', text: '3 бесплатные проверки. Затем выберите план. Промокоды в Telegram канале.' }
                 ],
                 news: [
-                    { date: '27.11.2025', title: 'Новое обновление', text: 'Улучшена точность распознавания лиц и добавлена поддержка 4 языков' },
-                    { date: '26.11.2025', title: 'Поддержка языков', text: 'Теперь приложение доступно на Русском, Английском, Французском и Арабском языках' },
-                    { date: '28.11.2025', title: 'Обновление по DV-2027: ждём официальный старт', text: 'На данный момент лотерея DV-2027 ещё не началась. США пока не публиковали официальные даты начала регистрации, и неизвестно, состоится ли старт в конце 2025 года или уже будет перенесён на 2026. Мы внимательно следим за обновлениями и сообщим информацию сразу после анонса.\n\nКак только Госдепартамент объявит о начале DV-2027, мы подготовим подробную пошаговую инструкцию по заполнению анкеты, чтобы вы могли спокойно и самостоятельно подать заявку.\n\nВажно: подавайте заявку самостоятельно\nЗаполнение анкеты DV не является сложным процессом. Мы настоятельно рекомендуем подавать заявку самостоятельно, не пользуясь услугами посредников, которые предлагают заполнить её за деньги.\n\nПочему это важно:\n• Вы рискуете потерять контроль над заявкой\n• Можете лишиться Confirmation Number\n• Возрастает риск столкнуться с мошенниками\n\nВ нашем разделе мы максимально подробно разберём каждый шаг подачи, чтобы полностью исключить любые трудности.\n\nВозможные изменения в DV-2027\nПо неофициальным данным обсуждается возможность введения обязательной пошлины за подачу заявки. Пока нет подтверждённой информации ни о цене, ни о том, будет ли нововведение принято.\n\nЕсли плата действительно появится, мы подготовим подробную инструкцию о том:\n• Как оплатить пошлину\n• Что делать, если ваша банковская карта не принимается\n• Какие есть альтернативные способы оплаты\n\nСледите за новостями\nМы обновим информацию сразу после официального объявления от Госдепартамента США. Оставайтесь с нами, чтобы не пропустить старт DV-2027 и получить точные инструкции по подаче заявки.' }
-                ],
-                dv_form_content: 'Обновление по DV-2027: ждём официальный старт\n\nНа данный момент лотерея DV-2027 ещё не началась. США пока не публиковали официальные даты начала регистрации, и неизвестно, состоится ли старт в конце 2025 года или уже будет перенесён на 2026. Мы внимательно следим за обновлениями и сообщим информацию сразу после анонса.\n\nКак только Госдепартамент объявит о начале DV-2027, мы подготовим подробную пошаговую инструкцию по заполнению анкеты, чтобы вы могли спокойно и самостоятельно подать заявку.\n\nВажно: подавайте заявку самостоятельно\nЗаполнение анкеты DV не является сложным процессом. Мы настоятельно рекомендуем подавать заявку самостоятельно, не пользуясь услугами посредников, которые предлагают заполнить её за деньги.\n\nПочему это важно:\n• Вы рискуете потерять контроль над заявкой\n• Можете лишиться Confirmation Number\n• Возрастает риск столкнуться с мошенниками\n\nВ нашем разделе мы максимально подробно разберём каждый шаг подачи, чтобы полностью исключить любые трудности.\n\nВозможные изменения в DV-2027\nПо неофициальным данным обсуждается возможность введения обязательной пошлины за подачу заявки. Пока нет подтверждённой информации ни о цене, ни о том, будет ли нововведение принято.\n\nЕсли плата действительно появится, мы подготовим подробную инструкцию о том:\n• Как оплатить пошлину\n• Что делать, если ваша банковская карта не принимается\n• Какие есть альтернативные способы оплаты\n\nСледите за новостями\nМы обновим информацию сразу после официального объявления от Госдепартамента США. Оставайтесь с нами, чтобы не пропустить старт DV-2027 и получить точные инструкции по подаче заявки.'
+                    { date: '28.11.2025', title: 'DV-2027', text: 'Лотерея ещё не началась. Следите за обновлениями.' },
+                    { date: '27.11.2025', title: 'Обновление', text: 'Улучшена точность детекции лиц. Добавлена поддержка 4 языков.' },
+                    { date: '26.11.2025', title: 'Поддержка языков', text: 'Теперь доступно на русском, английском, французском и арабском.' }
+                ]
             },
             en: {
                 selectLanguage: 'Select language',
                 title: 'DV-Lottery Photo Check',
-                attempts_label: 'Attempts left:',
-                btn_upload: '📸 UPLOAD PHOTO',
-                btn_how_works: 'How it works',
-                btn_news: 'News',
-                btn_pricing: 'Pricing',
-                btn_dv_form: 'How to fill DV-2027',
-                btn_support: 'We on Telegram',
-                promo_placeholder: 'Enter promo code',
-                btn_apply: 'Apply',
-                btn_back: '← Back',
-                btn_buy: 'Buy',
-                description_toggle: 'Plan Description',
-                promo_success: '✓ Promo code accepted! +5 attempts',
-                promo_invalid: '✗ Invalid promo code',
-                upload_success: '✅ Photo uploaded!',
-                support_link: 'https://t.me/USAvisaPhoto',
+                attemptslabel: 'Attempts left',
+                btnupload: 'Upload Photo',
+                btnhowworks: 'How it works',
+                btnnews: 'News',
+                btnpricing: 'Pricing',
+                btndvform: 'DV-2027',
+                btnsupport: 'Telegram',
+                promoplaceholder: 'Code...',
+                btnapply: 'Apply',
+                btnback: 'Back',
+                btnbuy: 'Buy',
+                descriptiontoggle: 'Description',
+                promosuccess: 'Code accepted! +5',
+                promoinvalid: 'Invalid code',
+                uploadsuccess: 'Photo uploaded!',
+                supportlink: 'https://t.me/USAvisaPhoto',
                 pricing: [
-                    { 
-                        name: 'Solo Plan', 
-                        attempts: '10 attempts', 
-                        price: '99 ⭐',
-                        description: 'Perfect if you\'re applying alone.\n10 checks are enough to make several attempts and comfortably retake photos if needed.\nIdeal for those who already have experience using photo verification tools and want everything necessary without overpaying.'
-                    },
-                    { 
-                        name: 'Family DV', 
-                        attempts: '30 attempts', 
-                        price: '249 ⭐',
-                        description: 'Best solution for submitting with your whole family.\nPerfect if you\'re applying with your spouse — checks are enough for all photos at a comfortable pace.\nIf you have children, 30 checks are more than enough for all family members, including retakes if needed.'
-                    },
-                    { 
-                        name: 'Agency PRO', 
-                        attempts: 'Unlimited', 
-                        price: '2499 ⭐',
-                        description: 'Maximum freedom without limits.\nPerfect for photo studios, agencies, professional photographers, visa specialists, bloggers and small businesses.\nDuring peak application periods, the plan pays for itself in 1-2 days of active work.\nUnlimited checks for 6 months from purchase date — a professional solution for those working with high client volumes.'
-                    }
+                    { name: 'Free', attempts: '3 checks', price: '$0', description: '3 free checks. Full quality analysis. Download results.' },
+                    { name: 'Standard', attempts: '10 checks', price: '$2.99', description: '10 checks. Fast processing. HD download.' },
+                    { name: 'Premium', attempts: '30 checks', price: '$6.99', description: '30 checks. Priority support. Batch processing.' },
+                    { name: 'Agency PRO', attempts: 'Unlimited', price: '$24.99', description: 'Unlimited checks for 6 months. Priority. 24/7 support.' }
                 ],
-                how_works: [
-                    { title: 'What is it?', text: 'DV-Lottery Photo Check — a tool that helps you quickly and accurately verify your photo before submitting your application for the Green Card Lottery 🇺🇸' },
-                    { title: 'How does it work?', text: 'Upload your photo → system automatically analyzes all key parameters → you instantly get results and recommendations for your verified photo.' },
-                    { title: 'What do we verify?', text: '✓ Size and resolution\n✓ Face brightness, clarity and contrast\n✓ Correct solid background\n✓ Head position and eye level\n✓ File format and technical requirements' },
-                    { title: 'Why do you need it?', text: 'Photo is one of the most common reasons for application rejection.\nVerification helps ensure your photo meets official standards and is ready to submit.' },
-                    { title: 'How to start?', text: 'We provide 3 free checks so you can calmly test the service and prepare your photo.\nIf you need more, you can purchase additional checks in the Pricing section at any time — choose a plan that works for you.\nWe regularly publish promo codes for free checks in our Telegram channel.\nYou can subscribe to it through the "We on Telegram" section in the main menu.' }
+                howworks: [
+                    { title: 'What is it?', text: 'DV-Lottery Photo Check helps verify your photo before applying to Green Card Lottery.' },
+                    { title: 'How it works?', text: 'Upload photo, set guide lines, tap check. System analyzes and shows results.' },
+                    { title: 'What we verify?', text: 'Size 600x600. Quality. Head position. Background. Lighting. JPEG format.' },
+                    { title: 'Why important?', text: 'Photo rejection is common. We ensure your photo meets all requirements.' },
+                    { title: 'How to start?', text: '3 free checks included. Then choose a plan. Promo codes in Telegram channel.' }
                 ],
                 news: [
-                    { date: '27.11.2025', title: 'New Update', text: 'Improved face detection accuracy and added support for 4 languages' },
-                    { date: '26.11.2025', title: 'Language Support', text: 'Now available in Russian, English, French, and Arabic' },
-                    { date: '28.11.2025', title: 'DV-2027 Update: Waiting for Official Start', text: 'At this moment, the DV-2027 lottery has not yet started. The USA has not yet published official registration dates, and it is unclear whether the start will occur in late 2025 or be postponed to 2026. We are closely monitoring updates and will share the information immediately after the announcement.\n\nOnce the State Department announces the start of DV-2027, we will prepare a detailed step-by-step guide for filling out the application form so you can calmly and independently submit your application.\n\nImportant: Submit your application independently\nFilling out the DV application form is not a complicated process. We strongly recommend submitting your application independently, without using the services of intermediaries who offer to fill it out for money.\n\nWhy is this important:\n• You risk losing control of your application\n• You may lose your Confirmation Number\n• Risk of encountering scammers increases\n\nIn our section, we will analyze each step of the application process in detail to completely eliminate any difficulties.\n\nPossible changes in DV-2027\nAccording to unofficial reports, there is a possibility of introducing a mandatory fee for submitting an application. There is currently no confirmed information about the price or whether this change will be adopted.\n\nIf the fee does appear, we will prepare a detailed guide on:\n• How to pay the fee\n• What to do if your bank card is not accepted\n• What alternative payment methods are available\n\nFollow the news\nWe will update the information immediately after the official announcement from the US State Department. Stay with us so you don\'t miss the start of DV-2027 and get accurate instructions for submitting your application.' }
-                ],
-                dv_form_content: 'DV-2027 Update: Waiting for Official Start\n\nAt this moment, the DV-2027 lottery has not yet started. The USA has not yet published official registration dates, and it is unclear whether the start will occur in late 2025 or be postponed to 2026. We are closely monitoring updates and will share the information immediately after the announcement.\n\nOnce the State Department announces the start of DV-2027, we will prepare a detailed step-by-step guide for filling out the application form so you can calmly and independently submit your application.\n\nImportant: Submit your application independently\nFilling out the DV application form is not a complicated process. We strongly recommend submitting your application independently, without using the services of intermediaries who offer to fill it out for money.\n\nWhy is this important:\n• You risk losing control of your application\n• You may lose your Confirmation Number\n• Risk of encountering scammers increases\n\nIn our section, we will analyze each step of the application process in detail to completely eliminate any difficulties.\n\nPossible changes in DV-2027\nAccording to unofficial reports, there is a possibility of introducing a mandatory fee for submitting an application. There is currently no confirmed information about the price or whether this change will be adopted.\n\nIf the fee does appear, we will prepare a detailed guide on:\n• How to pay the fee\n• What to do if your bank card is not accepted\n• What alternative payment methods are available\n\nFollow the news\nWe will update the information immediately after the official announcement from the US State Department. Stay with us so you don\'t miss the start of DV-2027 and get accurate instructions for submitting your application.'
+                    { date: '28.11.2025', title: 'DV-2027', text: 'Lottery not started yet. Check back for updates.' },
+                    { date: '27.11.2025', title: 'Update', text: 'Improved face detection accuracy. Added support for 4 languages.' },
+                    { date: '26.11.2025', title: 'Language support', text: 'Now available in Russian, English, French, and Arabic.' }
+                ]
             },
             fr: {
                 selectLanguage: 'Choisir la langue',
-                title: 'Vérification Photo DV-Lottery',
-                attempts_label: 'Tentatives restantes:',
-                btn_upload: '📸 TÉLÉCHARGER',
-                btn_how_works: 'Comment ça marche',
-                btn_news: 'Actualités',
-                btn_pricing: 'Tarifs',
-                btn_dv_form: 'Comment remplir DV-2027',
-                btn_support: 'Nous sur Telegram',
-                promo_placeholder: 'Entrez le code promo',
-                btn_apply: 'Appliquer',
-                btn_back: '← Retour',
-                btn_buy: 'Acheter',
-                description_toggle: 'Description du plan',
-                promo_success: '✓ Code promo accepté! +5 tentatives',
-                promo_invalid: '✗ Code promo invalide',
-                upload_success: '✅ Photo téléchargée!',
-                support_link: 'https://t.me/USAvisaPhoto',
+                title: 'DV-Lottery Photo Check',
+                attemptslabel: 'Tentatives',
+                btnupload: 'Télécharger',
+                btnhowworks: 'Comment ça marche',
+                btnnews: 'Actualités',
+                btnpricing: 'Tarifs',
+                btndvform: 'DV-2027',
+                btnsupport: 'Telegram',
+                promoplaceholder: 'Code...',
+                btnapply: 'Appliquer',
+                btnback: 'Retour',
+                btnbuy: 'Acheter',
+                descriptiontoggle: 'Description',
+                promosuccess: 'Code accepté! +5',
+                promoinvalid: 'Code invalide',
+                uploadsuccess: 'Photo téléchargée!',
+                supportlink: 'https://t.me/USAvisaPhoto',
                 pricing: [
-                    { 
-                        name: 'Plan Solo', 
-                        attempts: '10 tentatives', 
-                        price: '99 ⭐',
-                        description: 'Parfait si vous postulez seul.\n10 vérifications suffisent pour faire plusieurs tentatives et reprendre les photos tranquillement si nécessaire.\nIdéal pour ceux qui ont déjà de l\'expérience avec les outils de vérification de photos et qui veulent tout le nécessaire sans surpayer.'
-                    },
-                    { 
-                        name: 'Famille DV', 
-                        attempts: '30 tentatives', 
-                        price: '249 ⭐',
-                        description: 'Meilleure solution pour toute la famille.\nParfait si vous postulez avec votre conjoint — les vérifications suffisent pour toutes les photos à votre rythme.\nSi vous avez des enfants, 30 vérifications sont plus que suffisantes pour tous les membres de la famille, y compris les reprises si nécessaire.'
-                    },
-                    { 
-                        name: 'Agence PRO', 
-                        attempts: 'Illimité', 
-                        price: '2499 ⭐',
-                        description: 'Liberté maximale sans limites.\nParfait pour les studios photo, agences, photographes professionnels, spécialistes visa, blogueurs et petites entreprises.\nPendant les périodes de forte activité, le plan se rembourse en 1-2 jours de travail actif.\nVérifications illimitées pendant 6 mois à partir de la date d\'achat — une solution professionnelle pour ceux travaillant avec de gros volumes de clients.'
-                    }
+                    { name: 'Gratuit', attempts: '3 vérifications', price: '$0', description: '3 vérifications gratuites. Analyse complète. Téléchargement résultats.' },
+                    { name: 'Standard', attempts: '10 vérifications', price: '$2.99', description: '10 vérifications. Traitement rapide. Téléchargement HD.' },
+                    { name: 'Premium', attempts: '30 vérifications', price: '$6.99', description: '30 vérifications. Support prioritaire. Traitement par lot.' },
+                    { name: 'Agence PRO', attempts: 'Illimité', price: '$24.99', description: 'Vérifications illimitées 6 mois. Priorité. Support 24/7.' }
                 ],
-                how_works: [
-                    { title: 'Qu\'est-ce que c\'est?', text: 'DV-Lottery Photo Check — un outil qui vous aide à vérifier rapidement et précisément votre photo avant de soumettre votre candidature à la loterie Green Card 🇺🇸' },
-                    { title: 'Comment ça marche?', text: 'Téléchargez votre photo → le système analyse automatiquement tous les paramètres clés → vous obtenez instantanément les résultats et les recommandations pour votre photo vérifiée.' },
-                    { title: 'Que vérifions-nous?', text: '✓ Taille et résolution\n✓ Luminosité, netteté et contraste du visage\n✓ Fond uni correct\n✓ Position de la tête et niveau des yeux\n✓ Format du fichier et exigences techniques' },
-                    { title: 'Pourquoi c\'est important?', text: 'La photo est l\'une des raisons les plus courantes du rejet d\'une candidature.\nLa vérification vous aide à vous assurer que votre photo respecte les normes officielles et est prête à être soumise.' },
-                    { title: 'Comment commencer?', text: 'Nous fournissons 3 vérifications gratuites pour que vous puissiez tester tranquillement le service et préparer votre photo.\nSi vous en avez besoin de plus, vous pouvez acheter des vérifications supplémentaires dans la section Tarifs à tout moment — choisissez un plan qui vous convient.\nNous publions régulièrement des codes promo pour des vérifications gratuites dans notre canal Telegram.\nVous pouvez vous y abonner via la section "Nous sur Telegram" du menu principal.' }
+                howworks: [
+                    { title: 'Qu\'est-ce que c\'est?', text: 'DV-Lottery Photo Check aide à vérifier votre photo avant d\'appliquer.' },
+                    { title: 'Comment ça marche?', text: 'Téléchargez, posez les lignes, vérifiez. Système analyse et donne résultats.' },
+                    { title: 'Qu\'on vérifie?', text: 'Taille 600x600. Qualité. Position tête. Fond. Éclairage. Format JPEG.' },
+                    { title: 'Pourquoi c\'est important?', text: 'Rejet photo fréquent. Nous garantissons conformité.' },
+                    { title: 'Comment commencer?', text: '3 vérifications gratuites. Puis choisissez plan. Codes promo Telegram.' }
                 ],
                 news: [
-                    { date: '27.11.2025', title: 'Nouvelle mise à jour', text: 'Précision améliorée de la détection des visages et support de 4 langues' },
-                    { date: '26.11.2025', title: 'Support multilingue', text: 'Disponible en russe, anglais, français et arabe' },
-                    { date: '28.11.2025', title: 'Mise à jour DV-2027 : En attente du démarrage officiel', text: 'À ce moment, la loterie DV-2027 n\'a pas encore commencé. Les États-Unis n\'ont pas encore publié les dates officielles d\'inscription, et on ne sait pas si le démarrage aura lieu fin 2025 ou sera reporté à 2026. Nous suivons de près les mises à jour et partagerons l\'information immédiatement après l\'annonce.\n\nUne fois que le Département d\'État annoncera le démarrage de DV-2027, nous préparerons un guide détaillé et étape par étape pour remplir le formulaire de demande afin que vous puissiez soumettre votre demande calmement et indépendamment.\n\nImportant : Soumettez votre demande indépendamment\nRemplir le formulaire de demande DV n\'est pas un processus compliqué. Nous vous recommandons vivement de soumettre votre demande indépendamment, sans utiliser les services d\'intermédiaires qui proposent de la remplir contre rémunération.\n\nPourquoi est-ce important :\n• Vous risquez de perdre le contrôle de votre demande\n• Vous pouvez perdre votre numéro de confirmation\n• Le risque de rencontrer des arnaqueurs augmente\n\nDans notre section, nous analyserons chaque étape du processus de demande en détail pour éliminer complètement toute difficulté.\n\nChangements possibles dans DV-2027\nSelon des rapports non officiels, il existe une possibilité d\'introduire un droit obligatoire pour soumettre une demande. Il n\'y a actuellement aucune information confirmée sur le prix ou sur le fait que ce changement sera adopté.\n\nSi les frais apparaissent réellement, nous préparerons un guide détaillé sur :\n• Comment payer les frais\n• Que faire si votre carte bancaire n\'est pas acceptée\n• Quelles méthodes de paiement alternatives sont disponibles\n\nSuivez les actualités\nNous mettrons à jour les informations immédiatement après l\'annonce officielle du Département d\'État américain. Restez avec nous pour ne pas manquer le démarrage de DV-2027 et obtenir des instructions précises pour soumettre votre demande.' }
-                ],
-                dv_form_content: 'Mise à jour DV-2027 : En attente du démarrage officiel\n\nÀ ce moment, la loterie DV-2027 n\'a pas encore commencé. Les États-Unis n\'ont pas encore publié les dates officielles d\'inscription, et on ne sait pas si le démarrage aura lieu fin 2025 ou sera reporté à 2026. Nous suivons de près les mises à jour et partagerons l\'information immédiatement après l\'annonce.\n\nUne fois que le Département d\'État annoncera le démarrage de DV-2027, nous préparerons un guide détaillé et étape par étape pour remplir le formulaire de demande afin que vous puissiez soumettre votre demande calmement et indépendamment.\n\nImportant : Soumettez votre demande indépendamment\nRemplir le formulaire de demande DV n\'est pas un processus compliqué. Nous vous recommandons vivement de soumettre votre demande indépendamment, sans utiliser les services d\'intermédiaires qui proposent de la remplir contre rémunération.\n\nPourquoi est-ce important :\n• Vous risquez de perdre le contrôle de votre demande\n• Vous pouvez perdre votre numéro de confirmation\n• Le risque de rencontrer des arnaqueurs augmente\n\nDans notre section, nous analyserons chaque étape du processus de demande en détail pour éliminer complètement toute difficulté.\n\nChangements possibles dans DV-2027\nSelon des rapports non officiels, il existe une possibilité d\'introduire un droit obligatoire pour soumettre une demande. Il n\'y a actuellement aucune information confirmée sur le prix ou sur le fait que ce changement sera adopté.\n\nSi les frais apparaissent réellement, nous préparerons un guide détaillé sur :\n• Comment payer les frais\n• Que faire si votre carte bancaire n\'est pas acceptée\n• Quelles méthodes de paiement alternatives sont disponibles\n\nSuivez les actualités\nNous mettrons à jour les informations immédiatement après l\'annonce officielle du Département d\'État américain. Restez avec nous pour ne pas manquer le démarrage de DV-2027 et obtenir des instructions précises pour soumettre votre demande.'
+                    { date: '28.11.2025', title: 'DV-2027', text: 'Loterie pas encore commencée. Vérifiez mise à jour.' },
+                    { date: '27.11.2025', title: 'Mise à jour', text: 'Meilleure détection. Support 4 langues.' },
+                    { date: '26.11.2025', title: 'Support langue', text: 'Maintenant en russe, anglais, français, arabe.' }
+                ]
             },
             ar: {
-                selectLanguage: 'اختر اللغة',
-                title: 'التحقق من صور اليانصيب',
-                attempts_label: 'المحاولات المتبقية:',
-                btn_upload: '📸 تحميل صورة',
-                btn_how_works: 'كيفية العمل',
-                btn_news: 'الأخبار',
-                btn_pricing: 'الأسعار',
-                btn_dv_form: 'كيفية ملء DV-2027',
-                btn_support: 'نحن على تيليجرام',
-                promo_placeholder: 'أدخل رمز الترويج',
-                btn_apply: 'تطبيق',
-                btn_back: '← رجوع',
-                btn_buy: 'شراء',
-                description_toggle: 'وصف الخطة',
-                promo_success: '✓ تم قبول رمز الترويج! +5 محاولات',
-                promo_invalid: '✗ رمز ترويج غير صحيح',
-                upload_success: '✅ تم تحميل الصورة!',
-                support_link: 'https://t.me/USAvisaPhoto',
+                selectLanguage: 'اختيار اللغة',
+                title: 'DV-Lottery Photo Check',
+                attemptslabel: 'محاولات',
+                btnupload: 'رفع صورة',
+                btnhowworks: 'كيفية العمل',
+                btnnews: 'الأخبار',
+                btnpricing: 'الأسعار',
+                btndvform: 'DV-2027',
+                btnsupport: 'Telegram',
+                promoplaceholder: 'الكود...',
+                btnapply: 'تطبيق',
+                btnback: 'رجوع',
+                btnbuy: 'شراء',
+                descriptiontoggle: 'الوصف',
+                promosuccess: 'تم قبول الكود! +5',
+                promoinvalid: 'كود غير صحيح',
+                uploadsuccess: 'تم رفع الصورة!',
+                supportlink: 'https://t.me/USAvisaPhoto',
                 pricing: [
-                    { 
-                        name: 'خطة سولو', 
-                        attempts: '10 محاولات', 
-                        price: '99 ⭐',
-                        description: 'مثالي إذا كنت تتقدم وحدك.\n10 فحوصات كافية لعمل عدة محاولات وإعادة التقاط الصور براحة إذا لزم الأمر.\nمثالي لمن لديهم بالفعل خبرة في استخدام أدوات التحقق من الصور ويريدون كل ما يلزمهم دون دفع الكثير.'
-                    },
-                    { 
-                        name: 'عائلة DV', 
-                        attempts: '30 محاولة', 
-                        price: '249 ⭐',
-                        description: 'الحل الأفضل لتقديم العائلة بأكملها.\nمثالي إذا كنت تتقدم مع زوجتك — الفحوصات كافية لجميع الصور بوتيرة مريحة.\nإذا كان لديك أطفال، فإن 30 فحصًا أكثر من كافٍ لجميع أفراد الأسرة، بما في ذلك الصور المكررة إذا لزم الأمر.'
-                    },
-                    { 
-                        name: 'وكالة PRO', 
-                        attempts: 'غير محدود', 
-                        price: '2499 ⭐',
-                        description: 'حرية قصوى بدون قيود.\nمثالي لاستوديوهات الصور والوكالات والمصورين المحترفين واختصاصيي التأشيرات والمدونين والشركات الصغيرة.\nخلال فترات التقديم الضخمة، تعود تكاليف الخطة في 1-2 يوم من العمل النشط.\nفحوصات غير محدودة لمدة 6 أشهر من تاريخ الشراء — حل احترافي لمن يعملون مع أعداد كبيرة من العملاء.'
-                    }
+                    { name: 'مجاني', attempts: '3 فحوصات', price: '$0', description: '3 فحوصات مجانية. تحليل كامل. تحميل النتائج.' },
+                    { name: 'قياسي', attempts: '10 فحوصات', price: '$2.99', description: '10 فحوصات. معالجة سريعة. تحميل HD.' },
+                    { name: 'المتميز', attempts: '30 فحوصات', price: '$6.99', description: '30 فحوصات. الدعم الأولويات. معالجة الدفعات.' },
+                    { name: 'وكالة PRO', attempts: 'غير محدود', price: '$24.99', description: 'فحوصات غير محدودة لمدة 6 أشهر. أولويات. دعم 24/7.' }
                 ],
-                how_works: [
-                    { title: 'ما هذا؟', text: 'DV-Lottery Photo Check — أداة تساعدك على التحقق بسرعة وبدقة من صورتك قبل تقديم طلبك لليانصيب Green Card 🇺🇸' },
-                    { title: 'كيف يعمل؟', text: 'حمّل صورتك → يحلل النظام تلقائياً جميع المعاملات الأساسية → تحصل على النتائج والتوصيات فوراً لصورتك المُتحقق منها.' },
-                    { title: 'ماذا نتحقق؟', text: '✓ الحجم والدقة\n✓ سطوع الوجه والوضوح والتباين\n✓ خلفية موحدة صحيحة\n✓ وضع الرأس ومستوى العيون\n✓ صيغة الملف والمتطلبات التقنية' },
-                    { title: 'لماذا تحتاج إليها؟', text: 'الصورة هي أحد أكثر الأسباب شيوعاً لرفض الطلب.\nيساعدك التحقق على التأكد من أن صورتك تتوافق مع المعايير الرسمية وجاهزة للتقديم.' },
-                    { title: 'كيفية البدء؟', text: 'نوفر لك 3 تحققات مجانية حتى تتمكن من اختبار الخدمة بهدوء وتحضير صورتك.\nإذا كنت بحاجة إلى المزيد، يمكنك شراء تحققات إضافية في قسم الأسعار في أي وقت — اختر الخطة التي تناسبك.\nننشر بانتظام رموز ترويج للتحققات المجانية في قناتنا على تيليجرام.\nيمكنك الاشتراك فيها من خلال قسم "نحن على تيليجرام" في القائمة الرئيسية.' }
+                howworks: [
+                    { title: 'ما هذا؟', text: 'يساعد على التحقق من الصورة قبل التقديم.' },
+                    { title: 'كيفية العمل؟', text: 'ارفع الصورة، ضع الخطوط، تحقق. نتائج فورية.' },
+                    { title: 'ما نتحقق منه؟', text: 'الحجم 600x600. الجودة. الرأس. الخلفية. التنسيق JPEG.' },
+                    { title: 'لماذا مهم؟', text: 'الصورة سبب رفض شائع. نضمن المطابقة.' },
+                    { title: 'كيفية البدء؟', text: '3 فحوصات مجانية. اختر خطة. أكواد في Telegram.' }
                 ],
                 news: [
-                    { date: '27.11.2025', title: 'تحديث جديد', text: 'تحسين دقة كشف الوجوه وإضافة دعم 4 لغات' },
-                    { date: '26.11.2025', title: 'دعم متعدد اللغات', text: 'متاح باللغات الروسية والإنجليزية والفرنسية والعربية' },
-                    { date: '28.11.2025', title: 'تحديث DV-2027: في انتظار البدء الرسمي', text: 'في هذه اللحظة، لم تبدأ يانصيب DV-2027 بعد. الولايات المتحدة لم تنشر بعد المواعيد الرسمية للتسجيل، ومن غير المعروف ما إذا كان البدء سيتم في أواخر عام 2025 أم سيتم تأجيله إلى عام 2026. نحن نراقب التحديثات عن كثب وسنشارك المعلومات فوراً بعد الإعلان.\n\nبمجرد أن يعلن وزارة الخارجية عن بدء DV-2027، سنعد دليلاً تفصيلياً خطوة بخطوة لملء نموذج الطلب حتى تتمكن من تقديم طلبك بهدوء واستقلالية.\n\nمهم: قدم طلبك بشكل مستقل\nملء نموذج طلب DV ليس عملية معقدة. نوصيك بشدة بتقديم طلبك بشكل مستقل، دون استخدام خدمات الوسطاء الذين يقدمون ملء الطلب مقابل المال.\n\nلماذا هذا مهم:\n• تخاطرة بفقدان السيطرة على طلبك\n• قد تفقد رقم تأكيد الاستقبال\n• يزداد خطر التعامل مع المحتالين\n\nفي قسمنا، سنحلل كل خطوة من خطوات عملية الطلب بالتفصيل لاستبعاد أي صعوبات تماماً.\n\nالتغييرات المحتملة في DV-2027\nوفقاً لتقارير غير رسمية، هناك احتمالية لفرض رسم إلزامي لتقديم الطلب. لا توجد حالياً أي معلومات مؤكدة حول السعر أو ما إذا كان سيتم اعتماد هذا التغيير.\n\nإذا ظهرت الرسوم فعلاً، سنعد دليلاً تفصيلياً حول:\n• كيفية دفع الرسوم\n• ماذا تفعل إذا لم تتم قبول بطاقتك البنكية\n• ما هي خيارات الدفع البديلة المتاحة\n\nتابع الأخبار\nسنحدث المعلومات فوراً بعد الإعلان الرسمي من وزارة الخارجية الأمريكية. ابقَ معنا حتى لا تفوتك بداية DV-2027 وتحصل على تعليمات دقيقة لتقديم طلبك.' }
-                ],
-                dv_form_content: 'تحديث DV-2027: في انتظار البدء الرسمي\n\nفي هذه اللحظة، لم تبدأ يانصيب DV-2027 بعد. الولايات المتحدة لم تنشر بعد المواعيد الرسمية للتسجيل، ومن غير المعروف ما إذا كان البدء سيتم في أواخر عام 2025 أم سيتم تأجيله إلى عام 2026. نحن نراقب التحديثات عن كثب وسنشارك المعلومات فوراً بعد الإعلان.\n\nبمجرد أن يعلن وزارة الخارجية عن بدء DV-2027، سنعد دليلاً تفصيلياً خطوة بخطوة لملء نموذج الطلب حتى تتمكن من تقديم طلبك بهدوء واستقلالية.\n\nمهم: قدم طلبك بشكل مستقل\nملء نموذج طلب DV ليس عملية معقدة. نوصيك بشدة بتقديم طلبك بشكل مستقل، دون استخدام خدمات الوسطاء الذين يقدمون ملء الطلب مقابل المال.\n\nلماذا هذا مهم:\n• تخاطرة بفقدان السيطرة على طلبك\n• قد تفقد رقم تأكيد الاستقبال\n• يزداد خطر التعامل مع المحتالين\n\nفي قسمنا، سنحلل كل خطوة من خطوات عملية الطلب بالتفصيل لاستبعاد أي صعوبات تماماً.\n\nالتغييرات المحتملة في DV-2027\nوفقاً لتقارير غير رسمية، هناك احتمالية لفرض رسم إلزامي لتقديم الطلب. لا توجد حالياً أي معلومات مؤكدة حول السعر أو ما إذا كان سيتم اعتماد هذا التغيير.\n\nإذا ظهرت الرسوم فعلاً، سنعد دليلاً تفصيلياً حول:\n• كيفية دفع الرسوم\n• ماذا تفعل إذا لم تتم قبول بطاقتك البنكية\n• ما هي خيارات الدفع البديلة المتاحة\n\nتابع الأخبار\nسنحدث المعلومات فوراً بعد الإعلان الرسمي من وزارة الخارجية الأمريكية. ابقَ معنا حتى لا تفوتك بداية DV-2027 وتحصل على تعليمات دقيقة لتقديم طلبك.'
+                    { date: '28.11.2025', title: 'DV-2027', text: 'لم تبدأ اليانصيب بعد. ابقي على اطلاع.' },
+                    { date: '27.11.2025', title: 'تحديث', text: 'كشف أفضل. 4 لغات.' },
+                    { date: '26.11.2025', title: 'دعم اللغة', text: 'الآن بلغات متعددة.' }
+                ]
             }
         };
 
@@ -955,65 +378,48 @@
             attempts: 3,
             isAdmin: false,
             languageSelected: false,
-            userId: null,
-            agencyProExpiry: null
+            userId: null
         };
 
-        const LANGUAGES = ['ru', 'en', 'fr', 'ar'];
         let currentLangIndex = 0;
         let animationInterval = null;
 
+        // ===== PHOTO CHECKER STATE =====
+        let photoCheckerState = {
+            originalImageData: null,
+            image: null,
+            canvas: null,
+            ctx: null,
+            lines: { red: null, blue: null, green: null, brown: null },
+            draggingLine: null,
+            canvasWidth: 600,
+            canvasHeight: 600
+        };
+
         // ===== INITIALIZATION =====
-        window.addEventListener('load', () => {
-            initApp();
-        });
+        window.addEventListener('load', initApp);
 
         function initApp() {
-            // Get user ID from Telegram WebApp
             if (window.Telegram?.WebApp) {
                 Telegram.WebApp.ready();
                 Telegram.WebApp.expand();
-                
                 const webAppData = Telegram.WebApp.initDataUnsafe;
                 if (webAppData?.user?.id) {
                     appState.userId = webAppData.user.id;
                     appState.isAdmin = ADMIN_IDS.includes(appState.userId);
                 }
             }
-
-            // Set attempts based on admin status
             appState.attempts = appState.isAdmin ? 999 : 3;
-
-            // Check if Agency PRO expired
-            checkAgencyProExpiry();
-
             setupEventListeners();
             startLanguageAnimation();
         }
 
-        function checkAgencyProExpiry() {
-            const expiry = localStorage.getItem('agencyProExpiry_' + appState.userId);
-            if (expiry) {
-                const expiryDate = new Date(expiry);
-                if (new Date() > expiryDate) {
-                    // Expired, reset to 3 attempts
-                    appState.attempts = 3;
-                    localStorage.removeItem('agencyProExpiry_' + appState.userId);
-                } else {
-                    // Still valid
-                    appState.attempts = 999;
-                }
-            }
-        }
-
         function startLanguageAnimation() {
             const subtitleEl = document.getElementById('splashSubtitle');
-            
             animationInterval = setInterval(() => {
-                currentLangIndex = (currentLangIndex + 1) % LANGUAGES.length;
-                const lang = LANGUAGES[currentLangIndex];
+                currentLangIndex = (currentLangIndex + 1) % Object.keys(CONTENT).length;
+                const lang = Object.keys(CONTENT)[currentLangIndex];
                 subtitleEl.style.opacity = '0';
-                
                 setTimeout(() => {
                     subtitleEl.textContent = CONTENT[lang].selectLanguage;
                     subtitleEl.style.opacity = '1';
@@ -1022,38 +428,32 @@
         }
 
         function setupEventListeners() {
-            // Language selection
             document.querySelectorAll('.lang-btn-splash').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    selectLanguage(btn.dataset.lang);
-                });
+                btn.addEventListener('click', () => selectLanguage(btn.dataset.lang));
             });
 
-            // Menu items
             document.getElementById('menuHowItWorks').addEventListener('click', () => showSection('howWorks'));
             document.getElementById('menuNews').addEventListener('click', () => showSection('news'));
             document.getElementById('menuPricing').addEventListener('click', () => showSection('pricing'));
             document.getElementById('menuDVForm').addEventListener('click', () => showSection('dvForm'));
             document.getElementById('menuSupport').addEventListener('click', () => {
-                const link = CONTENT[appState.currentLang].support_link;
+                const link = CONTENT[appState.currentLang].supportlink;
                 window.open(link, '_blank');
             });
 
-            // Back buttons
             ['backBtn1', 'backBtn2', 'backBtn3', 'backBtn4'].forEach(id => {
-                document.getElementById(id).addEventListener('click', () => backToMenu());
+                document.getElementById(id).addEventListener('click', backToMenu);
             });
 
-            // Upload
             document.getElementById('uploadBtn').addEventListener('click', () => {
                 document.getElementById('photoInput').click();
             });
 
-            document.getElementById('photoInput').addEventListener('change', (e) => {
+            document.getElementById('photoInput').addEventListener('change', e => {
                 const file = e.target.files[0];
                 if (file && file.type.startsWith('image/')) {
                     const reader = new FileReader();
-                    reader.onload = (event) => {
+                    reader.onload = event => {
                         photoCheckerState.originalImageData = event.target.result;
                         openPhotoChecker();
                     };
@@ -1066,636 +466,320 @@
 
         function selectLanguage(lang) {
             if (animationInterval) clearInterval(animationInterval);
-            
             appState.currentLang = lang;
             appState.languageSelected = true;
-            
             setTimeout(() => {
                 document.getElementById('splashScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.add('active');
                 updateAllContent();
-                
-                if (appState.currentLang === 'ar') {
-                    document.documentElement.setAttribute('dir', 'rtl');
-                    document.documentElement.lang = 'ar';
-                } else {
-                    document.documentElement.removeAttribute('dir');
-                    document.documentElement.lang = appState.currentLang;
-                }
             }, 300);
         }
 
         function updateAllContent() {
             const content = CONTENT[appState.currentLang];
-            
-            document.getElementById('textHowWorks').textContent = content.btn_how_works;
-            document.getElementById('textNews').textContent = content.btn_news;
-            document.getElementById('textPricing').textContent = content.btn_pricing;
-            document.getElementById('textDVForm').textContent = content.btn_dv_form;
-            document.getElementById('textSupport').textContent = content.btn_support;
-            document.getElementById('uploadBtn').textContent = content.btn_upload;
-            document.getElementById('applyPromoBtn').textContent = content.btn_apply;
-            document.getElementById('attemptsLabel').textContent = content.attempts_label;
-            document.getElementById('promoCode').placeholder = content.promo_placeholder;
-            
+            document.getElementById('textHowWorks').textContent = content.btnhowworks;
+            document.getElementById('textNews').textContent = content.btnnews;
+            document.getElementById('textPricing').textContent = content.btnpricing;
+            document.getElementById('textDVForm').textContent = content.btndvform;
+            document.getElementById('textSupport').textContent = content.btnsupport;
+            document.getElementById('uploadBtn').textContent = content.btnupload;
+            document.getElementById('applyPromoBtn').textContent = content.btnapply;
+            document.getElementById('attemptsLabel').textContent = content.attemptslabel;
+            document.getElementById('appTitle').textContent = content.title;
+            document.getElementById('promoCode').placeholder = content.promoplaceholder;
+            document.getElementById('lineRedLabel').textContent = 'Верх головы (красная)';
+            document.getElementById('lineBlueLabel').textContent = 'Низ подбородка (синяя)';
+            document.getElementById('lineGreenLabel').textContent = 'Уровень глаз (зелёная)';
+            document.getElementById('lineBrownLabel').textContent = 'Центр по X (коричневая)';
+
             populateAllContent();
         }
 
         function populateAllContent() {
-            populateNews();
-            populatePricing();
-            populateHowWorks();
-            populateDVForm();
-            updateBackButtons();
-        }
-
-        function populateNews() {
             const content = CONTENT[appState.currentLang];
-            const list = document.getElementById('newsFullList');
-            const itemsPerPage = 5;
-            const totalPages = Math.ceil(content.news.length / itemsPerPage);
-            let currentPage = 1;
-            
-            function showPage(page) {
-                const start = (page - 1) * itemsPerPage;
-                const end = start + itemsPerPage;
-                const pageNews = content.news.slice(start, end);
-                
-                let html = pageNews.map(n => `
-                    <div class="news-card">
-                        <div class="news-card-date">${n.date}</div>
-                        <div class="news-card-title">${n.title}</div>
-                        <div class="news-card-text">${n.text.replace(/\n/g, '<br>')}</div>
-                    </div>
-                `).join('');
-                
-                if (totalPages > 1) {
-                    html += '<div class="pagination">';
-                    for (let i = 1; i <= totalPages; i++) {
-                        html += `<button class="pagination-btn ${i === page ? 'active' : ''}" onclick="window.changeNewsPage(${i})">${i}</button>`;
-                    }
-                    html += '</div>';
-                }
-                
-                list.innerHTML = html;
-                currentPage = page;
-            }
-            
-            window.changeNewsPage = function(page) {
-                showPage(page);
-            };
-            
-            showPage(1);
-        }
 
-        function populatePricing() {
-            const content = CONTENT[appState.currentLang];
-            const list = document.getElementById('pricingList');
-            
-            list.innerHTML = content.pricing.map((p, idx) => `
-                <div class="pricing-card">
-                    <div class="pricing-name">${p.name}</div>
-                    <div class="pricing-attempts">${p.attempts}</div>
-                    <div class="pricing-price">${p.price}</div>
-                    <div class="pricing-description-toggle" onclick="toggleDescription(${idx})">${content.description_toggle}</div>
-                    <div class="pricing-description" id="desc_${idx}">${p.description.replace(/\n/g, '<br>')}</div>
-                    <button class="btn-buy" onclick="buyPlan('${p.name}', ${idx})">${content.btn_buy}</button>
-                </div>
-            `).join('');
-        }
+            // Populate How It Works
+            let howWorksHTML = '<div class="how-works-unified">';
+            content.howworks.forEach(item => {
+                howWorksHTML += `<div class="how-works-section"><h3>${item.title}</h3><p>${item.text}</p></div>`;
+            });
+            howWorksHTML += '</div>';
+            document.getElementById('howWorksListdiv').innerHTML = howWorksHTML;
 
-        function populateHowWorks() {
-            const content = CONTENT[appState.currentLang];
-            const list = document.getElementById('howWorksList');
-            
-            let html = '<div class="how-works-unified">';
-            html += content.how_works.map(h => `
-                <div class="how-works-section">
-                    <h3>${h.title}</h3>
-                    <p>${h.text.replace(/\n/g, '<br>')}</p>
-                </div>
-            `).join('');
-            html += '</div>';
-            
-            list.innerHTML = html;
-        }
+            // Populate News
+            let newsHTML = '';
+            content.news.forEach(item => {
+                newsHTML += `<div class="news-card"><div class="news-card-date">${item.date}</div><div class="news-card-title">${item.title}</div><div class="news-card-text">${item.text}</div></div>`;
+            });
+            document.getElementById('newsFullListdiv').innerHTML = newsHTML;
 
-        function populateDVForm() {
-            const content = CONTENT[appState.currentLang];
-            const list = document.getElementById('dvFormList');
-            
-            list.innerHTML = `<div class="instruction-block" style="border-left: none;">
-                <p>${content.dv_form_content.replace(/\n/g, '<br>')}</p>
-            </div>`;
-        }
+            // Populate Pricing
+            let pricingHTML = '';
+            content.pricing.forEach((item, idx) => {
+                pricingHTML += `<div class="pricing-card">
+                    <div class="pricing-name">${item.name}</div>
+                    <div class="pricing-attempts">${item.attempts}</div>
+                    <div class="pricing-price">${item.price}</div>
+                    <div class="pricing-description-toggle">📖 ${content.descriptiontoggle}</div>
+                    <div class="pricing-description">${item.description}</div>
+                    <button class="btn-buy">${content.btnbuy}</button>
+                </div>`;
+            });
+            document.getElementById('pricingListdiv').innerHTML = pricingHTML;
 
-        function updateBackButtons() {
-            const content = CONTENT[appState.currentLang];
+            // Add description toggle
+            document.querySelectorAll('.pricing-description-toggle').forEach(el => {
+                el.addEventListener('click', function() {
+                    this.nextElementSibling.classList.toggle('active');
+                });
+            });
+
+            // Populate DV Form
+            let dvFormHTML = '<div class="instruction-block"><h3>ДВ-2027</h3><p>Лотерея ещё не началась. Следите за обновлениями.</p></div>';
+            document.getElementById('dvFormListdiv').innerHTML = dvFormHTML;
+
+            // Update back buttons
             ['backBtn1', 'backBtn2', 'backBtn3', 'backBtn4'].forEach(id => {
-                const btn = document.getElementById(id);
-                btn.textContent = content.btn_back;
+                document.getElementById(id).textContent = content.btnback;
             });
         }
 
-        function toggleDescription(idx) {
-            const desc = document.getElementById('desc_' + idx);
-            desc.classList.toggle('active');
-        }
-
         function showSection(section) {
-            document.getElementById('menuView').style.display = 'none';
-            
-            const tabName = section === 'howWorks' ? 'howWorks' : section === 'dvForm' ? 'dvForm' : section;
-            document.getElementById(tabName + 'Tab').classList.add('active');
+            const sectionMap = {
+                howWorks: 'howWorksTab',
+                news: 'newsTab',
+                pricing: 'pricingTab',
+                dvForm: 'dvFormTab'
+            };
+            document.getElementById('menuView').classList.remove('active');
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(sectionMap[section]).classList.add('active');
         }
 
         function backToMenu() {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.pricing-description').forEach(d => d.classList.remove('active'));
-            document.getElementById('menuView').style.display = 'flex';
+            document.getElementById('menuView').classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
         }
 
         function applyPromoCode() {
-            const code = document.getElementById('promoCode').value.toUpperCase();
-            const content = CONTENT[appState.currentLang];
-            
-            if (code === 'GIFT2026') {
+            const code = document.getElementById('promoCode').value;
+            if (code === 'PROMO2024') {
                 appState.attempts += 5;
                 document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
-                alert(content.promo_success);
-                document.getElementById('promoCode').value = '';
+                alert(CONTENT[appState.currentLang].promosuccess);
             } else {
-                alert(content.promo_invalid);
+                alert(CONTENT[appState.currentLang].promoinvalid);
             }
+            document.getElementById('promoCode').value = '';
         }
 
-        function buyPlan(planName, idx) {
-            if (planName.includes('Agency')) {
-                // Agency PRO - set expiry to 6 months from now
-                const expiry = new Date();
-                expiry.setMonth(expiry.getMonth() + 6);
-                localStorage.setItem('agencyProExpiry_' + appState.userId, expiry.toISOString());
-                appState.attempts = 999;
-            }
-            
-            window.Telegram?.WebApp?.openLink('https://t.me/Stars4tonBot?start=buy_' + planName.replace(/\s+/g, '_'));
-        }
-
-        // Smooth transitions
-        const style = document.createElement('style');
-        style.textContent = `
-            #splashSubtitle {
-                transition: opacity 0.3s ease;
-            }
-        `;
-        document.head.appendChild(style);
-
-        // Display attempts on load
-        window.addEventListener('load', () => {
-            document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
-        });
-
-        // ===== PHOTO CHECKER STATE =====
-        let photoCheckerState = {
-            originalImageData: null,
-            image: null,
-            canvas: null,
-            ctx: null,
-            lines: {
-                red: 150,       // верх головы
-                blue: 450,      // низ подбородка
-                green: 300,     // центр глаз
-                brown: 300      // центр фото (вертикальная)
-            },
-            draggingLine: null,
-            touchStartY: null,
-            canvasScale: 1
-        };
-
-        // ===== OPEN PHOTO CHECKER =====
         function openPhotoChecker() {
             document.getElementById('photoCheckerModal').style.display = 'flex';
-            
-            // Инициализируем canvas
             const canvas = document.getElementById('photoCanvas');
-            const ctx = canvas.getContext('2d');
             photoCheckerState.canvas = canvas;
-            photoCheckerState.ctx = ctx;
+            photoCheckerState.ctx = canvas.getContext('2d');
 
-            // Загружаем изображение
             const img = new Image();
             img.onload = () => {
                 photoCheckerState.image = img;
-                
-                // Устанавливаем размер canvas 600x600
                 canvas.width = 600;
                 canvas.height = 600;
-                
-                // Масштабируем и рисуем изображение с сохранением пропорций
+                const ctx = photoCheckerState.ctx;
+
                 const imgAspect = img.width / img.height;
                 let sx = 0, sy = 0, sw = img.width, sh = img.height;
-                
+
                 if (imgAspect > 1) {
-                    // Ширина больше - обрезаем стороны
                     sw = img.height;
                     sx = (img.width - sw) / 2;
                 } else if (imgAspect < 1) {
-                    // Высота больше - обрезаем сверху/снизу
                     sh = img.width;
                     sy = (img.height - sh) / 2;
                 }
-                
-                // Рисуем с коррекцией масштаба
+
                 ctx.drawImage(img, sx, sy, sw, sh, 0, 0, 600, 600);
-                
-                // Устанавливаем линии по умолчанию
                 setDefaultLines();
-                
-                // Рисуем линии
                 redrawCanvasWithLines();
                 setupCanvasInteraction();
             };
             img.src = photoCheckerState.originalImageData;
         }
 
-        // ===== SET DEFAULT LINES =====
         function setDefaultLines() {
-            photoCheckerState.lines.red = 150;       // верх головы
-            photoCheckerState.lines.blue = 450;      // низ подбородка
-            photoCheckerState.lines.green = 300;     // центр глаз
-            photoCheckerState.lines.brown = 300;     // центр фото
+            photoCheckerState.lines.red = 150;
+            photoCheckerState.lines.blue = 450;
+            photoCheckerState.lines.green = 300;
+            photoCheckerState.lines.brown = 300;
         }
 
-        // ===== REDRAW CANVAS WITH LINES =====
         function redrawCanvasWithLines() {
             const ctx = photoCheckerState.ctx;
-            const img = photoCheckerState.image;
-            
-            // Очищаем и перерисовываем изображение
             ctx.clearRect(0, 0, 600, 600);
-            ctx.drawImage(img, 0, 0, 600, 600);
-            
-            // Рисуем бордовую линию (верх головы)
-            drawHorizontalLine(ctx, photoCheckerState.lines.red, '#8B0000', 4);
-            
-            // Рисуем синюю линию (низ подбородка)
-            drawHorizontalLine(ctx, photoCheckerState.lines.blue, '#00008B', 4);
-            
-            // Рисуем зеленую прерывистую линию (центр глаз)
-            drawDashedHorizontalLine(ctx, photoCheckerState.lines.green, '#006400', 4);
-            
-            // Рисуем коричневую прерывистую вертикальную линию (центр фото)
-            drawDashedVerticalLine(ctx, photoCheckerState.lines.brown, '#8B6F47', 4);
-        }
 
-        // ===== DRAW HORIZONTAL LINE =====
-        function drawHorizontalLine(ctx, y, color, width) {
-            ctx.strokeStyle = color;
-            ctx.lineWidth = width;
+            const img = photoCheckerState.image;
+            if (img) {
+                const imgAspect = img.width / img.height;
+                let sx = 0, sy = 0, sw = img.width, sh = img.height;
+                if (imgAspect > 1) {
+                    sw = img.height;
+                    sx = (img.width - sw) / 2;
+                } else if (imgAspect < 1) {
+                    sh = img.width;
+                    sy = (img.height - sh) / 2;
+                }
+                ctx.drawImage(img, sx, sy, sw, sh, 0, 0, 600, 600);
+            }
+
+            // Draw lines
+            ctx.strokeStyle = '#8B0000';
+            ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(600, y);
+            ctx.moveTo(0, photoCheckerState.lines.red);
+            ctx.lineTo(600, photoCheckerState.lines.red);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#00008B';
+            ctx.beginPath();
+            ctx.moveTo(0, photoCheckerState.lines.blue);
+            ctx.lineTo(600, photoCheckerState.lines.blue);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#006400';
+            ctx.beginPath();
+            ctx.moveTo(0, photoCheckerState.lines.green);
+            ctx.lineTo(600, photoCheckerState.lines.green);
+            ctx.stroke();
+
+            ctx.strokeStyle = '#8B6F47';
+            ctx.beginPath();
+            ctx.moveTo(photoCheckerState.lines.brown, 0);
+            ctx.lineTo(photoCheckerState.lines.brown, 600);
             ctx.stroke();
         }
 
-        // ===== DRAW DASHED HORIZONTAL LINE =====
-        function drawDashedHorizontalLine(ctx, y, color, width) {
-            ctx.strokeStyle = color;
-            ctx.lineWidth = width;
-            ctx.setLineDash([10, 5]);
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(600, y);
-            ctx.stroke();
-            ctx.setLineDash([]);
-        }
-
-        // ===== DRAW DASHED VERTICAL LINE =====
-        function drawDashedVerticalLine(ctx, x, color, width) {
-            ctx.strokeStyle = color;
-            ctx.lineWidth = width;
-            ctx.setLineDash([10, 5]);
-            ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, 600);
-            ctx.stroke();
-            ctx.setLineDash([]);
-        }
-
-        // ===== SETUP CANVAS INTERACTION =====
         function setupCanvasInteraction() {
             const canvas = document.getElementById('photoCanvas');
-            
+
             function getYFromEvent(e) {
                 const rect = canvas.getBoundingClientRect();
                 const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
                 return (clientY - rect.top) * (600 / rect.height);
             }
-            
+
             function getLineAtY(y) {
                 const tolerance = 20;
-                
                 if (Math.abs(y - photoCheckerState.lines.red) < tolerance) return 'red';
                 if (Math.abs(y - photoCheckerState.lines.blue) < tolerance) return 'blue';
                 if (Math.abs(y - photoCheckerState.lines.green) < tolerance) return 'green';
                 return null;
             }
-            
-            // MOUSE EVENTS
-            canvas.addEventListener('mousedown', (e) => {
+
+            canvas.addEventListener('mousedown', e => {
                 const y = getYFromEvent(e);
                 photoCheckerState.draggingLine = getLineAtY(y);
-                if (photoCheckerState.draggingLine) {
-                    canvas.style.cursor = 'grabbing';
-                }
+                if (photoCheckerState.draggingLine) canvas.style.cursor = 'grabbing';
             });
-            
-            canvas.addEventListener('mousemove', (e) => {
+
+            canvas.addEventListener('mousemove', e => {
                 if (!photoCheckerState.draggingLine) {
                     const y = getYFromEvent(e);
                     canvas.style.cursor = getLineAtY(y) ? 'grab' : 'default';
                     return;
                 }
-                
                 const y = getYFromEvent(e);
                 const newY = Math.max(0, Math.min(600, y));
                 photoCheckerState.lines[photoCheckerState.draggingLine] = newY;
                 redrawCanvasWithLines();
             });
-            
+
             canvas.addEventListener('mouseup', () => {
                 photoCheckerState.draggingLine = null;
                 canvas.style.cursor = 'default';
             });
-            
-            canvas.addEventListener('mouseleave', () => {
-                photoCheckerState.draggingLine = null;
-                canvas.style.cursor = 'default';
-            });
-            
-            // TOUCH EVENTS
-            canvas.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                const y = getYFromEvent(e);
+
+            canvas.addEventListener('touchstart', e => {
+                const rect = canvas.getBoundingClientRect();
+                const y = (e.touches[0].clientY - rect.top) * (600 / rect.height);
                 photoCheckerState.draggingLine = getLineAtY(y);
-            }, { passive: false });
-            
-            canvas.addEventListener('touchmove', (e) => {
-                e.preventDefault();
+            });
+
+            canvas.addEventListener('touchmove', e => {
                 if (!photoCheckerState.draggingLine) return;
-                
-                const y = getYFromEvent(e);
+                const rect = canvas.getBoundingClientRect();
+                const y = (e.touches[0].clientY - rect.top) * (600 / rect.height);
                 const newY = Math.max(0, Math.min(600, y));
                 photoCheckerState.lines[photoCheckerState.draggingLine] = newY;
                 redrawCanvasWithLines();
-            }, { passive: false });
-            
-            canvas.addEventListener('touchend', (e) => {
-                e.preventDefault();
+            });
+
+            canvas.addEventListener('touchend', () => {
                 photoCheckerState.draggingLine = null;
-            }, { passive: false });
-        }
-
-        // ===== CALCULATE HEAD PERCENTAGE =====
-        function calculateHeadPercentage() {
-            const headHeight = photoCheckerState.lines.blue - photoCheckerState.lines.red;
-            const headPercentage = Math.round((headHeight / 600) * 100);
-            return headPercentage;
-        }
-
-        // ===== CALCULATE EYE PERCENTAGE =====
-        function calculateEyePercentage() {
-            const eyeFromBottom = 600 - photoCheckerState.lines.green;
-            const eyePercentage = Math.round((eyeFromBottom / 600) * 100);
-            return eyePercentage;
-        }
-
-        // ===== ANALYZE BACKGROUND UNIFORMITY (EDGES ONLY) =====
-        function analyzeBackgroundUniformity(ctx) {
-            const imageData = ctx.getImageData(0, 0, 600, 600);
-            const data = imageData.data;
-            
-            // Анализируем только края (20px полоса со всех сторон)
-            const edgePixels = [];
-            const edgeWidth = 20;
-            
-            // Верх и низ
-            for (let x = 0; x < 600; x++) {
-                for (let y = 0; y < edgeWidth; y++) {
-                    const idx = (y * 600 + x) * 4;
-                    edgePixels.push({ r: data[idx], g: data[idx+1], b: data[idx+2] });
-                }
-                for (let y = 600 - edgeWidth; y < 600; y++) {
-                    const idx = (y * 600 + x) * 4;
-                    edgePixels.push({ r: data[idx], g: data[idx+1], b: data[idx+2] });
-                }
-            }
-            
-            // Левая и правая стороны
-            for (let y = edgeWidth; y < 600 - edgeWidth; y++) {
-                for (let x = 0; x < edgeWidth; x++) {
-                    const idx = (y * 600 + x) * 4;
-                    edgePixels.push({ r: data[idx], g: data[idx+1], b: data[idx+2] });
-                }
-                for (let x = 600 - edgeWidth; x < 600; x++) {
-                    const idx = (y * 600 + x) * 4;
-                    edgePixels.push({ r: data[idx], g: data[idx+1], b: data[idx+2] });
-                }
-            }
-            
-            // Находим доминирующий цвет
-            const colorMap = {};
-            edgePixels.forEach(p => {
-                const r = Math.round(p.r / 20) * 20;
-                const g = Math.round(p.g / 20) * 20;
-                const b = Math.round(p.b / 20) * 20;
-                const key = r + '_' + g + '_' + b;
-                colorMap[key] = (colorMap[key] || 0) + 1;
-            });
-            
-            let dominantColor = null;
-            let maxCount = 0;
-            for (const key in colorMap) {
-                if (colorMap[key] > maxCount) {
-                    maxCount = colorMap[key];
-                    dominantColor = key.split('_').map(Number);
-                }
-            }
-            
-            const matchPercentage = (maxCount / edgePixels.length) * 100;
-            const isWhite = dominantColor[0] >= 240 && dominantColor[1] >= 240 && dominantColor[2] >= 240;
-            const isLightGray = dominantColor[0] >= 200 && dominantColor[0] <= 240 &&
-                                dominantColor[1] >= 200 && dominantColor[1] <= 240 &&
-                                dominantColor[2] >= 200 && dominantColor[2] <= 240;
-            
-            let maxDifference = 0;
-            edgePixels.forEach(p => {
-                const diff = Math.max(
-                    Math.abs(p.r - dominantColor[0]),
-                    Math.abs(p.g - dominantColor[1]),
-                    Math.abs(p.b - dominantColor[2])
-                );
-                maxDifference = Math.max(maxDifference, diff);
-            });
-            
-            return (isWhite || isLightGray) && matchPercentage > 80 && maxDifference < 30;
-        }
-
-        // ===== ANALYZE PHOTO QUALITY =====
-        function analyzePhotoQuality() {
-            return new Promise((resolve) => {
-                const canvas = photoCheckerState.canvas;
-                const ctx = photoCheckerState.ctx;
-                
-                const headPercentage = calculateHeadPercentage();
-                const eyePercentage = calculateEyePercentage();
-                const backgroundUniform = analyzeBackgroundUniformity(ctx);
-                
-                const results = {
-                    headPercentage: headPercentage,
-                    eyePercentage: eyePercentage,
-                    backgroundUniform: backgroundUniform,
-                    issues: []
-                };
-                
-                if (results.headPercentage < 50 || results.headPercentage > 69) {
-                    results.issues.push('HEAD_SIZE_INVALID');
-                }
-                if (results.eyePercentage < 56 || results.eyePercentage > 69) {
-                    results.issues.push('EYE_POSITION_INVALID');
-                }
-                if (!results.backgroundUniform) {
-                    results.issues.push('BACKGROUND_NOT_SOLID');
-                }
-                
-                resolve(results);
             });
         }
 
-        // ===== FORMAT RESULTS MESSAGE =====
-        function formatResultsMessage(results) {
-            const lang = appState.currentLang;
-            const translations = {
-                ru: {
-                    title: '📊 Результаты проверки фото',
-                    brightness: 'Яркость:',
-                    headHeight: 'Высота головы:',
-                    bgUniformity: 'Однородность фона:',
-                    status: 'Статус:',
-                    pass: '✅ ГОТОВО К ПОДАЧЕ',
-                    fail: '❌ ТРЕБУЕТ ДОРАБОТКИ',
-                    issues: {
-                        HEAD_TOO_SMALL: '• Голова слишком мала',
-                        TOO_DARK: '• Фото слишком тёмное',
-                        TOO_BRIGHT: '• Фото слишком светлое',
-                        EYES_MISALIGNED: '• Глаза не по центру',
-                        BACKGROUND_NOT_SOLID: '• Фон не однородный'
-                    },
-                    recommendation: 'Рекомендация: Переснимите фото с учётом указанных замечаний'
-                },
-                en: {
-                    title: '📊 Photo Check Results',
-                    brightness: 'Brightness:',
-                    headHeight: 'Head Height:',
-                    bgUniformity: 'Background Uniformity:',
-                    status: 'Status:',
-                    pass: '✅ READY TO SUBMIT',
-                    fail: '❌ NEEDS ADJUSTMENT',
-                    issues: {
-                        HEAD_TOO_SMALL: '• Head is too small',
-                        TOO_DARK: '• Photo is too dark',
-                        TOO_BRIGHT: '• Photo is too bright',
-                        EYES_MISALIGNED: '• Eyes are not centered',
-                        BACKGROUND_NOT_SOLID: '• Background is not uniform'
-                    },
-                    recommendation: 'Recommendation: Retake the photo according to the comments'
-                }
+        function closePhotoChecker() {
+            document.getElementById('photoCheckerModal').style.display = 'none';
+            photoCheckerState = {
+                originalImageData: null, image: null, canvas: null, ctx: null,
+                lines: { red: null, blue: null, green: null, brown: null },
+                draggingLine: null, canvasWidth: 600, canvasHeight: 600
             };
-            
-            const t = translations[lang] || translations.en;
-            const isPassed = results.issues.length === 0;
-            
-            let msg = `${t.title}\n\n`;
-            msg += `${t.brightness} ${results.avgBrightness}%\n`;
-            msg += `${t.headHeight} ${results.headHeight}px\n`;
-            msg += `${t.bgUniformity} ${results.backgroundUniformity}%\n\n`;
-            msg += `${t.status} ${isPassed ? t.pass : t.fail}\n`;
-            
-            if (!isPassed) {
-                msg += '\n' + results.issues.map(issue => t.issues[issue] || '').filter(Boolean).join('\n');
-                msg += '\n\n' + t.recommendation;
-            }
-            
-            return msg;
+            document.getElementById('photoInput').value = '';
         }
 
-        // ===== START PHOTO CHECK =====
-        async function startPhotoCheck() {
-            // Проверяем минимальное расстояние между линиями (для обрезки)
-            const topHead = photoCheckerState.lines.red;
-            const bottomChin = photoCheckerState.lines.blue;
-            const headHeight = bottomChin - topHead;
-            
-            // Минимум 200px для безопасной обрезки
-            if (headHeight < 200) {
-                const msgRu = 'Извините, на фото мало места для обрезки.\nУстановите линии корректно.';
-                const msgEn = 'Sorry, there is not enough space on the photo to crop.\nPlace the lines correctly.';
-                alert(appState.currentLang === 'ru' ? msgRu : msgEn);
-                return;
-            }
-            
-            // Уменьшаем попытки
-            if (!appState.isAdmin) {
-                appState.attempts--;
-                document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
-            }
-            
-            // Создаём обрезанное фото 600x600
-            const croppedCanvas = createCroppedPhoto();
-            
-            // Анализируем фото
-            const results = await analyzePhotoQuality();
-            
-            // Закрываем окно и показываем результаты с кропом
-            closePhotoChecker();
-            showResultsWithCrop(croppedCanvas, results);
-        }
-
-        // ===== CREATE CROPPED PHOTO WITH INTELLIGENT SCALING =====
+        // ===== FIXED: CREATE CROPPED PHOTO WITHOUT BLACK BARS =====
         function createCroppedPhoto() {
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = 600;
             tempCanvas.height = 600;
             const tempCtx = tempCanvas.getContext('2d');
-            
-            // Получаем линии на экране 600x600
-            const redLine = photoCheckerState.lines.red;          // верх головы
-            const blueLine = photoCheckerState.lines.blue;        // низ подбородка
-            const brownLine = photoCheckerState.lines.brown;      // центр X
-            
-            // Текущая высота головы на экране
+
+            const redLine = photoCheckerState.lines.red;
+            const blueLine = photoCheckerState.lines.blue;
+            const brownLine = photoCheckerState.lines.brown;
+
             const currentHeadHeight = blueLine - redLine;
-            
-            // Целевая высота головы (60% от 600px оптимально, диапазон 50-69%)
-            const targetHeadHeight = 600 * 0.60;  // 360px
-            
-            // Вычисляем масштаб
+            const targetHeadHeight = 600 * 0.60;
+
+            // ===== КРИТИЧЕСКАЯ ПРОВЕРКА =====
+            const hasEnoughSpace = currentHeadHeight >= (600 * 0.50);
+
+            if (!hasEnoughSpace) {
+                throw new Error('NOT_ENOUGH_SPACE');
+            }
+
             const scale = targetHeadHeight / currentHeadHeight;
-            
-            // Вычисляем смещение для центрирования
+
+            // ===== КРИТИЧЕСКИЙ ФИХ =====
+            if (scale > 0.95 && scale < 1.05) {
+                const imageData = photoCheckerState.ctx.getImageData(0, 0, 600, 600);
+                const cropTop = Math.floor(redLine);
+                const cropHeight = Math.floor(blueLine - redLine);
+
+                const halfWidth = 300;
+                let cropLeft = Math.floor(brownLine - halfWidth);
+                let cropRight = Math.floor(brownLine + halfWidth);
+
+                if (cropLeft < 0) cropLeft = 0;
+                if (cropRight > 600) cropRight = 600;
+
+                tempCtx.putImageData(imageData, -cropLeft, -cropTop);
+
+                return tempCanvas;
+            }
+
+            tempCtx.scale(scale, scale);
+
             const targetRedLineY = (600 - targetHeadHeight) / 2 / scale;
             const offsetY = -redLine + targetRedLineY;
             const offsetX = (600 / scale / 2 - brownLine);
-            
-            // Применяем трансформации
-            tempCtx.scale(scale, scale);
+
             tempCtx.translate(offsetX, offsetY);
-            
-            // Рисуем оригинальное фото с масштабированием
+
             if (photoCheckerState.image) {
                 const imgAspect = photoCheckerState.image.width / photoCheckerState.image.height;
                 let sx = 0, sy = 0, sw = photoCheckerState.image.width, sh = photoCheckerState.image.height;
-                
+
                 if (imgAspect > 1) {
                     sw = photoCheckerState.image.height;
                     sx = (photoCheckerState.image.width - sw) / 2;
@@ -1703,268 +787,71 @@
                     sh = photoCheckerState.image.width;
                     sy = (photoCheckerState.image.height - sh) / 2;
                 }
-                
+
                 tempCtx.drawImage(photoCheckerState.image, sx, sy, sw, sh, 0, 0, 600, 600);
             }
-            
+
             return tempCanvas;
         }
 
-        // ===== SHOW RESULTS WITH CROP =====
-        function showResultsWithCrop(croppedCanvas, results) {
-            const lang = appState.currentLang;
-            const isPassed = results.issues.length === 0;
-            
-            // Создаём модальное окно с результатами
+        // ===== START PHOTO CHECK =====
+        async function startPhotoCheck() {
+            const topHead = photoCheckerState.lines.red;
+            const bottomChin = photoCheckerState.lines.blue;
+            const headHeight = bottomChin - topHead;
+
+            if (headHeight < 300) {
+                alert('❌ Недостаточно места для обрезки. Выберите фото с большим фоном вокруг лица.');
+                return;
+            }
+
+            if (!appState.isAdmin) {
+                appState.attempts--;
+                document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
+            }
+
+            try {
+                const croppedCanvas = createCroppedPhoto();
+                closePhotoChecker();
+                showResultsWithCrop(croppedCanvas);
+            } catch (error) {
+                if (error.message === 'NOT_ENOUGH_SPACE') {
+                    alert('❌ Фото слишком близко. Нужно больше фона вокруг лица.');
+                }
+            }
+        }
+
+        function showResultsWithCrop(croppedCanvas) {
             const modal = document.createElement('div');
             modal.id = 'resultsModal';
-            modal.style.cssText = `
-                display: flex;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.9);
-                z-index: 3000;
-                flex-direction: column;
-                align-items: center;
-                justify-content: flex-start;
-                overflow-y: auto;
-                padding: 20px;
-            `;
+            modal.style.cssText = 'display: flex; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 3000; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; padding: 20px;';
             
-            const translations = {
-                ru: {
-                    title: '📊 Результаты проверки',
-                    bgUniformity: 'Однородный фон',
-                    photoWidth: 'Ширина фото',
-                    photoHeight: 'Высота фото',
-                    fileSize: 'Размер файла',
-                    photoFormat: 'Формат фото',
-                    status: 'Статус',
-                    statusPass: 'Соответствует требованиям',
-                    statusFail: 'Требует доработки',
-                    download: '⬇️ Скачать фото',
-                    back: '← Назад',
-                    yes: 'Да'
-                },
-                en: {
-                    title: '📊 Photo Check Results',
-                    bgUniformity: 'Uniform background',
-                    photoWidth: 'Photo width',
-                    photoHeight: 'Photo height',
-                    fileSize: 'File size',
-                    photoFormat: 'Photo format',
-                    status: 'Status',
-                    statusPass: 'Meets requirements',
-                    statusFail: 'Needs adjustment',
-                    download: '⬇️ Download Photo',
-                    back: '← Back',
-                    yes: 'Yes'
-                }
-            };
-            
-            const t = translations[lang] || translations.en;
-            const checkMark = '✅';
-            
-            // Вычисляем размер файла
-            const fileBlob = croppedCanvas.toDataURL('image/jpeg', 0.95);
-            const fileSizeKB = Math.round((fileBlob.length * 0.75) / 1024);
-            
-            // Функция для определения ошибки
-            let resultsHTML = `
+            modal.innerHTML = `
+                <button onclick="document.getElementById('resultsModal').remove();" style="align-self: flex-start; background: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 20px;">✕ ${CONTENT[appState.currentLang].btnback}</button>
                 <div style="background: white; border-radius: 12px; padding: 20px; max-width: 600px; width: 100%; margin-top: 20px; margin-bottom: 20px;">
-                    <h2 style="margin: 0 0 16px 0; color: #333; font-size: 20px;">${t.title}</h2>
-                    
+                    <h2 style="margin: 0 0 16px 0; color: #333; font-size: 20px;">✓ Фото готово</h2>
                     <canvas id="croppedPhotoDisplay" style="width: 100%; height: auto; border-radius: 8px; margin-bottom: 20px; display: block; background: #f0f0f0; max-height: 400px;"></canvas>
-                    
-                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; font-size: 14px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="font-size: 16px;">${results.headPercentage < 50 || results.headPercentage > 69 ? '❌' : '✅'}</span>
-                                <span style="color: #333; font-weight: 500;">Высота головы</span>
-                            </div>
-                            <span style="color: #555; font-weight: 500;">${results.headPercentage}%</span>
-                        </div>
-                        
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="font-size: 16px;">${results.eyePercentage < 56 || results.eyePercentage > 69 ? '❌' : '✅'}</span>
-                                <span style="color: #333; font-weight: 500;">Высота глаз</span>
-                            </div>
-                            <span style="color: #555; font-weight: 500;">${results.eyePercentage}%</span>
-                        </div>
-                        
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="font-size: 16px;">${results.backgroundUniform ? '✅' : '❌'}</span>
-                                <span style="color: #333; font-weight: 500;">${t.bgUniformity}</span>
-                            </div>
-                            <span style="color: #555; font-weight: 500;">${results.backgroundUniform ? t.yes : 'Нет'}</span>
-                        </div>
-                        
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="color: #4CAF50; font-size: 16px;">✅</span>
-                                <span style="color: #333; font-weight: 500;">${t.photoWidth}</span>
-                            </div>
-                            <span style="color: #555; font-weight: 500;">600 px</span>
-                        </div>
-                        
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="color: #4CAF50; font-size: 16px;">✅</span>
-                                <span style="color: #333; font-weight: 500;">${t.photoHeight}</span>
-                            </div>
-                            <span style="color: #555; font-weight: 500;">600 px</span>
-                        </div>
-                        
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="color: #4CAF50; font-size: 16px;">✅</span>
-                                <span style="color: #333; font-weight: 500;">${t.fileSize}</span>
-                            </div>
-                            <span style="color: #555; font-weight: 500;">${fileSizeKB} KB</span>
-                        </div>
-                        
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="color: #4CAF50; font-size: 16px;">✅</span>
-                                <span style="color: #333; font-weight: 500;">${t.photoFormat}</span>
-                            </div>
-                            <span style="color: #555; font-weight: 500;">JPEG</span>
-                        </div>
-                    </div>
-                    
-                    <div style="padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; ${isPassed ? 'background: rgba(76, 175, 80, 0.1); color: #4CAF50;' : 'background: rgba(244, 67, 54, 0.1); color: #f44336;'}">
-                        <span style="font-size: 16px;">${isPassed ? '✅' : '❌'}</span>
-                        <span>${t.status}: ${isPassed ? t.statusPass : 'Не соответствует требованиям'}</span>
-                    </div>
-                    
-                    ${results.issues.length > 0 ? `
-                        <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #ffc107;">
-                            <div style="font-size: 13px; color: #000; margin-bottom: 8px; font-weight: 700;">Обратите внимание:</div>
-                            <div style="font-size: 13px; color: #333; line-height: 1.6;">
-                                Фото не полностью соответствует официальным требованиям лотереи Green Card. Несоответствия отмечены в списке красным крестиком.<br><br>
-                                Мы рекомендуем сделать новое фото, чтобы увеличить шансы на успешную подачу.<br><br>
-                                Тем не менее, вы можете скачать текущий файл по своему усмотрению.
-                            </div>
-                        </div>
-                    ` : ''}
-                    
-                    <div style="display: flex; gap: 12px; flex-direction: column;">
-                        <button onclick="downloadCroppedPhoto()" style="width: 100%; background: #4CAF50; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">
-                            ${t.download}
-                        </button>
-                        <button onclick="closeResultsModal()" style="width: 100%; background: #194E84; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">
-                            ${t.back}
-                        </button>
-                    </div>
+                    <button onclick="downloadCroppedPhoto('croppedPhotoDisplay')" style="width: 100%; background: linear-gradient(135deg, #194E84 0%, #1a5a99 100%); color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px; margin-bottom: 10px;">📥 Скачать</button>
                 </div>
             `;
             
-            modal.innerHTML = resultsHTML;
             document.body.appendChild(modal);
             
-            // Отображаем обрезанное фото
-            setTimeout(() => {
-                const display = document.getElementById('croppedPhotoDisplay');
-                if (display) {
-                    display.width = 600;
-                    display.height = 600;
-                    const displayCtx = display.getContext('2d');
-                    displayCtx.drawImage(croppedCanvas, 0, 0);
-                }
-            }, 0);
-            
-            // Сохраняем для скачивания
-            window.croppedPhotoForDownload = croppedCanvas;
+            const displayCanvas = document.getElementById('croppedPhotoDisplay');
+            const displayCtx = displayCanvas.getContext('2d');
+            displayCanvas.width = 600;
+            displayCanvas.height = 600;
+            displayCtx.drawImage(croppedCanvas, 0, 0);
         }
 
-        // ===== DOWNLOAD CROPPED PHOTO (MOBILE & DESKTOP FIX) =====
-        function downloadCroppedPhoto() {
-            if (!window.croppedPhotoForDownload) return;
-            
-            const canvas = window.croppedPhotoForDownload;
-            
-            // Конвертируем canvas в blob для мобильной совместимости
-            canvas.toBlob(function(blob) {
-                // Для мобильных устройств - используем Web Share API
-                if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                    // Проверяем поддержку Web Share API
-                    if (navigator.share && navigator.canShare) {
-                        const file = new File([blob], 'CROPPED.jpg', { type: 'image/jpeg' });
-                        
-                        if (navigator.canShare({ files: [file] })) {
-                            navigator.share({
-                                files: [file],
-                                title: 'DV Photo',
-                                text: 'Green Card Photo'
-                            }).catch(err => {
-                                if (err.name !== 'AbortError') {
-                                    console.error('Share failed:', err);
-                                    fallbackDownload(blob);
-                                }
-                            });
-                        } else {
-                            // Если файл не поддерживается - используем fallback
-                            fallbackDownload(blob);
-                        }
-                    } else {
-                        // Fallback для старых браузеров
-                        fallbackDownload(blob);
-                    }
-                } else {
-                    // Для десктопа - обычное скачивание
-                    const blobUrl = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = blobUrl;
-                    link.download = 'CROPPED.jpg';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(blobUrl);
-                }
-            }, 'image/jpeg', 0.95);
-        }
-        
-        // ===== FALLBACK DOWNLOAD =====
-        function fallbackDownload(blob) {
-            const blobUrl = URL.createObjectURL(blob);
+        function downloadCroppedPhoto(canvasId) {
+            const canvas = document.getElementById(canvasId);
             const link = document.createElement('a');
-            link.href = blobUrl;
-            link.download = 'CROPPED.jpg';
+            link.href = canvas.toDataURL('image/jpeg', 0.95);
+            link.download = `dv_photo_${new Date().getTime()}.jpg`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
-        }
-
-        // ===== CLOSE RESULTS MODAL =====
-        function closeResultsModal() {
-            const modal = document.getElementById('resultsModal');
-            if (modal) {
-                modal.remove();
-            }
-            window.croppedPhotoForDownload = null;
-        }
-
-        // ===== CLOSE PHOTO CHECKER =====
-        function closePhotoChecker() {
-            document.getElementById('photoCheckerModal').style.display = 'none';
-            photoCheckerState = {
-                originalImageData: null,
-                image: null,
-                canvas: null,
-                ctx: null,
-                detection: null,
-                lines: { red: null, blue: null, green: null, brown: null },
-                draggingLine: null,
-                canvasWidth: 600,
-                canvasHeight: 600
-            };
-            document.getElementById('photoInput').value = '';
         }
     </script>
 </body>
