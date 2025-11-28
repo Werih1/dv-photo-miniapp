@@ -1664,7 +1664,7 @@
                 z-index: 3000;
                 flex-direction: column;
                 align-items: center;
-                justify-content: center;
+                justify-content: flex-start;
                 overflow-y: auto;
                 padding: 20px;
             `;
@@ -1707,16 +1707,29 @@
             const fileBlob = croppedCanvas.toDataURL('image/jpeg', 0.95);
             const fileSizeKB = Math.round((fileBlob.length * 0.75) / 1024);
             
+            // Функция для определения ошибки
+            function getCheckMarkForMetric(metricName) {
+                if (isPassed) return '✅';
+                
+                if (metricName === 'headPercentage' && (results.headPercentage < 50 || results.headPercentage > 69)) {
+                    return '❌';
+                }
+                if (metricName === 'eyePercentage' && (results.eyePercentage < 56 || results.eyePercentage > 69)) {
+                    return '❌';
+                }
+                return '✅';
+            }
+            
             let resultsHTML = `
-                <div style="background: white; border-radius: 12px; padding: 20px; max-width: 600px; width: 100%;">
+                <div style="background: white; border-radius: 12px; padding: 20px; max-width: 600px; width: 100%; margin-top: 20px; margin-bottom: 20px;">
                     <h2 style="margin: 0 0 16px 0; color: #333; font-size: 20px;">${t.title}</h2>
                     
-                    <canvas id="croppedPhotoDisplay" style="width: 100%; height: auto; border-radius: 8px; margin-bottom: 20px; display: block; background: #f0f0f0;"></canvas>
+                    <canvas id="croppedPhotoDisplay" style="width: 100%; height: auto; border-radius: 8px; margin-bottom: 20px; display: block; background: #f0f0f0; max-height: 400px;"></canvas>
                     
                     <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; font-size: 14px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
                             <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="color: #4CAF50; font-size: 16px;">${checkMark}</span>
+                                <span style="font-size: 16px;">${getCheckMarkForMetric('headPercentage')}</span>
                                 <span style="color: #333; font-weight: 500;">Высота головы</span>
                             </div>
                             <span style="color: #555; font-weight: 500;">${results.headPercentage}%</span>
@@ -1724,7 +1737,7 @@
                         
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
                             <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="color: #4CAF50; font-size: 16px;">${checkMark}</span>
+                                <span style="font-size: 16px;">${getCheckMarkForMetric('eyePercentage')}</span>
                                 <span style="color: #333; font-weight: 500;">Высота глаз</span>
                             </div>
                             <span style="color: #555; font-weight: 500;">${results.eyePercentage}%</span>
@@ -1732,7 +1745,7 @@
                         
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
                             <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="color: #4CAF50; font-size: 16px;">${checkMark}</span>
+                                <span style="color: #4CAF50; font-size: 16px;">✅</span>
                                 <span style="color: #333; font-weight: 500;">${t.bgUniformity}</span>
                             </div>
                             <span style="color: #555; font-weight: 500;">${t.yes}</span>
@@ -1740,7 +1753,7 @@
                         
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
                             <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="color: #4CAF50; font-size: 16px;">${checkMark}</span>
+                                <span style="color: #4CAF50; font-size: 16px;">✅</span>
                                 <span style="color: #333; font-weight: 500;">${t.photoWidth}</span>
                             </div>
                             <span style="color: #555; font-weight: 500;">600 px</span>
@@ -1748,7 +1761,7 @@
                         
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
                             <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="color: #4CAF50; font-size: 16px;">${checkMark}</span>
+                                <span style="color: #4CAF50; font-size: 16px;">✅</span>
                                 <span style="color: #333; font-weight: 500;">${t.photoHeight}</span>
                             </div>
                             <span style="color: #555; font-weight: 500;">600 px</span>
@@ -1756,7 +1769,7 @@
                         
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
                             <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="color: #4CAF50; font-size: 16px;">${checkMark}</span>
+                                <span style="color: #4CAF50; font-size: 16px;">✅</span>
                                 <span style="color: #333; font-weight: 500;">${t.fileSize}</span>
                             </div>
                             <span style="color: #555; font-weight: 500;">${fileSizeKB} KB</span>
@@ -1764,7 +1777,7 @@
                         
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
                             <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="color: #4CAF50; font-size: 16px;">${checkMark}</span>
+                                <span style="color: #4CAF50; font-size: 16px;">✅</span>
                                 <span style="color: #333; font-weight: 500;">${t.photoFormat}</span>
                             </div>
                             <span style="color: #555; font-weight: 500;">JPEG</span>
@@ -1772,15 +1785,17 @@
                     </div>
                     
                     <div style="padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; ${isPassed ? 'background: rgba(76, 175, 80, 0.1); color: #4CAF50;' : 'background: rgba(244, 67, 54, 0.1); color: #f44336;'}">
-                        <span style="font-size: 16px;">${checkMark}</span>
-                        <span>${t.status}: ${isPassed ? t.statusPass : t.statusFail}</span>
+                        <span style="font-size: 16px;">${isPassed ? '✅' : '❌'}</span>
+                        <span>${t.status}: ${isPassed ? t.statusPass : 'Не соответствует требованиям'}</span>
                     </div>
                     
                     ${results.issues.length > 0 ? `
                         <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #ffc107;">
-                            <div style="font-size: 13px; color: #333; margin-bottom: 8px; font-weight: 600;">Проблемы:</div>
-                            <div style="font-size: 13px; color: #555; line-height: 1.6;">
-                                Пожалуйста, переснимите фото с учётом требований Green Card.
+                            <div style="font-size: 13px; color: #000; margin-bottom: 8px; font-weight: 700;">Обратите внимание:</div>
+                            <div style="font-size: 13px; color: #333; line-height: 1.6;">
+                                Фото не полностью соответствует официальным требованиям лотереи Green Card. Несоответствия отмечены в списке красным крестиком.<br><br>
+                                Мы рекомендуем сделать новое фото, чтобы увеличить шансы на успешную подачу.<br><br>
+                                Тем не менее, вы можете скачать текущий файл по своему усмотрению.
                             </div>
                         </div>
                     ` : ''}
@@ -1822,30 +1837,34 @@
             
             // Конвертируем canvas в blob для мобильной совместимости
             canvas.toBlob(function(blob) {
-                // Создаём URL для blob
-                const blobUrl = URL.createObjectURL(blob);
-                
-                // Для мобильных устройств
+                // Для мобильных устройств - используем Web Share API
                 if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                    // Пытаемся использовать fetch для скачивания на мобиле
-                    fetch(blobUrl)
-                        .then(res => res.blob())
-                        .then(blob => {
-                            // Пробуем сохранить через интент на Android
-                            const link = document.createElement('a');
-                            link.href = blobUrl;
-                            link.download = 'CROPPED.jpg';
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                            URL.revokeObjectURL(blobUrl);
-                        })
-                        .catch(err => {
-                            // Fallback: открываем в новой вкладке
-                            window.open(blobUrl, '_blank');
-                        });
+                    // Проверяем поддержку Web Share API
+                    if (navigator.share && navigator.canShare) {
+                        const file = new File([blob], 'CROPPED.jpg', { type: 'image/jpeg' });
+                        
+                        if (navigator.canShare({ files: [file] })) {
+                            navigator.share({
+                                files: [file],
+                                title: 'DV Photo',
+                                text: 'Green Card Photo'
+                            }).catch(err => {
+                                if (err.name !== 'AbortError') {
+                                    console.error('Share failed:', err);
+                                    fallbackDownload(blob);
+                                }
+                            });
+                        } else {
+                            // Если файл не поддерживается - используем fallback
+                            fallbackDownload(blob);
+                        }
+                    } else {
+                        // Fallback для старых браузеров
+                        fallbackDownload(blob);
+                    }
                 } else {
                     // Для десктопа - обычное скачивание
+                    const blobUrl = URL.createObjectURL(blob);
                     const link = document.createElement('a');
                     link.href = blobUrl;
                     link.download = 'CROPPED.jpg';
@@ -1855,6 +1874,18 @@
                     URL.revokeObjectURL(blobUrl);
                 }
             }, 'image/jpeg', 0.95);
+        }
+        
+        // ===== FALLBACK DOWNLOAD =====
+        function fallbackDownload(blob) {
+            const blobUrl = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = 'CROPPED.jpg';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
         }
 
         // ===== CLOSE RESULTS MODAL =====
