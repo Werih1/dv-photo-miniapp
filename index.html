@@ -1456,8 +1456,152 @@
             }, { passive: false });
         }
 
+        // ===== ANALYZE PHOTO QUALITY =====
+        function analyzePhotoQuality() {
+            return new Promise((resolve) => {
+                const canvas = photoCheckerState.canvas;
+                const ctx = photoCheckerState.ctx;
+                
+                // Получаем данные пикселей
+                const imageData = ctx.getImageData(0, 0, 600, 600);
+                const data = imageData.data;
+                
+                let totalBrightness = 0;
+                let edgePixels = 0;
+                const colorVariance = {};
+                
+                // Анализируем яркость, контраст и цветовое распределение
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+                    const a = data[i + 3];
+                    
+                    if (a > 0) {
+                        const brightness = (r + g + b) / 3;
+                        totalBrightness += brightness;
+                        
+                        // Определяем цвет пикселя (для проверки фона)
+                        const colorKey = Math.round(r / 50) + '_' + Math.round(g / 50) + '_' + Math.round(b / 50);
+                        colorVariance[colorKey] = (colorVariance[colorKey] || 0) + 1;
+                    }
+                }
+                
+                const avgBrightness = totalBrightness / (data.length / 4);
+                const uniqueColors = Object.keys(colorVariance).length;
+                
+                // Анализируем область лица (между зелёной и синей линиями)
+                const faceTop = Math.floor(photoCheckerState.lines.green - 40);
+                const faceBottom = Math.floor(photoCheckerState.lines.green + 40);
+                const faceLeft = 150;
+                const faceRight = 450;
+                
+                let faceBrightness = 0;
+                let faceContrast = 0;
+                let facePixels = 0;
+                
+                for (let y = faceTop; y < faceBottom; y++) {
+                    for (let x = faceLeft; x < faceRight; x++) {
+                        const idx = (y * 600 + x) * 4;
+                        const r = data[idx];
+                        const g = data[idx + 1];
+                        const b = data[idx + 2];
+                        faceBrightness += (r + g + b) / 3;
+                        facePixels++;
+                    }
+                }
+                
+                faceBrightness = faceBrightness / facePixels;
+                
+                // Результаты проверки
+                const results = {
+                    avgBrightness: Math.round(avgBrightness),
+                    faceBrightness: Math.round(faceBrightness),
+                    headHeight: Math.round(photoCheckerState.lines.blue - photoCheckerState.lines.red),
+                    eyePosition: Math.round(photoCheckerState.lines.green),
+                    backgroundUniformity: Math.round((1 - Math.min(uniqueColors / 500, 1)) * 100),
+                    issues: []
+                };
+                
+                // Проверяем критерии
+                if (results.headHeight < 200) {
+                    results.issues.push('HEAD_TOO_SMALL');
+                }
+                if (results.avgBrightness < 80) {
+                    results.issues.push('TOO_DARK');
+                } else if (results.avgBrightness > 230) {
+                    results.issues.push('TOO_BRIGHT');
+                }
+                if (results.eyePosition < photoCheckerState.lines.red + 50 || results.eyePosition > photoCheckerState.lines.blue - 50) {
+                    results.issues.push('EYES_MISALIGNED');
+                }
+                if (results.backgroundUniformity < 60) {
+                    results.issues.push('BACKGROUND_NOT_SOLID');
+                }
+                
+                resolve(results);
+            });
+        }
+
+        // ===== FORMAT RESULTS MESSAGE =====
+        function formatResultsMessage(results) {
+            const lang = appState.currentLang;
+            const translations = {
+                ru: {
+                    title: '📊 Результаты проверки фото',
+                    brightness: 'Яркость:',
+                    headHeight: 'Высота головы:',
+                    bgUniformity: 'Однородность фона:',
+                    status: 'Статус:',
+                    pass: '✅ ГОТОВО К ПОДАЧЕ',
+                    fail: '❌ ТРЕБУЕТ ДОРАБОТКИ',
+                    issues: {
+                        HEAD_TOO_SMALL: '• Голова слишком мала',
+                        TOO_DARK: '• Фото слишком тёмное',
+                        TOO_BRIGHT: '• Фото слишком светлое',
+                        EYES_MISALIGNED: '• Глаза не по центру',
+                        BACKGROUND_NOT_SOLID: '• Фон не однородный'
+                    },
+                    recommendation: 'Рекомендация: Переснимите фото с учётом указанных замечаний'
+                },
+                en: {
+                    title: '📊 Photo Check Results',
+                    brightness: 'Brightness:',
+                    headHeight: 'Head Height:',
+                    bgUniformity: 'Background Uniformity:',
+                    status: 'Status:',
+                    pass: '✅ READY TO SUBMIT',
+                    fail: '❌ NEEDS ADJUSTMENT',
+                    issues: {
+                        HEAD_TOO_SMALL: '• Head is too small',
+                        TOO_DARK: '• Photo is too dark',
+                        TOO_BRIGHT: '• Photo is too bright',
+                        EYES_MISALIGNED: '• Eyes are not centered',
+                        BACKGROUND_NOT_SOLID: '• Background is not uniform'
+                    },
+                    recommendation: 'Recommendation: Retake the photo according to the comments'
+                }
+            };
+            
+            const t = translations[lang] || translations.en;
+            const isPassed = results.issues.length === 0;
+            
+            let msg = `${t.title}\n\n`;
+            msg += `${t.brightness} ${results.avgBrightness}%\n`;
+            msg += `${t.headHeight} ${results.headHeight}px\n`;
+            msg += `${t.bgUniformity} ${results.backgroundUniformity}%\n\n`;
+            msg += `${t.status} ${isPassed ? t.pass : t.fail}\n`;
+            
+            if (!isPassed) {
+                msg += '\n' + results.issues.map(issue => t.issues[issue] || '').filter(Boolean).join('\n');
+                msg += '\n\n' + t.recommendation;
+            }
+            
+            return msg;
+        }
+
         // ===== START PHOTO CHECK =====
-        function startPhotoCheck() {
+        async function startPhotoCheck() {
             // Проверяем минимальное расстояние между линиями (для обрезки)
             const topHead = photoCheckerState.lines.red;
             const bottomChin = photoCheckerState.lines.blue;
@@ -1477,13 +1621,173 @@
                 document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
             }
             
-            // Закрываем окно
-            closePhotoChecker();
+            // Создаём обрезанное фото 600x600
+            const croppedCanvas = createCroppedPhoto();
             
-            // Здесь будет обрезка и проверка критериев (следующий этап)
-            const msgRu = '✅ Проверка запущена!\n(Результаты будут вскоре)';
-            const msgEn = '✅ Check started!\n(Results coming soon)';
-            alert(appState.currentLang === 'ru' ? msgRu : msgEn);
+            // Анализируем фото
+            const results = await analyzePhotoQuality();
+            
+            // Закрываем окно и показываем результаты с кропом
+            closePhotoChecker();
+            showResultsWithCrop(croppedCanvas, results);
+        }
+
+        // ===== CREATE CROPPED PHOTO =====
+        function createCroppedPhoto() {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 600;
+            tempCanvas.height = 600;
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // Копируем текущее состояние канвас с линиями
+            const currentImageData = photoCheckerState.ctx.getImageData(0, 0, 600, 600);
+            tempCtx.putImageData(currentImageData, 0, 0);
+            
+            return tempCanvas;
+        }
+
+        // ===== SHOW RESULTS WITH CROP =====
+        function showResultsWithCrop(croppedCanvas, results) {
+            const lang = appState.currentLang;
+            const isPassed = results.issues.length === 0;
+            
+            // Создаём модальное окно с результатами
+            const modal = document.createElement('div');
+            modal.id = 'resultsModal';
+            modal.style.cssText = `
+                display: flex;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.9);
+                z-index: 3000;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                overflow-y: auto;
+                padding: 20px;
+            `;
+            
+            const translations = {
+                ru: {
+                    title: '📊 Результаты проверки',
+                    brightness: 'Яркость:',
+                    headHeight: 'Высота головы:',
+                    bgUniformity: 'Однородность фона:',
+                    status: 'Статус:',
+                    pass: '✅ ГОТОВО К ПОДАЧЕ',
+                    fail: '❌ ТРЕБУЕТ ДОРАБОТКИ',
+                    download: '⬇️ Скачать фото',
+                    back: '← Назад',
+                    issues: {
+                        HEAD_TOO_SMALL: '• Голова слишком мала',
+                        TOO_DARK: '• Фото слишком тёмное',
+                        TOO_BRIGHT: '• Фото слишком светлое',
+                        EYES_MISALIGNED: '• Глаза не по центру',
+                        BACKGROUND_NOT_SOLID: '• Фон не однородный'
+                    },
+                    recommendation: 'Рекомендация: Переснимите фото с учётом замечаний'
+                },
+                en: {
+                    title: '📊 Photo Check Results',
+                    brightness: 'Brightness:',
+                    headHeight: 'Head Height:',
+                    bgUniformity: 'Background Uniformity:',
+                    status: 'Status:',
+                    pass: '✅ READY TO SUBMIT',
+                    fail: '❌ NEEDS ADJUSTMENT',
+                    download: '⬇️ Download Photo',
+                    back: '← Back',
+                    issues: {
+                        HEAD_TOO_SMALL: '• Head is too small',
+                        TOO_DARK: '• Photo is too dark',
+                        TOO_BRIGHT: '• Photo is too bright',
+                        EYES_MISALIGNED: '• Eyes are not centered',
+                        BACKGROUND_NOT_SOLID: '• Background is not uniform'
+                    },
+                    recommendation: 'Recommendation: Retake the photo according to the comments'
+                }
+            };
+            
+            const t = translations[lang] || translations.en;
+            
+            let resultsHTML = `
+                <div style="background: white; border-radius: 12px; padding: 20px; max-width: 600px; width: 100%;">
+                    <h2 style="margin: 0 0 16px 0; color: #333; font-size: 20px;">${t.title}</h2>
+                    
+                    <canvas id="croppedPhotoDisplay" style="width: 100%; height: auto; border-radius: 8px; margin-bottom: 20px; display: block; background: #f0f0f0;"></canvas>
+                    
+                    <div style="background: #f9f9f9; padding: 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; color: #555;">
+                        <div style="margin-bottom: 8px;"><strong>${t.brightness}</strong> ${results.avgBrightness}%</div>
+                        <div style="margin-bottom: 8px;"><strong>${t.headHeight}</strong> ${results.headHeight}px</div>
+                        <div style="margin-bottom: 8px;"><strong>${t.bgUniformity}</strong> ${results.backgroundUniformity}%</div>
+                    </div>
+                    
+                    <div style="padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; font-weight: 600; text-align: center; ${isPassed ? 'background: rgba(76, 175, 80, 0.1); color: #4CAF50;' : 'background: rgba(244, 67, 54, 0.1); color: #f44336;'}">
+                        ${t.status} ${isPassed ? t.pass : t.fail}
+                    </div>
+                    
+                    ${results.issues.length > 0 ? `
+                        <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #ffc107;">
+                            <div style="font-size: 13px; color: #333; margin-bottom: 8px; font-weight: 600;">Проблемы:</div>
+                            <div style="font-size: 13px; color: #555; line-height: 1.6;">
+                                ${results.issues.map(issue => t.issues[issue] || '').filter(Boolean).join('<br>')}
+                            </div>
+                            <div style="font-size: 13px; color: #666; margin-top: 8px; font-style: italic;">
+                                ${t.recommendation}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <div style="display: flex; gap: 12px; flex-direction: column;">
+                        <button onclick="downloadCroppedPhoto()" style="width: 100%; background: #4CAF50; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">
+                            ${t.download}
+                        </button>
+                        <button onclick="closeResultsModal()" style="width: 100%; background: #194E84; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">
+                            ${t.back}
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            modal.innerHTML = resultsHTML;
+            document.body.appendChild(modal);
+            
+            // Отображаем обрезанное фото
+            setTimeout(() => {
+                const display = document.getElementById('croppedPhotoDisplay');
+                if (display) {
+                    display.width = 600;
+                    display.height = 600;
+                    const displayCtx = display.getContext('2d');
+                    displayCtx.drawImage(croppedCanvas, 0, 0);
+                }
+            }, 0);
+            
+            // Сохраняем для скачивания
+            window.croppedPhotoForDownload = croppedCanvas;
+        }
+
+        // ===== DOWNLOAD CROPPED PHOTO =====
+        function downloadCroppedPhoto() {
+            if (!window.croppedPhotoForDownload) return;
+            
+            const canvas = window.croppedPhotoForDownload;
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/jpeg', 0.95);
+            link.download = `DV_Photo_${new Date().getTime()}.jpg`;
+            link.click();
+        }
+
+        // ===== CLOSE RESULTS MODAL =====
+        function closeResultsModal() {
+            const modal = document.getElementById('resultsModal');
+            if (modal) {
+                modal.remove();
+            }
+            window.croppedPhotoForDownload = null;
         }
 
         // ===== CLOSE PHOTO CHECKER =====
@@ -1505,4 +1809,5 @@
     </script>
 </body>
 </html>
+
 
