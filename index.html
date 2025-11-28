@@ -683,6 +683,36 @@
     </div>
 
     <script>
+    // ===== CUSTOM DIALOG BOX =====
+    function showCustomAlert(message) {
+        const dialogOverlay = document.createElement('div');
+        dialogOverlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;';
+
+        const dialogBox = document.createElement('div');
+        dialogBox.style.cssText = 'background: white; border-radius: 12px; padding: 20px; max-width: 300px; width: 90%; box-shadow: 0 4px 16px rgba(0,0,0,0.2); animation: slideIn 0.3s ease-out;';
+
+        const messageText = document.createElement('div');
+        messageText.style.cssText = 'font-size: 14px; line-height: 1.6; color: #333; margin-bottom: 20px; text-align: center;';
+        messageText.textContent = message;
+
+        const okButton = document.createElement('button');
+        okButton.textContent = 'OK';
+        okButton.style.cssText = 'width: 100%; padding: 12px; background: #194E84; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;';
+
+        okButton.onclick = () => {
+            dialogOverlay.remove();
+        };
+
+        const style = document.createElement('style');
+        style.textContent = '@keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }';
+        document.head.appendChild(style);
+
+        dialogBox.appendChild(messageText);
+        dialogBox.appendChild(okButton);
+        dialogOverlay.appendChild(dialogBox);
+        document.body.appendChild(dialogOverlay);
+    }
+
         // ADMIN IDS
         const ADMIN_IDS = [380950248, 375133882];
 
@@ -1222,10 +1252,10 @@
             if (code === 'GIFT2026') {
                 appState.attempts += 5;
                 document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
-                alert(content.promo_success);
+                showCustomAlert(content.promo_success);
                 document.getElementById('promoCode').value = '';
             } else {
-                alert(content.promo_invalid);
+                showCustomAlert(content.promo_invalid);
             }
         }
 
@@ -1598,7 +1628,7 @@
             if (headHeight < 200) {
                 const msgRu = 'Извините, на фото мало места для обрезки.\nУстановите линии корректно.';
                 const msgEn = 'Sorry, there is not enough space on the photo to crop.\nPlace the lines correctly.';
-                alert(appState.currentLang === 'ru' ? msgRu : msgEn);
+                showCustomAlert(appState.currentLang === 'ru' ? msgRu : msgEn);
                 return;
             }
             
