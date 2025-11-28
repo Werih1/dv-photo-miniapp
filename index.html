@@ -1456,6 +1456,20 @@
             }, { passive: false });
         }
 
+        // ===== CALCULATE HEAD PERCENTAGE =====
+        function calculateHeadPercentage() {
+            const headHeight = photoCheckerState.lines.blue - photoCheckerState.lines.red;
+            const headPercentage = Math.round((headHeight / 600) * 100);
+            return headPercentage;
+        }
+
+        // ===== CALCULATE EYE PERCENTAGE =====
+        function calculateEyePercentage() {
+            const eyeFromBottom = 600 - photoCheckerState.lines.green;
+            const eyePercentage = Math.round((eyeFromBottom / 600) * 100);
+            return eyePercentage;
+        }
+
         // ===== ANALYZE PHOTO QUALITY =====
         function analyzePhotoQuality() {
             return new Promise((resolve) => {
@@ -1467,7 +1481,6 @@
                 const data = imageData.data;
                 
                 let totalBrightness = 0;
-                let edgePixels = 0;
                 const colorVariance = {};
                 
                 // Анализируем яркость, контраст и цветовое распределение
@@ -1490,50 +1503,24 @@
                 const avgBrightness = totalBrightness / (data.length / 4);
                 const uniqueColors = Object.keys(colorVariance).length;
                 
-                // Анализируем область лица (между зелёной и синей линиями)
-                const faceTop = Math.floor(photoCheckerState.lines.green - 40);
-                const faceBottom = Math.floor(photoCheckerState.lines.green + 40);
-                const faceLeft = 150;
-                const faceRight = 450;
-                
-                let faceBrightness = 0;
-                let faceContrast = 0;
-                let facePixels = 0;
-                
-                for (let y = faceTop; y < faceBottom; y++) {
-                    for (let x = faceLeft; x < faceRight; x++) {
-                        const idx = (y * 600 + x) * 4;
-                        const r = data[idx];
-                        const g = data[idx + 1];
-                        const b = data[idx + 2];
-                        faceBrightness += (r + g + b) / 3;
-                        facePixels++;
-                    }
-                }
-                
-                faceBrightness = faceBrightness / facePixels;
+                // Вычисляем проценты по требованиям госдепа
+                const headPercentage = calculateHeadPercentage();
+                const eyePercentage = calculateEyePercentage();
                 
                 // Результаты проверки
                 const results = {
-                    avgBrightness: Math.round(avgBrightness),
-                    faceBrightness: Math.round(faceBrightness),
-                    headHeight: Math.round(photoCheckerState.lines.blue - photoCheckerState.lines.red),
-                    eyePosition: Math.round(photoCheckerState.lines.green),
+                    headPercentage: headPercentage,
+                    eyePercentage: eyePercentage,
                     backgroundUniformity: Math.round((1 - Math.min(uniqueColors / 500, 1)) * 100),
                     issues: []
                 };
                 
-                // Проверяем критерии
-                if (results.headHeight < 200) {
-                    results.issues.push('HEAD_TOO_SMALL');
+                // Проверяем критерии госдепа
+                if (results.headPercentage < 50 || results.headPercentage > 69) {
+                    results.issues.push('HEAD_SIZE_INVALID');
                 }
-                if (results.avgBrightness < 80) {
-                    results.issues.push('TOO_DARK');
-                } else if (results.avgBrightness > 230) {
-                    results.issues.push('TOO_BRIGHT');
-                }
-                if (results.eyePosition < photoCheckerState.lines.red + 50 || results.eyePosition > photoCheckerState.lines.blue - 50) {
-                    results.issues.push('EYES_MISALIGNED');
+                if (results.eyePercentage < 56 || results.eyePercentage > 69) {
+                    results.issues.push('EYE_POSITION_INVALID');
                 }
                 if (results.backgroundUniformity < 60) {
                     results.issues.push('BACKGROUND_NOT_SOLID');
@@ -1730,6 +1717,22 @@
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
                             <div style="display: flex; gap: 8px; align-items: center;">
                                 <span style="color: #4CAF50; font-size: 16px;">${checkMark}</span>
+                                <span style="color: #333; font-weight: 500;">Высота головы</span>
+                            </div>
+                            <span style="color: #555; font-weight: 500;">${results.headPercentage}%</span>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <span style="color: #4CAF50; font-size: 16px;">${checkMark}</span>
+                                <span style="color: #333; font-weight: 500;">Высота глаз</span>
+                            </div>
+                            <span style="color: #555; font-weight: 500;">${results.eyePercentage}%</span>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <span style="color: #4CAF50; font-size: 16px;">${checkMark}</span>
                                 <span style="color: #333; font-weight: 500;">${t.bgUniformity}</span>
                             </div>
                             <span style="color: #555; font-weight: 500;">${t.yes}</span>
@@ -1811,15 +1814,47 @@
             window.croppedPhotoForDownload = croppedCanvas;
         }
 
-        // ===== DOWNLOAD CROPPED PHOTO =====
+        // ===== DOWNLOAD CROPPED PHOTO (MOBILE & DESKTOP FIX) =====
         function downloadCroppedPhoto() {
             if (!window.croppedPhotoForDownload) return;
             
             const canvas = window.croppedPhotoForDownload;
-            const link = document.createElement('a');
-            link.href = canvas.toDataURL('image/jpeg', 0.95);
-            link.download = 'CROPPED.jpg';
-            link.click();
+            
+            // Конвертируем canvas в blob для мобильной совместимости
+            canvas.toBlob(function(blob) {
+                // Создаём URL для blob
+                const blobUrl = URL.createObjectURL(blob);
+                
+                // Для мобильных устройств
+                if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                    // Пытаемся использовать fetch для скачивания на мобиле
+                    fetch(blobUrl)
+                        .then(res => res.blob())
+                        .then(blob => {
+                            // Пробуем сохранить через интент на Android
+                            const link = document.createElement('a');
+                            link.href = blobUrl;
+                            link.download = 'CROPPED.jpg';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            URL.revokeObjectURL(blobUrl);
+                        })
+                        .catch(err => {
+                            // Fallback: открываем в новой вкладке
+                            window.open(blobUrl, '_blank');
+                        });
+                } else {
+                    // Для десктопа - обычное скачивание
+                    const link = document.createElement('a');
+                    link.href = blobUrl;
+                    link.download = 'CROPPED.jpg';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(blobUrl);
+                }
+            }, 'image/jpeg', 0.95);
         }
 
         // ===== CLOSE RESULTS MODAL =====
