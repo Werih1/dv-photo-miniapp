@@ -67,13 +67,13 @@
         }
 
         .splash-bottom {
-            flex: 0.5;
+            flex: 1;
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 16px;
-            justify-content: flex-end;
+            justify-content: center;
         }
 
         .splash-subtitle {
@@ -482,11 +482,39 @@
         .instruction-block h3 {
             font-size: 14px;
             font-weight: 600;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             color: #333;
         }
 
         .instruction-block p {
+            font-size: 13px;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .how-works-unified {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .how-works-section {
+            margin-bottom: 16px;
+        }
+
+        .how-works-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .how-works-section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .how-works-section p {
             font-size: 13px;
             line-height: 1.8;
             color: #555;
@@ -575,8 +603,8 @@
                 </div>
 
                 <div class="menu-item" id="menuSupport" style="grid-column: 1 / -1;">
-                    <div class="menu-item-icon">💬</div>
-                    <div class="menu-item-text" id="textSupport">Поддержка</div>
+                    <div class="menu-item-icon">✈️</div>
+                    <div class="menu-item-text" id="textSupport">Мы в Telegram</div>
                 </div>
             </div>
         </div>
@@ -597,7 +625,7 @@
         <div class="tab-content" id="pricingTab">
             <button class="back-btn" id="backBtn3">← Назад</button>
             <div class="promo-input-group">
-                <input type="text" id="promoCode" autocomplete="off" placeholder="Введите промокод">
+                <input type="text" id="promoCode" autocomplete="off" id="promoCodeInput">
                 <button id="applyPromoBtn">Применить</button>
             </div>
             <div class="pricing-section" id="pricingList"></div>
@@ -627,7 +655,8 @@
                 btn_news: 'Новости',
                 btn_pricing: 'Тарифы',
                 btn_dv_form: 'Как заполнить DV-2027',
-                btn_support: 'Поддержка',
+                btn_support: 'Мы в Telegram',
+                promo_placeholder: 'Введите промокод',
                 btn_apply: 'Применить',
                 btn_back: '← Назад',
                 btn_buy: 'Купить',
@@ -662,11 +691,11 @@
                     }
                 ],
                 how_works: [
-                    { title: 'Что это?', text: 'DV-Lottery Photo Check — быстрый способ проверить вашу фотографию перед отправкой в лотерею Грин Карта.' },
-                    { title: 'Как работает?', text: 'Загружайте фото → система проверяет основные параметры → получаете результат за секунды.' },
-                    { title: 'Что проверяем?', text: '✓ Размер и разрешение фотографии\n✓ Яркость и контрастность лица\n✓ Правильный фон (белый/бежевый)\n✓ Положение головы и глаз\n✓ Качество и формат файла' },
-                    { title: 'Зачем это нужно?', text: 'Забудьте о риске отклонения из-за неправильного фото. Проверьте перед подачей — и подавайте уверенно.' },
-                    { title: 'Как начать?', text: '3 попытки в подарок. Купите доп. проверки, если нужно больше.' }
+                    { title: 'Что это?', text: 'DV-Lottery Photo Check — инструмент, который помогает быстро и точно проверить вашу фотографию перед подачей заявки на участие в лотерее Green Card 🇺🇸' },
+                    { title: 'Как работает?', text: 'Загрузите фото → система автоматически анализирует все ключевые параметры → вы мгновенно получаете результат и рекомендации под проверенной фотографией.' },
+                    { title: 'Что мы проверяем?', text: '✓ Размер и разрешение\n✓ Яркость, чёткость и контраст лица\n✓ Корректный однотонный фон\n✓ Положение головы и уровень глаз\n✓ Формат файла и технические требования' },
+                    { title: 'Зачем это нужно?', text: 'Фотография — один из самых частых причин отклонения заявки.\nПроверка помогает убедиться, что ваше фото соответствует официальным стандартам и готово к подаче.' },
+                    { title: 'Как начать?', text: 'Мы предоставляем 3 бесплатные проверки, чтобы вы могли спокойно протестировать сервис и подготовить своё фото.\nЕсли вам потребуется больше, вы в любой момент можете оформить дополнительные проверки в разделе Тарифы — выбрав удобный для себя вариант.\nПериодически мы публикуем промокоды на бесплатные проверки в нашем Telegram-канале.\nПодписаться на него можно через раздел "Мы в Telegram" в главном меню.' }
                 ],
                 news: [
                     { date: '28.11.2025', title: 'Обновление по DV-2027: ждём официальный старт', text: 'На данный момент лотерея DV-2027 ещё не началась. США пока не публиковали официальные даты начала регистрации, и неизвестно, состоится ли старт в конце 2025 года или уже будет перенесён на 2026. Мы внимательно следим за обновлениями и сообщим информацию сразу после анонса.\n\nКак только Госдепартамент объявит о начале DV-2027, мы подготовим подробную пошаговую инструкцию по заполнению анкеты, чтобы вы могли спокойно и самостоятельно подать заявку.\n\nВажно: подавайте заявку самостоятельно\nЗаполнение анкеты DV не является сложным процессом. Мы настоятельно рекомендуем подавать заявку самостоятельно, не пользуясь услугами посредников, которые предлагают заполнить её за деньги.\n\nПочему это важно:\n• Вы рискуете потерять контроль над заявкой\n• Можете лишиться Confirmation Number\n• Возрастает риск столкнуться с мошенниками\n\nВ нашем разделе мы максимально подробно разберём каждый шаг подачи, чтобы полностью исключить любые трудности.\n\nВозможные изменения в DV-2027\nПо неофициальным данным обсуждается возможность введения обязательной пошлины за подачу заявки. Пока нет подтверждённой информации ни о цене, ни о том, будет ли нововведение принято.\n\nЕсли плата действительно появится, мы подготовим подробную инструкцию о том:\n• Как оплатить пошлину\n• Что делать, если ваша банковская карта не принимается\n• Какие есть альтернативные способы оплаты\n\nСледите за новостями\nМы обновим информацию сразу после официального объявления от Госдепартамента США. Оставайтесь с нами, чтобы не пропустить старт DV-2027 и получить точные инструкции по подаче заявки.' }
@@ -682,7 +711,8 @@
                 btn_news: 'News',
                 btn_pricing: 'Pricing',
                 btn_dv_form: 'How to fill DV-2027',
-                btn_support: 'Support',
+                btn_support: 'We on Telegram',
+                promo_placeholder: 'Enter promo code',
                 btn_apply: 'Apply',
                 btn_back: '← Back',
                 btn_buy: 'Buy',
@@ -717,11 +747,11 @@
                     }
                 ],
                 how_works: [
-                    { title: 'What is it?', text: 'DV-Lottery Photo Check — quickly verify your photo before submitting to the Green Card Lottery.' },
-                    { title: 'How does it work?', text: 'Upload photo → system checks key parameters → get results in seconds.' },
-                    { title: 'What do we verify?', text: '✓ Photo size and resolution\n✓ Face brightness and contrast\n✓ Correct background (white/beige)\n✓ Head and eye position\n✓ File quality and format' },
-                    { title: 'Why do you need it?', text: 'Avoid rejection due to photo issues. Check before you submit — apply with confidence.' },
-                    { title: 'How to start?', text: '3 free attempts. Buy more checks if needed.' }
+                    { title: 'What is it?', text: 'DV-Lottery Photo Check — a tool that helps you quickly and accurately verify your photo before submitting your application for the Green Card Lottery 🇺🇸' },
+                    { title: 'How does it work?', text: 'Upload your photo → system automatically analyzes all key parameters → you instantly get results and recommendations for your verified photo.' },
+                    { title: 'What do we verify?', text: '✓ Size and resolution\n✓ Face brightness, clarity and contrast\n✓ Correct solid background\n✓ Head position and eye level\n✓ File format and technical requirements' },
+                    { title: 'Why do you need it?', text: 'Photo is one of the most common reasons for application rejection.\nVerification helps ensure your photo meets official standards and is ready to submit.' },
+                    { title: 'How to start?', text: 'We provide 3 free checks so you can calmly test the service and prepare your photo.\nIf you need more, you can purchase additional checks in the Pricing section at any time — choose a plan that works for you.\nWe regularly publish promo codes for free checks in our Telegram channel.\nYou can subscribe to it through the "We on Telegram" section in the main menu.' }
                 ],
                 news: [
                     { date: '28.11.2025', title: 'DV-2027 Update: Waiting for Official Start', text: 'At this moment, the DV-2027 lottery has not yet started. The USA has not yet published official registration dates, and it is unclear whether the start will occur in late 2025 or be postponed to 2026. We are closely monitoring updates and will share the information immediately after the announcement.\n\nOnce the State Department announces the start of DV-2027, we will prepare a detailed step-by-step guide for filling out the application form so you can calmly and independently submit your application.\n\nImportant: Submit your application independently\nFilling out the DV application form is not a complicated process. We strongly recommend submitting your application independently, without using the services of intermediaries who offer to fill it out for money.\n\nWhy is this important:\n• You risk losing control of your application\n• You may lose your Confirmation Number\n• Risk of encountering scammers increases\n\nIn our section, we will analyze each step of the application process in detail to completely eliminate any difficulties.\n\nPossible changes in DV-2027\nAccording to unofficial reports, there is a possibility of introducing a mandatory fee for submitting an application. There is currently no confirmed information about the price or whether this change will be adopted.\n\nIf the fee does appear, we will prepare a detailed guide on:\n• How to pay the fee\n• What to do if your bank card is not accepted\n• What alternative payment methods are available\n\nFollow the news\nWe will update the information immediately after the official announcement from the US State Department. Stay with us so you don\'t miss the start of DV-2027 and get accurate instructions for submitting your application.' }
@@ -737,7 +767,8 @@
                 btn_news: 'Actualités',
                 btn_pricing: 'Tarifs',
                 btn_dv_form: 'Comment remplir DV-2027',
-                btn_support: 'Support',
+                btn_support: 'Nous sur Telegram',
+                promo_placeholder: 'Entrez le code promo',
                 btn_apply: 'Appliquer',
                 btn_back: '← Retour',
                 btn_buy: 'Acheter',
@@ -772,11 +803,11 @@
                     }
                 ],
                 how_works: [
-                    { title: 'Qu\'est-ce que c\'est?', text: 'DV-Lottery Photo Check — vérifiez rapidement votre photo avant de la soumettre à la loterie Green Card.' },
-                    { title: 'Comment ça marche?', text: 'Téléchargez votre photo → le système vérifie les paramètres clés → obtenez les résultats en secondes.' },
-                    { title: 'Que vérifions-nous?', text: '✓ Taille et résolution de la photo\n✓ Luminosité et contraste du visage\n✓ Fond correct (blanc/beige)\n✓ Position de la tête et des yeux\n✓ Qualité et format du fichier' },
-                    { title: 'Pourquoi c\'est important?', text: 'Évitez le rejet en raison de problèmes de photo. Vérifiez avant de soumettre — postulez en confiance.' },
-                    { title: 'Comment commencer?', text: '3 tentatives gratuites. Achetez plus de vérifications si nécessaire.' }
+                    { title: 'Qu\'est-ce que c\'est?', text: 'DV-Lottery Photo Check — un outil qui vous aide à vérifier rapidement et précisément votre photo avant de soumettre votre candidature à la loterie Green Card 🇺🇸' },
+                    { title: 'Comment ça marche?', text: 'Téléchargez votre photo → le système analyse automatiquement tous les paramètres clés → vous obtenez instantanément les résultats et les recommandations pour votre photo vérifiée.' },
+                    { title: 'Que vérifions-nous?', text: '✓ Taille et résolution\n✓ Luminosité, netteté et contraste du visage\n✓ Fond uni correct\n✓ Position de la tête et niveau des yeux\n✓ Format du fichier et exigences techniques' },
+                    { title: 'Pourquoi c\'est important?', text: 'La photo est l\'une des raisons les plus courantes du rejet d\'une candidature.\nLa vérification vous aide à vous assurer que votre photo respecte les normes officielles et est prête à être soumise.' },
+                    { title: 'Comment commencer?', text: 'Nous fournissons 3 vérifications gratuites pour que vous puissiez tester tranquillement le service et préparer votre photo.\nSi vous en avez besoin de plus, vous pouvez acheter des vérifications supplémentaires dans la section Tarifs à tout moment — choisissez un plan qui vous convient.\nNous publions régulièrement des codes promo pour des vérifications gratuites dans notre canal Telegram.\nVous pouvez vous y abonner via la section "Nous sur Telegram" du menu principal.' }
                 ],
                 news: [
                     { date: '28.11.2025', title: 'Mise à jour DV-2027 : En attente du démarrage officiel', text: 'À ce moment, la loterie DV-2027 n\'a pas encore commencé. Les États-Unis n\'ont pas encore publié les dates officielles d\'inscription, et on ne sait pas si le démarrage aura lieu fin 2025 ou sera reporté à 2026. Nous suivons de près les mises à jour et partagerons l\'information immédiatement après l\'annonce.\n\nUne fois que le Département d\'État annoncera le démarrage de DV-2027, nous préparerons un guide détaillé et étape par étape pour remplir le formulaire de demande afin que vous puissiez soumettre votre demande calmement et indépendamment.\n\nImportant : Soumettez votre demande indépendamment\nRemplir le formulaire de demande DV n\'est pas un processus compliqué. Nous vous recommandons vivement de soumettre votre demande indépendamment, sans utiliser les services d\'intermédiaires qui proposent de la remplir contre rémunération.\n\nPourquoi est-ce important :\n• Vous risquez de perdre le contrôle de votre demande\n• Vous pouvez perdre votre numéro de confirmation\n• Le risque de rencontrer des arnaqueurs augmente\n\nDans notre section, nous analyserons chaque étape du processus de demande en détail pour éliminer complètement toute difficulté.\n\nChangements possibles dans DV-2027\nSelon des rapports non officiels, il existe une possibilité d\'introduire un droit obligatoire pour soumettre une demande. Il n\'y a actuellement aucune information confirmée sur le prix ou sur le fait que ce changement sera adopté.\n\nSi les frais apparaissent réellement, nous préparerons un guide détaillé sur :\n• Comment payer les frais\n• Que faire si votre carte bancaire n\'est pas acceptée\n• Quelles méthodes de paiement alternatives sont disponibles\n\nSuivez les actualités\nNous mettrons à jour les informations immédiatement après l\'annonce officielle du Département d\'État américain. Restez avec nous pour ne pas manquer le démarrage de DV-2027 et obtenir des instructions précises pour soumettre votre demande.' }
@@ -792,7 +823,8 @@
                 btn_news: 'الأخبار',
                 btn_pricing: 'الأسعار',
                 btn_dv_form: 'كيفية ملء DV-2027',
-                btn_support: 'الدعم',
+                btn_support: 'نحن على تيليجرام',
+                promo_placeholder: 'أدخل رمز الترويج',
                 btn_apply: 'تطبيق',
                 btn_back: '← رجوع',
                 btn_buy: 'شراء',
@@ -827,11 +859,11 @@
                     }
                 ],
                 how_works: [
-                    { title: 'ما هذا؟', text: 'DV-Lottery Photo Check — تحقق بسرعة من صورتك قبل تقديمها إلى اليانصيب.' },
-                    { title: 'كيف يعمل؟', text: 'قم بتحميل الصورة → يتحقق النظام من المعاملات الأساسية → احصل على النتائج في ثوان.' },
-                    { title: 'ماذا نتحقق؟', text: '✓ حجم وجودة الصورة\n✓ سطوع وتباين الوجه\n✓ الخلفية الصحيحة (بيضاء/بيج)\n✓ موضع الرأس والعينين\n✓ جودة وصيغة الملف' },
-                    { title: 'لماذا تحتاج إليها؟', text: 'تجنب الرفض بسبب مشاكل الصورة. تحقق قبل التقديم — قدم بثقة.' },
-                    { title: 'كيفية البدء؟', text: '3 محاولات مجانية. اشترِ المزيد من التحققات إذا لزم الأمر.' }
+                    { title: 'ما هذا؟', text: 'DV-Lottery Photo Check — أداة تساعدك على التحقق بسرعة وبدقة من صورتك قبل تقديم طلبك لليانصيب Green Card 🇺🇸' },
+                    { title: 'كيف يعمل؟', text: 'حمّل صورتك → يحلل النظام تلقائياً جميع المعاملات الأساسية → تحصل على النتائج والتوصيات فوراً لصورتك المُتحقق منها.' },
+                    { title: 'ماذا نتحقق؟', text: '✓ الحجم والدقة\n✓ سطوع الوجه والوضوح والتباين\n✓ خلفية موحدة صحيحة\n✓ وضع الرأس ومستوى العيون\n✓ صيغة الملف والمتطلبات التقنية' },
+                    { title: 'لماذا تحتاج إليها؟', text: 'الصورة هي أحد أكثر الأسباب شيوعاً لرفض الطلب.\nيساعدك التحقق على التأكد من أن صورتك تتوافق مع المعايير الرسمية وجاهزة للتقديم.' },
+                    { title: 'كيفية البدء؟', text: 'نوفر لك 3 تحققات مجانية حتى تتمكن من اختبار الخدمة بهدوء وتحضير صورتك.\nإذا كنت بحاجة إلى المزيد، يمكنك شراء تحققات إضافية في قسم الأسعار في أي وقت — اختر الخطة التي تناسبك.\nننشر بانتظام رموز ترويج للتحققات المجانية في قناتنا على تيليجرام.\nيمكنك الاشتراك فيها من خلال قسم "نحن على تيليجرام" في القائمة الرئيسية.' }
                 ],
                 news: [
                     { date: '28.11.2025', title: 'تحديث DV-2027: في انتظار البدء الرسمي', text: 'في هذه اللحظة، لم تبدأ يانصيب DV-2027 بعد. الولايات المتحدة لم تنشر بعد المواعيد الرسمية للتسجيل، ومن غير المعروف ما إذا كان البدء سيتم في أواخر عام 2025 أم سيتم تأجيله إلى عام 2026. نحن نراقب التحديثات عن كثب وسنشارك المعلومات فوراً بعد الإعلان.\n\nبمجرد أن يعلن وزارة الخارجية عن بدء DV-2027، سنعد دليلاً تفصيلياً خطوة بخطوة لملء نموذج الطلب حتى تتمكن من تقديم طلبك بهدوء واستقلالية.\n\nمهم: قدم طلبك بشكل مستقل\nملء نموذج طلب DV ليس عملية معقدة. نوصيك بشدة بتقديم طلبك بشكل مستقل، دون استخدام خدمات الوسطاء الذين يقدمون ملء الطلب مقابل المال.\n\nلماذا هذا مهم:\n• تخاطرة بفقدان السيطرة على طلبك\n• قد تفقد رقم تأكيد الاستقبال\n• يزداد خطر التعامل مع المحتالين\n\nفي قسمنا، سنحلل كل خطوة من خطوات عملية الطلب بالتفصيل لاستبعاد أي صعوبات تماماً.\n\nالتغييرات المحتملة في DV-2027\nوفقاً لتقارير غير رسمية، هناك احتمالية لفرض رسم إلزامي لتقديم الطلب. لا توجد حالياً أي معلومات مؤكدة حول السعر أو ما إذا كان سيتم اعتماد هذا التغيير.\n\nإذا ظهرت الرسوم فعلاً، سنعد دليلاً تفصيلياً حول:\n• كيفية دفع الرسوم\n• ماذا تفعل إذا لم تتم قبول بطاقتك البنكية\n• ما هي خيارات الدفع البديلة المتاحة\n\nتابع الأخبار\nسنحدث المعلومات فوراً بعد الإعلان الرسمي من وزارة الخارجية الأمريكية. ابقَ معنا حتى لا تفوتك بداية DV-2027 وتحصل على تعليمات دقيقة لتقديم طلبك.' }
@@ -986,6 +1018,7 @@
             document.getElementById('uploadBtn').textContent = content.btn_upload;
             document.getElementById('applyPromoBtn').textContent = content.btn_apply;
             document.getElementById('attemptsLabel').textContent = content.attempts_label;
+            document.getElementById('promoCodeInput').placeholder = content.promo_placeholder;
             
             populateAllContent();
         }
@@ -1057,12 +1090,16 @@
             const content = CONTENT[appState.currentLang];
             const list = document.getElementById('howWorksList');
             
-            list.innerHTML = content.how_works.map(h => `
-                <div class="instruction-block">
+            let html = '<div class="how-works-unified">';
+            html += content.how_works.map(h => `
+                <div class="how-works-section">
                     <h3>${h.title}</h3>
                     <p>${h.text.replace(/\n/g, '<br>')}</p>
                 </div>
             `).join('');
+            html += '</div>';
+            
+            list.innerHTML = html;
         }
 
         function populateDVForm() {
