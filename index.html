@@ -642,6 +642,94 @@
 
     <input type="file" id="photoInput" accept="image/*" style="display: none;">
 
+    <!-- PHOTO CHECKER MODAL -->
+    <div id="photoCheckerModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 2000; overflow-y: auto;">
+        <div style="max-width: 100%; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh;">
+            
+            <!-- BACK BUTTON -->
+            <button onclick="closePhotoChecker()" style="align-self: flex-start; background: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 20px;">← Назад</button>
+            
+            <!-- CANVAS FOR PHOTO + LINES -->
+            <div style="position: relative; width: 100%; max-width: 600px; background: white; border-radius: 12px; overflow: hidden; margin-bottom: 20px;">
+                <canvas id="photoCanvas" style="width: 100%; display: block; cursor: crosshair;"></canvas>
+            </div>
+            
+            <!-- LINE INDICATORS -->
+            <div style="width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; font-size: 13px; color: white;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 20px; height: 20px; background: #8B0000; border-radius: 50%; border: 2px solid white;"></div>
+                    <span id="lineRedLabel">Бордовая линия: верхняя точка головы</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 20px; height: 20px; background: #00008B; border-radius: 50%; border: 2px solid white;"></div>
+                    <span id="lineBlueLabel">Синяя линия: нижняя точка подбородка</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 20px; height: 20px; background: #006400; border-radius: 50%; border: 2px solid white;"></div>
+                    <span id="lineGreenLabel">Зеленая линия: центр глаз</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 20px; height: 20px; background: #8B6F47; border-radius: 50%; border: 2px solid white;"></div>
+                    <span id="lineBrownLabel">Коричневая линия: центр фото</span>
+                </div>
+            </div>
+            
+            <!-- BUTTONS -->
+            <div style="width: 100%; max-width: 600px; display: flex; gap: 12px;">
+                <button onclick="startPhotoCheck()" style="flex: 1; background: #4CAF50; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Начать проверку</button>
+                <button onclick="closePhotoChecker()" style="flex: 1; background: #f44336; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
+    <script>
+        // ADMIN IDS
+        const ADMIN_IDS = [380950248, 375133882];
+
+    <input type="file" id="photoInput" accept="image/*" style="display: none;">
+
+    <!-- PHOTO CHECKER MODAL -->
+    <div id="photoCheckerModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 2000; overflow-y: auto;">
+        <div style="max-width: 100%; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh;">
+            
+            <!-- BACK BUTTON -->
+            <button onclick="closePhotoChecker()" style="align-self: flex-start; background: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 20px;">← Назад</button>
+            
+            <!-- CANVAS FOR PHOTO + LINES -->
+            <div style="position: relative; width: 100%; max-width: 600px; background: white; border-radius: 12px; overflow: hidden; margin-bottom: 20px;">
+                <canvas id="photoCanvas" style="width: 100%; display: block; cursor: crosshair;"></canvas>
+            </div>
+            
+            <!-- LINE INDICATORS -->
+            <div style="width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; font-size: 13px; color: white;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 20px; height: 20px; background: #8B0000; border-radius: 50%; border: 2px solid white;"></div>
+                    <span id="lineRedLabel">Бордовая линия: верхняя точка головы</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 20px; height: 20px; background: #00008B; border-radius: 50%; border: 2px solid white;"></div>
+                    <span id="lineBlueLabel">Синяя линия: нижняя точка подбородка</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 20px; height: 20px; background: #006400; border-radius: 50%; border: 2px solid white;"></div>
+                    <span id="lineGreenLabel">Зеленая линия: центр глаз</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 20px; height: 20px; background: #8B6F47; border-radius: 50%; border: 2px solid white;"></div>
+                    <span id="lineBrownLabel">Коричневая линия: центр фото</span>
+                </div>
+            </div>
+            
+            <!-- BUTTONS -->
+            <div style="width: 100%; max-width: 600px; display: flex; gap: 12px;">
+                <button onclick="startPhotoCheck()" style="flex: 1; background: #4CAF50; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Начать проверку</button>
+                <button onclick="closePhotoChecker()" style="flex: 1; background: #f44336; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
     <script>
         // ADMIN IDS
         const ADMIN_IDS = [380950248, 375133882];
@@ -964,12 +1052,13 @@
 
             document.getElementById('photoInput').addEventListener('change', (e) => {
                 const file = e.target.files[0];
-                if (file) {
-                    alert(CONTENT[appState.currentLang].upload_success);
-                    if (!appState.isAdmin) {
-                        appState.attempts--;
-                    }
-                    document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        photoCheckerState.originalImageData = event.target.result;
+                        openPhotoChecker();
+                    };
+                    reader.readAsDataURL(file);
                 }
             });
 
@@ -1150,7 +1239,7 @@
                 appState.attempts = 999;
             }
             
-            window.Telegram?.WebApp?.openLink('https://t.me/VisaPhotobot?start=buy_' + planName.replace(/\s+/g, '_'));
+            window.Telegram?.WebApp?.openLink('https://t.me/Stars4tonBot?start=buy_' + planName.replace(/\s+/g, '_'));
         }
 
         // Smooth transitions
@@ -1166,6 +1255,263 @@
         window.addEventListener('load', () => {
             document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
         });
+
+        // ===== PHOTO CHECKER STATE =====
+        let photoCheckerState = {
+            originalImageData: null,
+            image: null,
+            canvas: null,
+            ctx: null,
+            detection: null,
+            lines: {
+                red: null,      // верх головы
+                blue: null,     // низ подбородка
+                green: null,    // центр глаз
+                brown: null     // центр фото (вертикальная)
+            },
+            draggingLine: null,
+            canvasWidth: 600,
+            canvasHeight: 600
+        };
+
+        // ===== FACE DETECTION INIT =====
+        async function initFaceDetection() {
+            try {
+                const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+                await Promise.all([
+                    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+                ]);
+                return true;
+            } catch (e) {
+                console.error('Ошибка при загрузке моделей:', e);
+                return false;
+            }
+        }
+
+        // ===== OPEN PHOTO CHECKER =====
+        async function openPhotoChecker() {
+            document.getElementById('photoCheckerModal').style.display = 'flex';
+            
+            // Инициализируем canvas
+            const canvas = document.getElementById('photoCanvas');
+            const ctx = canvas.getContext('2d');
+            photoCheckerState.canvas = canvas;
+            photoCheckerState.ctx = ctx;
+
+            // Загружаем изображение
+            const img = new Image();
+            img.onload = async () => {
+                photoCheckerState.image = img;
+                
+                // Устанавливаем размер canvas 600x600
+                canvas.width = 600;
+                canvas.height = 600;
+                
+                // Рисуем изображение с масштабированием
+                ctx.drawImage(img, 0, 0, 600, 600);
+                
+                // Инициализируем face detection
+                const modelsLoaded = await initFaceDetection();
+                if (!modelsLoaded) {
+                    alert('Не удалось загрузить модели обнаружения лиц');
+                    return;
+                }
+                
+                // Детектируем лицо
+                try {
+                    const detection = await faceapi.detectSingleFace(img, new faceapi.TinyFaceDetectorOptions())
+                        .withFaceLandmarks();
+                    
+                    if (detection) {
+                        photoCheckerState.detection = detection;
+                        setAutoLines(detection);
+                    } else {
+                        // Если лицо не обнаружено, устанавливаем линии по умолчанию (по центру)
+                        setDefaultLines();
+                    }
+                } catch (e) {
+                    console.error('Ошибка обнаружения:', e);
+                    setDefaultLines();
+                }
+                
+                // Рисуем линии
+                redrawCanvasWithLines();
+                setupCanvasInteraction();
+            };
+            img.src = photoCheckerState.originalImageData;
+        }
+
+        // ===== SET AUTO LINES =====
+        function setAutoLines(detection) {
+            const landmarks = detection.landmarks.positions;
+            const imageWidth = 600;
+            const imageHeight = 600;
+            
+            // Находим верхнюю точку головы (точка 0 - forehead)
+            const topHead = Math.min(...landmarks.map(p => p.y));
+            photoCheckerState.lines.red = topHead + 10;
+            
+            // Находим нижнюю точку подбородка (точка 8 - chin)
+            const bottomChin = Math.max(...landmarks.map(p => p.y));
+            photoCheckerState.lines.blue = bottomChin - 10;
+            
+            // Находим центр глаз (среднее между левым и правым глазом)
+            const leftEye = landmarks[36];
+            const rightEye = landmarks[45];
+            const eyeCenter = (leftEye.y + rightEye.y) / 2;
+            photoCheckerState.lines.green = eyeCenter;
+            
+            // Коричневая линия - центр фото (вертикальная)
+            photoCheckerState.lines.brown = imageWidth / 2;
+        }
+
+        // ===== SET DEFAULT LINES =====
+        function setDefaultLines() {
+            photoCheckerState.lines.red = 150;       // верх головы
+            photoCheckerState.lines.blue = 450;      // низ подбородка
+            photoCheckerState.lines.green = 300;     // центр глаз
+            photoCheckerState.lines.brown = 300;     // центр фото
+        }
+
+        // ===== REDRAW CANVAS WITH LINES =====
+        function redrawCanvasWithLines() {
+            const ctx = photoCheckerState.ctx;
+            const img = photoCheckerState.image;
+            
+            // Очищаем и перерисовываем изображение
+            ctx.clearRect(0, 0, 600, 600);
+            ctx.drawImage(img, 0, 0, 600, 600);
+            
+            // Рисуем бордовую линию (верх головы)
+            drawHorizontalLine(ctx, photoCheckerState.lines.red, '#8B0000', 4);
+            
+            // Рисуем синюю линию (низ подбородка)
+            drawHorizontalLine(ctx, photoCheckerState.lines.blue, '#00008B', 4);
+            
+            // Рисуем зеленую прерывистую линию (центр глаз)
+            drawDashedHorizontalLine(ctx, photoCheckerState.lines.green, '#006400', 4);
+            
+            // Рисуем коричневую прерывистую вертикальную линию (центр фото)
+            drawDashedVerticalLine(ctx, photoCheckerState.lines.brown, '#8B6F47', 4);
+        }
+
+        // ===== DRAW HORIZONTAL LINE =====
+        function drawHorizontalLine(ctx, y, color, width) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(600, y);
+            ctx.stroke();
+        }
+
+        // ===== DRAW DASHED HORIZONTAL LINE =====
+        function drawDashedHorizontalLine(ctx, y, color, width) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.setLineDash([10, 5]);
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(600, y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // ===== DRAW DASHED VERTICAL LINE =====
+        function drawDashedVerticalLine(ctx, x, color, width) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.setLineDash([10, 5]);
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, 600);
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // ===== SETUP CANVAS INTERACTION =====
+        function setupCanvasInteraction() {
+            const canvas = document.getElementById('photoCanvas');
+            
+            canvas.addEventListener('mousedown', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const y = (e.clientY - rect.top) * (600 / rect.height);
+                
+                // Проверяем какую линию пользователь хочет переместить
+                const tolerance = 15;
+                
+                if (Math.abs(y - photoCheckerState.lines.red) < tolerance) {
+                    photoCheckerState.draggingLine = 'red';
+                } else if (Math.abs(y - photoCheckerState.lines.blue) < tolerance) {
+                    photoCheckerState.draggingLine = 'blue';
+                } else if (Math.abs(y - photoCheckerState.lines.green) < tolerance) {
+                    photoCheckerState.draggingLine = 'green';
+                }
+            });
+            
+            canvas.addEventListener('mousemove', (e) => {
+                if (!photoCheckerState.draggingLine) return;
+                
+                const rect = canvas.getBoundingClientRect();
+                const y = (e.clientY - rect.top) * (600 / rect.height);
+                
+                // Ограничиваем движение в пределах canvas
+                const newY = Math.max(0, Math.min(600, y));
+                photoCheckerState.lines[photoCheckerState.draggingLine] = newY;
+                redrawCanvasWithLines();
+            });
+            
+            canvas.addEventListener('mouseup', () => {
+                photoCheckerState.draggingLine = null;
+            });
+            
+            canvas.addEventListener('mouseleave', () => {
+                photoCheckerState.draggingLine = null;
+            });
+        }
+
+        // ===== START PHOTO CHECK =====
+        async function startPhotoCheck() {
+            // Проверяем минимальное расстояние между линиями (для обрезки)
+            const topHead = photoCheckerState.lines.red;
+            const bottomChin = photoCheckerState.lines.blue;
+            const headHeight = bottomChin - topHead;
+            
+            if (headHeight < 100) {
+                alert(CONTENT[appState.currentLang].btn_dv_form ? 'Извините, на фото мало места для обрезки. Установите линии корректно.' : 'Photo height is too small for cropping.');
+                return;
+            }
+            
+            // Уменьшаем попытки
+            if (!appState.isAdmin) {
+                appState.attempts--;
+                document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
+            }
+            
+            // Закрываем окно
+            closePhotoChecker();
+            
+            // Здесь будет обрезка и проверка критериев (следующий этап)
+            alert('Проверка запущена! (Функция будет добавлена в следующем обновлении)');
+        }
+
+        // ===== CLOSE PHOTO CHECKER =====
+        function closePhotoChecker() {
+            document.getElementById('photoCheckerModal').style.display = 'none';
+            photoCheckerState = {
+                originalImageData: null,
+                image: null,
+                canvas: null,
+                ctx: null,
+                detection: null,
+                lines: { red: null, blue: null, green: null, brown: null },
+                draggingLine: null,
+                canvasWidth: 600,
+                canvasHeight: 600
+            };
+            document.getElementById('photoInput').value = '';
+        }
     </script>
 </body>
 </html>
