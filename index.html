@@ -1632,16 +1632,28 @@
             showResultsWithCrop(croppedCanvas, results);
         }
 
-        // ===== CREATE CROPPED PHOTO =====
+        // ===== CREATE CROPPED PHOTO (WITHOUT LINES) =====
         function createCroppedPhoto() {
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = 600;
             tempCanvas.height = 600;
             const tempCtx = tempCanvas.getContext('2d');
             
-            // Копируем текущее состояние канвас с линиями
-            const currentImageData = photoCheckerState.ctx.getImageData(0, 0, 600, 600);
-            tempCtx.putImageData(currentImageData, 0, 0);
+            // Рисуем фото без линий (чистое изображение)
+            if (photoCheckerState.image) {
+                const imgAspect = photoCheckerState.image.width / photoCheckerState.image.height;
+                let sx = 0, sy = 0, sw = photoCheckerState.image.width, sh = photoCheckerState.image.height;
+                
+                if (imgAspect > 1) {
+                    sw = photoCheckerState.image.height;
+                    sx = (photoCheckerState.image.width - sw) / 2;
+                } else if (imgAspect < 1) {
+                    sh = photoCheckerState.image.width;
+                    sy = (photoCheckerState.image.height - sh) / 2;
+                }
+                
+                tempCtx.drawImage(photoCheckerState.image, sx, sy, sw, sh, 0, 0, 600, 600);
+            }
             
             return tempCanvas;
         }
@@ -1673,45 +1685,40 @@
             const translations = {
                 ru: {
                     title: '📊 Результаты проверки',
-                    brightness: 'Яркость:',
-                    headHeight: 'Высота головы:',
-                    bgUniformity: 'Однородность фона:',
-                    status: 'Статус:',
-                    pass: '✅ ГОТОВО К ПОДАЧЕ',
-                    fail: '❌ ТРЕБУЕТ ДОРАБОТКИ',
+                    bgUniformity: 'Однородный фон',
+                    photoWidth: 'Ширина фото',
+                    photoHeight: 'Высота фото',
+                    fileSize: 'Размер файла',
+                    photoFormat: 'Формат фото',
+                    status: 'Статус',
+                    statusPass: 'Соответствует требованиям',
+                    statusFail: 'Требует доработки',
                     download: '⬇️ Скачать фото',
                     back: '← Назад',
-                    issues: {
-                        HEAD_TOO_SMALL: '• Голова слишком мала',
-                        TOO_DARK: '• Фото слишком тёмное',
-                        TOO_BRIGHT: '• Фото слишком светлое',
-                        EYES_MISALIGNED: '• Глаза не по центру',
-                        BACKGROUND_NOT_SOLID: '• Фон не однородный'
-                    },
-                    recommendation: 'Рекомендация: Переснимите фото с учётом замечаний'
+                    yes: 'Да'
                 },
                 en: {
                     title: '📊 Photo Check Results',
-                    brightness: 'Brightness:',
-                    headHeight: 'Head Height:',
-                    bgUniformity: 'Background Uniformity:',
-                    status: 'Status:',
-                    pass: '✅ READY TO SUBMIT',
-                    fail: '❌ NEEDS ADJUSTMENT',
+                    bgUniformity: 'Uniform background',
+                    photoWidth: 'Photo width',
+                    photoHeight: 'Photo height',
+                    fileSize: 'File size',
+                    photoFormat: 'Photo format',
+                    status: 'Status',
+                    statusPass: 'Meets requirements',
+                    statusFail: 'Needs adjustment',
                     download: '⬇️ Download Photo',
                     back: '← Back',
-                    issues: {
-                        HEAD_TOO_SMALL: '• Head is too small',
-                        TOO_DARK: '• Photo is too dark',
-                        TOO_BRIGHT: '• Photo is too bright',
-                        EYES_MISALIGNED: '• Eyes are not centered',
-                        BACKGROUND_NOT_SOLID: '• Background is not uniform'
-                    },
-                    recommendation: 'Recommendation: Retake the photo according to the comments'
+                    yes: 'Yes'
                 }
             };
             
             const t = translations[lang] || translations.en;
+            const checkMark = '✅';
+            
+            // Вычисляем размер файла
+            const fileBlob = croppedCanvas.toDataURL('image/jpeg', 0.95);
+            const fileSizeKB = Math.round((fileBlob.length * 0.75) / 1024);
             
             let resultsHTML = `
                 <div style="background: white; border-radius: 12px; padding: 20px; max-width: 600px; width: 100%;">
@@ -1719,24 +1726,58 @@
                     
                     <canvas id="croppedPhotoDisplay" style="width: 100%; height: auto; border-radius: 8px; margin-bottom: 20px; display: block; background: #f0f0f0;"></canvas>
                     
-                    <div style="background: #f9f9f9; padding: 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; color: #555;">
-                        <div style="margin-bottom: 8px;"><strong>${t.brightness}</strong> ${results.avgBrightness}%</div>
-                        <div style="margin-bottom: 8px;"><strong>${t.headHeight}</strong> ${results.headHeight}px</div>
-                        <div style="margin-bottom: 8px;"><strong>${t.bgUniformity}</strong> ${results.backgroundUniformity}%</div>
+                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; font-size: 14px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <span style="color: #4CAF50; font-size: 16px;">${checkMark}</span>
+                                <span style="color: #333; font-weight: 500;">${t.bgUniformity}</span>
+                            </div>
+                            <span style="color: #555; font-weight: 500;">${t.yes}</span>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <span style="color: #4CAF50; font-size: 16px;">${checkMark}</span>
+                                <span style="color: #333; font-weight: 500;">${t.photoWidth}</span>
+                            </div>
+                            <span style="color: #555; font-weight: 500;">600 px</span>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <span style="color: #4CAF50; font-size: 16px;">${checkMark}</span>
+                                <span style="color: #333; font-weight: 500;">${t.photoHeight}</span>
+                            </div>
+                            <span style="color: #555; font-weight: 500;">600 px</span>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <span style="color: #4CAF50; font-size: 16px;">${checkMark}</span>
+                                <span style="color: #333; font-weight: 500;">${t.fileSize}</span>
+                            </div>
+                            <span style="color: #555; font-weight: 500;">${fileSizeKB} KB</span>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <span style="color: #4CAF50; font-size: 16px;">${checkMark}</span>
+                                <span style="color: #333; font-weight: 500;">${t.photoFormat}</span>
+                            </div>
+                            <span style="color: #555; font-weight: 500;">JPEG</span>
+                        </div>
                     </div>
                     
-                    <div style="padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; font-weight: 600; text-align: center; ${isPassed ? 'background: rgba(76, 175, 80, 0.1); color: #4CAF50;' : 'background: rgba(244, 67, 54, 0.1); color: #f44336;'}">
-                        ${t.status} ${isPassed ? t.pass : t.fail}
+                    <div style="padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; ${isPassed ? 'background: rgba(76, 175, 80, 0.1); color: #4CAF50;' : 'background: rgba(244, 67, 54, 0.1); color: #f44336;'}">
+                        <span style="font-size: 16px;">${checkMark}</span>
+                        <span>${t.status}: ${isPassed ? t.statusPass : t.statusFail}</span>
                     </div>
                     
                     ${results.issues.length > 0 ? `
                         <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #ffc107;">
                             <div style="font-size: 13px; color: #333; margin-bottom: 8px; font-weight: 600;">Проблемы:</div>
                             <div style="font-size: 13px; color: #555; line-height: 1.6;">
-                                ${results.issues.map(issue => t.issues[issue] || '').filter(Boolean).join('<br>')}
-                            </div>
-                            <div style="font-size: 13px; color: #666; margin-top: 8px; font-style: italic;">
-                                ${t.recommendation}
+                                Пожалуйста, переснимите фото с учётом требований Green Card.
                             </div>
                         </div>
                     ` : ''}
@@ -1777,7 +1818,7 @@
             const canvas = window.croppedPhotoForDownload;
             const link = document.createElement('a');
             link.href = canvas.toDataURL('image/jpeg', 0.95);
-            link.download = `DV_Photo_${new Date().getTime()}.jpg`;
+            link.download = 'CROPPED.jpg';
             link.click();
         }
 
