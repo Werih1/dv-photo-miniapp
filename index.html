@@ -728,6 +728,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/piexifjs@0.0.1/piexif.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
     <script>
         // ADMIN IDS
@@ -1711,6 +1712,44 @@
         }
 
         // ===== SHOW RESULTS WITH CROP =====
+
+        // ===== ПРОВЕРКА ДАТЫ ФОТО (6 месяцев) =====
+        function checkPhotoDate(file) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const exif = piexif.load(data);
+                        const exif0th = exif["0th"];
+                        const dateTime = exif0th[piexif.ImageIFD.DateTime];
+
+                        if (dateTime) {
+                            const dateStr = new TextDecoder().decode(dateTime).replace(/\0/g, '');
+                            const [year, month, day, hour, min, sec] = dateStr.match(/\d+/g);
+                            const photoDate = new Date(year, month - 1, day, hour, min, sec);
+                            const now = new Date();
+                            const monthsDiff = (now.getFullYear() - photoDate.getFullYear()) * 12 + 
+                                              (now.getMonth() - photoDate.getMonth());
+
+                            resolve({
+                                hasDate: true,
+                                isValid: monthsDiff <= 6,
+                                monthsDiff: monthsDiff,
+                                photoDate: photoDate.toLocaleDateString('ru-RU')
+                            });
+                        } else {
+                            resolve({ hasDate: false, isValid: null, photoDate: 'Не найдена' });
+                        }
+                    } catch (err) {
+                        resolve({ hasDate: false, isValid: null, photoDate: 'Ошибка чтения' });
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            });
+        }
+        
+
         function showResultsWithCrop(croppedCanvas, results) {
             const lang = appState.currentLang;
             const isPassed = results.issues.length === 0;
@@ -1865,7 +1904,35 @@
             `;
             
             modal.innerHTML = resultsHTML;
-            document.body.appendChild(modal);
+            
+                // Обновляю отображение даты
+                if (dateCheck && dateCheck.hasDate) {
+                    const dateCheckEl = document.getElementById('photoDateCheck');
+                    const dateResultEl = document.getElementById('photoDateResult');
+
+                    if (dateCheck.isValid) {
+                        dateCheckEl.textContent = '✓';
+                        dateCheckEl.style.color = '#4CAF50';
+                        dateCheckEl.style.fontSize = '20px';
+                        dateResultEl.textContent = `${dateCheck.photoDate} (${dateCheck.monthsDiff} мес.)`;
+                        dateResultEl.style.color = '#4CAF50';
+                    } else {
+                        dateCheckEl.textContent = '✗';
+                        dateCheckEl.style.color = '#f44336';
+                        dateCheckEl.style.fontSize = '20px';
+                        dateResultEl.textContent = `${dateCheck.photoDate} (>${dateCheck.monthsDiff} мес.)`;
+                        dateResultEl.style.color = '#f44336';
+                    }
+                } else {
+                    const dateCheckEl = document.getElementById('photoDateCheck');
+                    const dateResultEl = document.getElementById('photoDateResult');
+                    dateCheckEl.textContent = '?';
+                    dateCheckEl.style.color = '#999';
+                    dateResultEl.textContent = dateCheck?.photoDate || 'Не определена';
+                    dateResultEl.style.color = '#999';
+                }
+                
+                document.body.appendChild(modal);
             
             // Отображаем обрезанное фото
             setTimeout(() => {
