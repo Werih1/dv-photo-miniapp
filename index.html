@@ -1654,39 +1654,35 @@
         }
 
         // ===== START PHOTO CHECK =====
-        async function startPhotoCheck() {
-            // Проверяем минимальное расстояние между линиями (для обрезки)
-            const topHead = photoCheckerState.lines.red;
-            const bottomChin = photoCheckerState.lines.blue;
-            const headHeight = bottomChin - topHead;
-            
-            // Минимум 200px для безопасной обрезки
-            if (headHeight < 200) {
-                const msgRu = 'Извините, на фото мало места для обрезки.\nУстановите линии корректно.';
-                const msgEn = 'Sorry, there is not enough space on the photo to crop.\nPlace the lines correctly.';
-                showCustomAlert(appState.currentLang === 'ru' ? msgRu : msgEn);
-                return;
-            }
-            const croppedCanvas = createCroppedPhoto();
-            closePhotoChecker();
-            showResultsWithCrop(croppedCanvas);
-        }   
-            // Уменьшаем попытки
-            if (!appState.isAdmin) {
-                appState.attempts--;
-                document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
-            }
-            
-            // Создаём обрезанное фото 600x600
-            const croppedCanvas = createCroppedPhoto();
-            
-            // Анализируем фото
-            
-            
-            // Закрываем окно и показываем результаты с кропом
-            closePhotoChecker();
-            showResultsWithCrop(croppedCanvas);
-        }
+async function startPhotoCheck() {
+    // Проверяем минимальное расстояние между линиями (для обрезки)
+    const topHead = photoCheckerState.lines.red;
+    const bottomChin = photoCheckerState.lines.blue;
+    const headHeight = bottomChin - topHead;
+    
+    // Минимум 200px для безопасной обрезки
+    if (headHeight < 200) {
+        const msgRu = 'Извините, на фото мало места для обрезки.\nУстановите линии корректно.';
+        const msgEn = 'Sorry, there is not enough space on the photo to crop.\nPlace the lines correctly.';
+        showCustomAlert(appState.currentLang === 'ru' ? msgRu : msgEn);
+        return;
+    }
+
+    // Уменьшаем попытки
+    if (!appState.isAdmin) {
+        appState.attempts--;
+        document.getElementById('attemptsCount').textContent =
+            appState.attempts === 999 ? '∞' : appState.attempts;
+    }
+    
+    // Создаём обрезанное фото 600x600
+    const croppedCanvas = createCroppedPhoto();
+    
+    // Закрываем окно и показываем результаты с кропом
+    closePhotoChecker();
+    showResultsWithCrop(croppedCanvas);
+}
+
 
         // ===== CREATE CROPPED PHOTO WITH INTELLIGENT SCALING =====
         function createCroppedPhoto() {
