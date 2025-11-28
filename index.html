@@ -650,8 +650,8 @@
             <button onclick="closePhotoChecker()" style="align-self: flex-start; background: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 20px;">← Назад</button>
             
             <!-- CANVAS FOR PHOTO + LINES -->
-            <div style="position: relative; width: 100%; max-width: 600px; background: white; border-radius: 12px; overflow: hidden; margin-bottom: 20px;">
-                <canvas id="photoCanvas" style="width: 100%; display: block; cursor: crosshair;"></canvas>
+            <div style="position: relative; width: 100%; max-width: 600px; aspect-ratio: 1; background: white; border-radius: 12px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+                <canvas id="photoCanvas" style="width: 100%; height: 100%; display: block; cursor: grab; touch-action: none;"></canvas>
             </div>
             
             <!-- LINE INDICATORS -->
@@ -682,7 +682,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
     <script>
         // ADMIN IDS
         const ADMIN_IDS = [380950248, 375133882];
@@ -1262,35 +1261,19 @@
             image: null,
             canvas: null,
             ctx: null,
-            detection: null,
             lines: {
-                red: null,      // верх головы
-                blue: null,     // низ подбородка
-                green: null,    // центр глаз
-                brown: null     // центр фото (вертикальная)
+                red: 150,       // верх головы
+                blue: 450,      // низ подбородка
+                green: 300,     // центр глаз
+                brown: 300      // центр фото (вертикальная)
             },
             draggingLine: null,
-            canvasWidth: 600,
-            canvasHeight: 600
+            touchStartY: null,
+            canvasScale: 1
         };
 
-        // ===== FACE DETECTION INIT =====
-        async function initFaceDetection() {
-            try {
-                const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
-                await Promise.all([
-                    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-                    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-                ]);
-                return true;
-            } catch (e) {
-                console.error('Ошибка при загрузке моделей:', e);
-                return false;
-            }
-        }
-
         // ===== OPEN PHOTO CHECKER =====
-        async function openPhotoChecker() {
+        function openPhotoChecker() {
             document.getElementById('photoCheckerModal').style.display = 'flex';
             
             // Инициализируем canvas
@@ -1301,69 +1284,38 @@
 
             // Загружаем изображение
             const img = new Image();
-            img.onload = async () => {
+            img.onload = () => {
                 photoCheckerState.image = img;
                 
                 // Устанавливаем размер canvas 600x600
                 canvas.width = 600;
                 canvas.height = 600;
                 
-                // Рисуем изображение с масштабированием
-                ctx.drawImage(img, 0, 0, 600, 600);
+                // Масштабируем и рисуем изображение с сохранением пропорций
+                const imgAspect = img.width / img.height;
+                let sx = 0, sy = 0, sw = img.width, sh = img.height;
                 
-                // Инициализируем face detection
-                const modelsLoaded = await initFaceDetection();
-                if (!modelsLoaded) {
-                    alert('Не удалось загрузить модели обнаружения лиц');
-                    return;
+                if (imgAspect > 1) {
+                    // Ширина больше - обрезаем стороны
+                    sw = img.height;
+                    sx = (img.width - sw) / 2;
+                } else if (imgAspect < 1) {
+                    // Высота больше - обрезаем сверху/снизу
+                    sh = img.width;
+                    sy = (img.height - sh) / 2;
                 }
                 
-                // Детектируем лицо
-                try {
-                    const detection = await faceapi.detectSingleFace(img, new faceapi.TinyFaceDetectorOptions())
-                        .withFaceLandmarks();
-                    
-                    if (detection) {
-                        photoCheckerState.detection = detection;
-                        setAutoLines(detection);
-                    } else {
-                        // Если лицо не обнаружено, устанавливаем линии по умолчанию (по центру)
-                        setDefaultLines();
-                    }
-                } catch (e) {
-                    console.error('Ошибка обнаружения:', e);
-                    setDefaultLines();
-                }
+                // Рисуем с коррекцией масштаба
+                ctx.drawImage(img, sx, sy, sw, sh, 0, 0, 600, 600);
+                
+                // Устанавливаем линии по умолчанию
+                setDefaultLines();
                 
                 // Рисуем линии
                 redrawCanvasWithLines();
                 setupCanvasInteraction();
             };
             img.src = photoCheckerState.originalImageData;
-        }
-
-        // ===== SET AUTO LINES =====
-        function setAutoLines(detection) {
-            const landmarks = detection.landmarks.positions;
-            const imageWidth = 600;
-            const imageHeight = 600;
-            
-            // Находим верхнюю точку головы (точка 0 - forehead)
-            const topHead = Math.min(...landmarks.map(p => p.y));
-            photoCheckerState.lines.red = topHead + 10;
-            
-            // Находим нижнюю точку подбородка (точка 8 - chin)
-            const bottomChin = Math.max(...landmarks.map(p => p.y));
-            photoCheckerState.lines.blue = bottomChin - 10;
-            
-            // Находим центр глаз (среднее между левым и правым глазом)
-            const leftEye = landmarks[36];
-            const rightEye = landmarks[45];
-            const eyeCenter = (leftEye.y + rightEye.y) / 2;
-            photoCheckerState.lines.green = eyeCenter;
-            
-            // Коричневая линия - центр фото (вертикальная)
-            photoCheckerState.lines.brown = imageWidth / 2;
         }
 
         // ===== SET DEFAULT LINES =====
@@ -1434,29 +1386,38 @@
         function setupCanvasInteraction() {
             const canvas = document.getElementById('photoCanvas');
             
-            canvas.addEventListener('mousedown', (e) => {
+            function getYFromEvent(e) {
                 const rect = canvas.getBoundingClientRect();
-                const y = (e.clientY - rect.top) * (600 / rect.height);
+                const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+                return (clientY - rect.top) * (600 / rect.height);
+            }
+            
+            function getLineAtY(y) {
+                const tolerance = 20;
                 
-                // Проверяем какую линию пользователь хочет переместить
-                const tolerance = 15;
-                
-                if (Math.abs(y - photoCheckerState.lines.red) < tolerance) {
-                    photoCheckerState.draggingLine = 'red';
-                } else if (Math.abs(y - photoCheckerState.lines.blue) < tolerance) {
-                    photoCheckerState.draggingLine = 'blue';
-                } else if (Math.abs(y - photoCheckerState.lines.green) < tolerance) {
-                    photoCheckerState.draggingLine = 'green';
+                if (Math.abs(y - photoCheckerState.lines.red) < tolerance) return 'red';
+                if (Math.abs(y - photoCheckerState.lines.blue) < tolerance) return 'blue';
+                if (Math.abs(y - photoCheckerState.lines.green) < tolerance) return 'green';
+                return null;
+            }
+            
+            // MOUSE EVENTS
+            canvas.addEventListener('mousedown', (e) => {
+                const y = getYFromEvent(e);
+                photoCheckerState.draggingLine = getLineAtY(y);
+                if (photoCheckerState.draggingLine) {
+                    canvas.style.cursor = 'grabbing';
                 }
             });
             
             canvas.addEventListener('mousemove', (e) => {
-                if (!photoCheckerState.draggingLine) return;
+                if (!photoCheckerState.draggingLine) {
+                    const y = getYFromEvent(e);
+                    canvas.style.cursor = getLineAtY(y) ? 'grab' : 'default';
+                    return;
+                }
                 
-                const rect = canvas.getBoundingClientRect();
-                const y = (e.clientY - rect.top) * (600 / rect.height);
-                
-                // Ограничиваем движение в пределах canvas
+                const y = getYFromEvent(e);
                 const newY = Math.max(0, Math.min(600, y));
                 photoCheckerState.lines[photoCheckerState.draggingLine] = newY;
                 redrawCanvasWithLines();
@@ -1464,22 +1425,49 @@
             
             canvas.addEventListener('mouseup', () => {
                 photoCheckerState.draggingLine = null;
+                canvas.style.cursor = 'default';
             });
             
             canvas.addEventListener('mouseleave', () => {
                 photoCheckerState.draggingLine = null;
+                canvas.style.cursor = 'default';
             });
+            
+            // TOUCH EVENTS
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const y = getYFromEvent(e);
+                photoCheckerState.draggingLine = getLineAtY(y);
+            }, { passive: false });
+            
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                if (!photoCheckerState.draggingLine) return;
+                
+                const y = getYFromEvent(e);
+                const newY = Math.max(0, Math.min(600, y));
+                photoCheckerState.lines[photoCheckerState.draggingLine] = newY;
+                redrawCanvasWithLines();
+            }, { passive: false });
+            
+            canvas.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                photoCheckerState.draggingLine = null;
+            }, { passive: false });
         }
 
         // ===== START PHOTO CHECK =====
-        async function startPhotoCheck() {
+        function startPhotoCheck() {
             // Проверяем минимальное расстояние между линиями (для обрезки)
             const topHead = photoCheckerState.lines.red;
             const bottomChin = photoCheckerState.lines.blue;
             const headHeight = bottomChin - topHead;
             
-            if (headHeight < 100) {
-                alert(CONTENT[appState.currentLang].btn_dv_form ? 'Извините, на фото мало места для обрезки. Установите линии корректно.' : 'Photo height is too small for cropping.');
+            // Минимум 200px для безопасной обрезки
+            if (headHeight < 200) {
+                const msgRu = 'Извините, на фото мало места для обрезки.\nУстановите линии корректно.';
+                const msgEn = 'Sorry, there is not enough space on the photo to crop.\nPlace the lines correctly.';
+                alert(appState.currentLang === 'ru' ? msgRu : msgEn);
                 return;
             }
             
@@ -1493,7 +1481,9 @@
             closePhotoChecker();
             
             // Здесь будет обрезка и проверка критериев (следующий этап)
-            alert('Проверка запущена! (Функция будет добавлена в следующем обновлении)');
+            const msgRu = '✅ Проверка запущена!\n(Результаты будут вскоре)';
+            const msgEn = '✅ Check started!\n(Results coming soon)';
+            alert(appState.currentLang === 'ru' ? msgRu : msgEn);
         }
 
         // ===== CLOSE PHOTO CHECKER =====
@@ -1515,6 +1505,5 @@
     </script>
 </body>
 </html>
-
 
 
