@@ -1667,7 +1667,10 @@
                 showCustomAlert(appState.currentLang === 'ru' ? msgRu : msgEn);
                 return;
             }
-            
+            const croppedCanvas = createCroppedPhoto();
+            closePhotoChecker();
+            showResultsWithCrop(croppedCanvas);
+        }   
             // Уменьшаем попытки
             if (!appState.isAdmin) {
                 appState.attempts--;
