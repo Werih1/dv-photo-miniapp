@@ -2,1921 +2,1287 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>DV-Lottery Photo Check</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Green Card Photo Validator</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #ffffff;
-            color: #333;
-            overflow: hidden;
-        }
-
-        /* ===== SPLASH SCREEN ===== */
-        .splash {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(rgba(25, 78, 132, 0.65), rgba(25, 78, 132, 0.65)), url('images/logo.png') center/cover no-repeat;
-            padding: 30px 20px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1000;
-        }
-
-        .splash.hidden {
-            display: none;
-        }
-
-        .splash-top {
-            flex: 0.5;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .splash-title {
-            font-size: 32px;
-            font-weight: 700;
-            color: white;
-            text-align: center;
-            line-height: 1.2;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            letter-spacing: -0.5px;
-        }
-
-        .splash-middle {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .splash-bottom {
-            flex: 1;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-            justify-content: center;
-        }
-
-        .splash-subtitle {
-            font-size: 16px;
-            color: rgba(255,255,255,0.95);
-            height: 22px;
-            min-height: 22px;
-            font-weight: 500;
-            text-align: center;
-            margin-bottom: 12px;
-        }
-
-        .language-selector-splash {
-            display: flex;
-            gap: 14px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .lang-btn-splash {
-            width: 65px;
-            height: 65px;
-            border: 3px solid white;
-            border-radius: 14px;
-            background: rgba(255,255,255,0.15);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(10px);
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
-
-        .lang-btn-splash img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 11px;
-        }
-
-        .lang-btn-splash:active {
-            transform: scale(1.08);
-            border-color: rgba(255,255,255,0.8);
-            box-shadow: 0 6px 20px rgba(255,255,255,0.3);
-        }
-
-        /* ===== MAIN APP ===== */
-        .app {
-            display: none;
-            width: 100%;
-            height: 100%;
-            flex-direction: column;
-            overflow: hidden;
-            background: #f8f9fa;
-        }
-
-        .app.active {
-            display: flex;
-        }
-
-        /* ===== APP HEADER ===== */
-        .app-header {
-            background: linear-gradient(135deg, #194E84 0%, #1a5a99 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .app-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .attempts-badge {
-            display: inline-block;
-            padding: 8px 16px;
-            background: rgba(255,255,255,0.25);
-            color: white;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 13px;
-            backdrop-filter: blur(10px);
-        }
-
-        /* ===== MAIN CONTENT ===== */
-        .app-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .upload-section {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .button {
-            width: 100%;
-            padding: 14px;
-            border: none;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            -webkit-appearance: none;
-            appearance: none;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #194E84 0%, #1a5a99 100%);
-            color: white;
-            box-shadow: 0 4px 12px rgba(25, 78, 132, 0.3);
-        }
-
-        .btn-primary:active {
-            transform: scale(0.98);
-            opacity: 0.9;
-        }
-
-        /* ===== MENU SECTIONS ===== */
-        .menu-sections {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 16px;
-        }
-
-        .menu-item {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            border: 2px solid transparent;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 8px;
-            min-height: 100px;
-            justify-content: center;
-        }
-
-        .menu-item-icon {
-            font-size: 24px;
-        }
-
-        .menu-item-text {
-            font-size: 12px;
-            font-weight: 600;
-            color: #194E84;
-            line-height: 1.3;
-        }
-
-        .menu-item:active {
-            border-color: #194E84;
-            background: rgba(25, 78, 132, 0.05);
-            transform: scale(0.98);
-        }
-
-        /* ===== TAB CONTENT ===== */
-        .tab-content {
-            display: none;
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .tab-content.active {
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* ===== BACK BUTTON ===== */
-        .back-btn {
-            background: white;
-            border: 2px solid #194E84;
-            color: #194E84;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-bottom: 16px;
-            width: fit-content;
-        }
-
-        .back-btn:active {
-            background: rgba(25, 78, 132, 0.1);
-        }
-
-        /* ===== NEWS CARDS ===== */
-        .news-full-container {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .news-card {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            border-left: 4px solid #194E84;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .news-card-date {
-            font-size: 12px;
-            color: #194E84;
-            font-weight: 600;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-        }
-
-        .news-card-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .news-card-text {
-            font-size: 13px;
-            line-height: 1.6;
-            color: #555;
-        }
-
-        /* ===== PRICING ===== */
-        .promo-input-group {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 16px;
-            background: white;
-            padding: 12px;
-            border-radius: 12px;
-        }
-
-        .promo-input-group input {
-            flex: 1;
-            padding: 10px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            background: white;
-            color: #333;
-        }
-
-        .promo-input-group input::placeholder {
-            color: #999;
-            font-style: italic;
-        }
-
-        /* ===== PAGINATION ===== */
-        .pagination {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
-        }
-
-        .pagination-btn {
-            padding: 8px 12px;
-            border: 2px solid #194E84;
-            background: white;
-            color: #194E84;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 12px;
-        }
-
-        .pagination-btn:active,
-        .pagination-btn.active {
-            background: #194E84;
-            color: white;
-        }
-
-        .promo-input-group button {
-            padding: 10px 16px;
-            background: linear-gradient(135deg, #194E84 0%, #1a5a99 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .pricing-section {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .pricing-card {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            border: 2px solid #e0e0e0;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .pricing-card:active {
-            border-color: #194E84;
-            box-shadow: 0 4px 12px rgba(25, 78, 132, 0.2);
-        }
-
-        .pricing-name {
-            font-size: 16px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .pricing-attempts {
-            font-size: 13px;
-            color: #194E84;
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-
-        .pricing-price {
-            font-size: 20px;
-            font-weight: 700;
-            color: #194E84;
-            margin-bottom: 12px;
-        }
-
-        .pricing-description-toggle {
-            font-size: 12px;
-            color: #194E84;
-            font-weight: 600;
-            text-decoration: underline;
-            cursor: pointer;
-            margin-bottom: 12px;
-            transition: all 0.3s;
-        }
-
-        .pricing-description-toggle:active {
-            opacity: 0.7;
-        }
-
-        .pricing-description {
-            display: none;
-            font-size: 12px;
-            line-height: 1.6;
-            color: #666;
-            margin-bottom: 12px;
-            padding: 10px;
-            background: rgba(25, 78, 132, 0.05);
-            border-radius: 8px;
-        }
-
-        .pricing-description.active {
-            display: block;
-        }
-
-        .btn-buy {
-            background: linear-gradient(135deg, #194E84 0%, #1a5a99 100%);
-            color: white;
-            padding: 10px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 12px;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        .btn-buy:active {
-            transform: scale(0.98);
-        }
-
-        /* ===== INSTRUCTIONS ===== */
-        .instructions {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .instruction-block {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            border-left: 4px solid #194E84;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .instruction-block h3 {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #333;
-        }
-
-        .instruction-block p {
-            font-size: 13px;
-            line-height: 1.8;
-            color: #555;
-        }
-
-        .how-works-unified {
-            background: white;
-            border-radius: 12px;
-            padding: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .how-works-section {
-            margin-bottom: 16px;
-        }
-
-        .how-works-section:last-child {
-            margin-bottom: 0;
-        }
-
-        .how-works-section h3 {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #333;
-        }
-
-        .how-works-section p {
-            font-size: 13px;
-            line-height: 1.8;
-            color: #555;
-        }
-
-        /* ===== SCROLLBAR ===== */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #ddd;
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #999;
-        }
+        :root {
+  --color-white: rgba(255, 255, 255, 1);
+  --color-black: rgba(0, 0, 0, 1);
+  --color-cream-50: rgba(252, 252, 249, 1);
+  --color-cream-100: rgba(255, 255, 253, 1);
+  --color-gray-200: rgba(245, 245, 245, 1);
+  --color-gray-300: rgba(167, 169, 169, 1);
+  --color-gray-400: rgba(119, 124, 124, 1);
+  --color-slate-500: rgba(98, 108, 113, 1);
+  --color-brown-600: rgba(94, 82, 64, 1);
+  --color-charcoal-700: rgba(31, 33, 33, 1);
+  --color-charcoal-800: rgba(38, 40, 40, 1);
+  --color-slate-900: rgba(19, 52, 59, 1);
+  --color-teal-300: rgba(50, 184, 198, 1);
+  --color-teal-400: rgba(45, 166, 178, 1);
+  --color-teal-500: rgba(33, 128, 141, 1);
+  --color-teal-600: rgba(29, 116, 128, 1);
+  --color-teal-700: rgba(26, 104, 115, 1);
+  --color-teal-800: rgba(41, 150, 161, 1);
+  --color-red-400: rgba(255, 84, 89, 1);
+  --color-red-500: rgba(192, 21, 47, 1);
+  --color-orange-400: rgba(230, 129, 97, 1);
+  --color-orange-500: rgba(168, 75, 47, 1);
+  --color-brown-600-rgb: 94, 82, 64;
+  --color-teal-500-rgb: 33, 128, 141;
+  --color-slate-900-rgb: 19, 52, 59;
+  --color-slate-500-rgb: 98, 108, 113;
+  --color-red-500-rgb: 192, 21, 47;
+  --color-red-400-rgb: 255, 84, 89;
+  --color-orange-500-rgb: 168, 75, 47;
+  --color-orange-400-rgb: 230, 129, 97;
+  --color-bg-1: rgba(59, 130, 246, 0.08);
+  --color-bg-2: rgba(245, 158, 11, 0.08);
+  --color-bg-3: rgba(34, 197, 94, 0.08);
+  --color-bg-4: rgba(239, 68, 68, 0.08);
+  --color-bg-5: rgba(147, 51, 234, 0.08);
+  --color-bg-6: rgba(249, 115, 22, 0.08);
+  --color-bg-7: rgba(236, 72, 153, 0.08);
+  --color-bg-8: rgba(6, 182, 212, 0.08);
+  --color-background: var(--color-cream-50);
+  --color-surface: var(--color-cream-100);
+  --color-text: var(--color-slate-900);
+  --color-text-secondary: var(--color-slate-500);
+  --color-primary: var(--color-teal-500);
+  --color-primary-hover: var(--color-teal-600);
+  --color-primary-active: var(--color-teal-700);
+  --color-secondary: rgba(var(--color-brown-600-rgb), 0.12);
+  --color-secondary-hover: rgba(var(--color-brown-600-rgb), 0.2);
+  --color-secondary-active: rgba(var(--color-brown-600-rgb), 0.25);
+  --color-border: rgba(var(--color-brown-600-rgb), 0.2);
+  --color-btn-primary-text: var(--color-cream-50);
+  --color-card-border: rgba(var(--color-brown-600-rgb), 0.12);
+  --color-card-border-inner: rgba(var(--color-brown-600-rgb), 0.12);
+  --color-error: var(--color-red-500);
+  --color-success: var(--color-teal-500);
+  --color-warning: var(--color-orange-500);
+  --color-info: var(--color-slate-500);
+  --color-focus-ring: rgba(var(--color-teal-500-rgb), 0.4);
+  --color-select-caret: rgba(var(--color-slate-900-rgb), 0.8);
+  --focus-ring: 0 0 0 3px var(--color-focus-ring);
+  --focus-outline: 2px solid var(--color-primary);
+  --status-bg-opacity: 0.15;
+  --status-border-opacity: 0.25;
+  --color-success-rgb: 33, 128, 141;
+  --color-error-rgb: 192, 21, 47;
+  --color-warning-rgb: 168, 75, 47;
+  --color-info-rgb: 98, 108, 113;
+  --font-family-base: "FKGroteskNeue", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family-mono: "Berkeley Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-size-xs: 11px;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-md: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 18px;
+  --font-size-2xl: 20px;
+  --font-size-3xl: 24px;
+  --font-size-4xl: 30px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 550;
+  --font-weight-bold: 600;
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --letter-spacing-tight: -0.01em;
+  --space-0: 0;
+  --space-1: 1px;
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-10: 10px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --radius-sm: 6px;
+  --radius-base: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+  --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.15), inset 0 -1px 0 rgba(0, 0, 0, 0.03);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-gray-400-rgb: 119, 124, 124;
+    --color-teal-300-rgb: 50, 184, 198;
+    --color-gray-300-rgb: 167, 169, 169;
+    --color-gray-200-rgb: 245, 245, 245;
+    --color-bg-1: rgba(29, 78, 216, 0.15);
+    --color-bg-2: rgba(180, 83, 9, 0.15);
+    --color-bg-3: rgba(21, 128, 61, 0.15);
+    --color-bg-4: rgba(185, 28, 28, 0.15);
+    --color-bg-5: rgba(107, 33, 168, 0.15);
+    --color-bg-6: rgba(194, 65, 12, 0.15);
+    --color-bg-7: rgba(190, 24, 93, 0.15);
+    --color-bg-8: rgba(8, 145, 178, 0.15);
+    --color-background: var(--color-charcoal-700);
+    --color-surface: var(--color-charcoal-800);
+    --color-text: var(--color-gray-200);
+    --color-text-secondary: rgba(var(--color-gray-300-rgb), 0.7);
+    --color-primary: var(--color-teal-300);
+    --color-primary-hover: var(--color-teal-400);
+    --color-primary-active: var(--color-teal-800);
+    --color-secondary: rgba(var(--color-gray-400-rgb), 0.15);
+    --color-secondary-hover: rgba(var(--color-gray-400-rgb), 0.25);
+    --color-secondary-active: rgba(var(--color-gray-400-rgb), 0.3);
+    --color-border: rgba(var(--color-gray-400-rgb), 0.3);
+    --color-error: var(--color-red-400);
+    --color-success: var(--color-teal-300);
+    --color-warning: var(--color-orange-400);
+    --color-info: var(--color-gray-300);
+    --color-focus-ring: rgba(var(--color-teal-300-rgb), 0.4);
+    --color-btn-primary-text: var(--color-slate-900);
+    --color-card-border: rgba(var(--color-gray-400-rgb), 0.2);
+    --color-card-border-inner: rgba(var(--color-gray-400-rgb), 0.15);
+    --shadow-inset-sm: inset 0 1px 0 rgba(255, 255, 255, 0.1), inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+    --color-success-rgb: var(--color-teal-300-rgb);
+    --color-error-rgb: var(--color-red-400-rgb);
+    --color-warning-rgb: var(--color-orange-400-rgb);
+    --color-info-rgb: var(--color-gray-300-rgb);
+  }
+}
+
+@font-face {
+  font-family: 'FKGroteskNeue';
+  src: url('https://r2cdn.perplexity.ai/fonts/FKGroteskNeue.woff2') format('woff2');
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family-base);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  line-height: var(--line-height-normal);
+  -webkit-font-smoothing: antialiased;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-16);
+}
+
+.header {
+  text-align: center;
+  padding: var(--space-24) 0;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-24);
+}
+
+.header h1 {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--space-8);
+}
+
+.header p {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-base);
+}
+
+.lang-selector {
+  position: absolute;
+  top: var(--space-16);
+  right: var(--space-16);
+  display: flex;
+  gap: var(--space-8);
+}
+
+.lang-btn {
+  padding: var(--space-6) var(--space-12);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: var(--radius-base);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  transition: all var(--duration-fast) var(--ease-standard);
+}
+
+.lang-btn.active {
+  background: var(--color-primary);
+  color: var(--color-btn-primary-text);
+  border-color: var(--color-primary);
+}
+
+.upload-section {
+  background: var(--color-surface);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-32);
+  text-align: center;
+  margin-bottom: var(--space-24);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-standard);
+}
+
+.upload-section:hover {
+  border-color: var(--color-primary);
+  background: var(--color-bg-1);
+}
+
+.upload-section.dragover {
+  border-color: var(--color-primary);
+  background: var(--color-bg-1);
+}
+
+.upload-icon {
+  font-size: 48px;
+  margin-bottom: var(--space-16);
+}
+
+.upload-section h3 {
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--space-8);
+}
+
+.upload-section p {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-16);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-10) var(--space-24);
+  border-radius: var(--radius-base);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-standard);
+  border: none;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-btn-primary-text);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: var(--color-secondary);
+  color: var(--color-text);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--color-secondary-hover);
+}
+
+#fileInput {
+  display: none;
+}
+
+.processing-section {
+  display: none;
+  margin-bottom: var(--space-24);
+}
+
+.processing-section.active {
+  display: block;
+}
+
+.loading {
+  text-align: center;
+  padding: var(--space-32);
+}
+
+.spinner {
+  border: 3px solid var(--color-secondary);
+  border-top: 3px solid var(--color-primary);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto var(--space-16);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-24);
+  margin-bottom: var(--space-24);
+}
+
+@media (max-width: 768px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-20);
+  box-shadow: var(--shadow-sm);
+}
+
+.card h3 {
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--space-16);
+  padding-bottom: var(--space-12);
+  border-bottom: 1px solid var(--color-card-border-inner);
+}
+
+.canvas-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: var(--space-16);
+}
+
+#detectionCanvas {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-base);
+  display: block;
+}
+
+.validation-list {
+  list-style: none;
+}
+
+.validation-item {
+  display: flex;
+  align-items: center;
+  padding: var(--space-12);
+  margin-bottom: var(--space-8);
+  border-radius: var(--radius-base);
+  background: var(--color-bg-2);
+  border: 1px solid var(--color-border);
+}
+
+.validation-item.pass {
+  background: rgba(var(--color-success-rgb), 0.1);
+  border-color: var(--color-success);
+}
+
+.validation-item.fail {
+  background: rgba(var(--color-error-rgb), 0.1);
+  border-color: var(--color-error);
+}
+
+.validation-item.warning {
+  background: rgba(var(--color-warning-rgb), 0.1);
+  border-color: var(--color-warning);
+}
+
+.validation-icon {
+  font-size: var(--font-size-xl);
+  margin-right: var(--space-12);
+  min-width: 24px;
+}
+
+.validation-text {
+  flex: 1;
+}
+
+.validation-label {
+  font-weight: var(--font-weight-medium);
+  display: block;
+  margin-bottom: var(--space-4);
+}
+
+.validation-detail {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.metadata-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-12);
+}
+
+.metadata-item {
+  padding: var(--space-12);
+  background: var(--color-bg-1);
+  border-radius: var(--radius-base);
+}
+
+.metadata-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  display: block;
+  margin-bottom: var(--space-4);
+}
+
+.metadata-value {
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-base);
+}
+
+.crop-preview {
+  display: none;
+  margin-top: var(--space-24);
+}
+
+.crop-preview.active {
+  display: block;
+}
+
+.crop-preview h3 {
+  margin-bottom: var(--space-16);
+}
+
+#croppedCanvas {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-base);
+  border: 2px solid var(--color-success);
+  display: block;
+  margin: 0 auto var(--space-16);
+}
+
+.action-buttons {
+  display: flex;
+  gap: var(--space-12);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.flowchart {
+  margin-top: var(--space-32);
+  text-align: center;
+}
+
+.flowchart img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+}
+
+.error-message {
+  background: rgba(var(--color-error-rgb), 0.1);
+  border: 1px solid var(--color-error);
+  color: var(--color-error);
+  padding: var(--space-16);
+  border-radius: var(--radius-base);
+  margin-bottom: var(--space-16);
+}
+
+.success-message {
+  background: rgba(var(--color-success-rgb), 0.1);
+  border: 1px solid var(--color-success);
+  color: var(--color-success);
+  padding: var(--space-16);
+  border-radius: var(--radius-base);
+  margin-bottom: var(--space-16);
+  text-align: center;
+}
+
+.hidden {
+  display: none !important;
+}
     </style>
 </head>
 <body>
-    <!-- SPLASH SCREEN -->
-    <div class="splash" id="splashScreen">
-        <div class="splash-top">
-            <div class="splash-title">DV-Lottery<br>Photo Check</div>
-        </div>
-        
-        <div class="splash-middle"></div>
-
-        <div class="splash-bottom">
-            <div class="splash-subtitle" id="splashSubtitle">Выберите язык</div>
-            <div class="language-selector-splash">
-                <button class="lang-btn-splash" data-lang="ru" title="Русский">
-                    <img src="images/russia.png" alt="Русский">
-                </button>
-                <button class="lang-btn-splash" data-lang="en" title="English">
-                    <img src="images/united.png" alt="English">
-                </button>
-                <button class="lang-btn-splash" data-lang="fr" title="Français">
-                    <img src="images/france.png" alt="Français">
-                </button>
-                <button class="lang-btn-splash" data-lang="ar" title="العربية">
-                    <img src="images/emirates.png" alt="العربية">
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MAIN APP -->
-    <div class="app" id="mainApp">
-        <!-- APP HEADER -->
-        <div class="app-header">
-            <div class="app-title">DV-Lottery Photo Check</div>
-            <div class="attempts-badge"><span id="attemptsLabel">Осталось проверок:</span> <span id="attemptsCount">3</span></div>
+    <div class="container">
+        <div class="lang-selector">
+            <button class="lang-btn active" data-lang="ru">RU</button>
+            <button class="lang-btn" data-lang="en">EN</button>
         </div>
 
-        <!-- MAIN MENU VIEW -->
-        <div id="menuView" class="app-content">
-            <div class="upload-section">
-                <button class="button btn-primary" id="uploadBtn">📸 ЗАГРУЗИТЬ ФОТО</button>
+        <header class="header">
+            <h1 id="appTitle">Green Card Photo Validator</h1>
+            <p id="appDescription">Профессиональная проверка фотографий для Green Card лотереи США</p>
+        </header>
+
+        <div class="upload-section" id="uploadSection">
+            <div class="upload-icon">📸</div>
+            <h3 id="uploadTitle">Загрузите фотографию</h3>
+            <p id="uploadDesc">Перетащите изображение или нажмите для выбора файла</p>
+            <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                <span id="uploadBtn">Выбрать фото</span>
+            </button>
+            <input type="file" id="fileInput" accept="image/jpeg,image/jpg" />
+        </div>
+
+        <div class="processing-section" id="processingSection">
+            <div class="loading" id="loadingIndicator">
+                <div class="spinner"></div>
+                <p id="loadingText">Загрузка моделей распознавания лиц...</p>
             </div>
 
-            <div class="menu-sections">
-                <div class="menu-item" id="menuHowItWorks">
-                    <div class="menu-item-icon">❓</div>
-                    <div class="menu-item-text" id="textHowWorks">Как это работает</div>
-                </div>
-
-                <div class="menu-item" id="menuNews">
-                    <div class="menu-item-icon">📰</div>
-                    <div class="menu-item-text" id="textNews">Новости</div>
-                </div>
-
-                <div class="menu-item" id="menuPricing">
-                    <div class="menu-item-icon">💳</div>
-                    <div class="menu-item-text" id="textPricing">Тарифы</div>
-                </div>
-
-                <div class="menu-item" id="menuDVForm">
-                    <div class="menu-item-icon">📝</div>
-                    <div class="menu-item-text" id="textDVForm">Как заполнить DV 2027</div>
-                </div>
-
-                <div class="menu-item" id="menuSupport" style="grid-column: 1 / -1;">
-                    <div class="menu-item-icon" style="font-size: 32px; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0088cc 0%, #0077b6 100%); border-radius: 8px; color: white;">
-                        <img src="images/TGlogo.png" alt="Telegram" style="width: 20px; height: 20px; object-fit: contain;">
+            <div class="content-grid hidden" id="resultsGrid">
+                <div class="card">
+                    <h3 id="detectionTitle">Детекция лица</h3>
+                    <div class="canvas-container">
+                        <canvas id="detectionCanvas"></canvas>
                     </div>
-                    <div class="menu-item-text" id="textSupport">Мы в Telegram</div>
+                    <div class="metadata-grid" id="metadataGrid"></div>
+                </div>
+
+                <div class="card">
+                    <h3 id="validationTitle">Результаты проверки</h3>
+                    <ul class="validation-list" id="validationList"></ul>
+                </div>
+            </div>
+
+            <div class="crop-preview" id="cropPreview">
+                <div class="card">
+                    <div class="success-message" id="successMessage">
+                        ✓ Все проверки пройдены! Фотография готова к использованию.
+                    </div>
+                    <h3 id="cropTitle">Обработанное фото 600×600</h3>
+                    <canvas id="croppedCanvas"></canvas>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="downloadBtn">
+                            <span id="downloadText">⬇ Скачать фото</span>
+                        </button>
+                        <button class="btn btn-secondary" id="resetBtn">
+                            <span id="resetText">↻ Загрузить другое фото</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- HOW IT WORKS -->
-        <div class="tab-content" id="howWorksTab">
-            <button class="back-btn" id="backBtn1">← Назад</button>
-            <div class="instructions" id="howWorksList"></div>
-        </div>
-
-        <!-- NEWS TAB -->
-        <div class="tab-content" id="newsTab">
-            <button class="back-btn" id="backBtn2">← Назад</button>
-            <div class="news-full-container" id="newsFullList"></div>
-        </div>
-
-        <!-- PRICING TAB -->
-        <div class="tab-content" id="pricingTab">
-            <button class="back-btn" id="backBtn3">← Назад</button>
-            <div class="promo-input-group">
-                <input type="text" id="promoCode" autocomplete="off" placeholder="">
-                <button id="applyPromoBtn">Применить</button>
-            </div>
-            <div class="pricing-section" id="pricingList"></div>
-        </div>
-
-        <!-- DV FORM TAB -->
-        <div class="tab-content" id="dvFormTab">
-            <button class="back-btn" id="backBtn4">← Назад</button>
-            <div class="instructions" id="dvFormList"></div>
+        <div class="flowchart">
+            <img src="https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/97b500f3aa50c8adc6170e8ef778ff0c/27ea6e70-ce6d-4b43-aa3a-eda3a17eb22d/d5a860a9.png" alt="Validation Process Flowchart" />
         </div>
     </div>
 
-    <input type="file" id="photoInput" accept="image/*" style="display: none;">
-
-    <!-- PHOTO CHECKER MODAL -->
-    <div id="photoCheckerModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 2000; overflow-y: auto;">
-        <div style="max-width: 100%; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh;">
-            
-            <!-- BACK BUTTON -->
-            <button onclick="closePhotoChecker()" style="align-self: flex-start; background: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 20px;">← Назад</button>
-            
-            <!-- CANVAS FOR PHOTO + LINES -->
-            <div style="position: relative; width: 100%; max-width: 600px; aspect-ratio: 1; background: white; border-radius: 12px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
-                <canvas id="photoCanvas" style="width: 100%; height: 100%; display: block; cursor: grab; touch-action: none;"></canvas>
-            </div>
-            
-            <!-- LINE INDICATORS -->
-            <div style="width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; font-size: 13px; color: white;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 20px; height: 20px; background: #8B0000; border-radius: 50%; border: 2px solid white;"></div>
-                    <span id="lineRedLabel">Бордовая линия: верхняя точка головы</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 20px; height: 20px; background: #00008B; border-radius: 50%; border: 2px solid white;"></div>
-                    <span id="lineBlueLabel">Синяя линия: нижняя точка подбородка</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 20px; height: 20px; background: #006400; border-radius: 50%; border: 2px solid white;"></div>
-                    <span id="lineGreenLabel">Зеленая линия: центр глаз</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 20px; height: 20px; background: #8B6F47; border-radius: 50%; border: 2px solid white;"></div>
-                    <span id="lineBrownLabel">Коричневая линия: центр фото</span>
-                </div>
-            </div>
-            
-            <!-- BUTTONS -->
-            <div style="width: 100%; max-width: 600px; display: flex; gap: 12px;">
-                <button onclick="startPhotoCheck()" style="flex: 1; background: #4CAF50; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Начать проверку</button>
-                <button onclick="closePhotoChecker()" style="flex: 1; background: #f44336; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Отмена</button>
-            </div>
-        </div>
-    </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exifr/dist/lite.umd.js"></script>
+    
     <script>
-        // ADMIN IDS
-        const ADMIN_IDS = [380950248, 375133882];
-
-    <input type="file" id="photoInput" accept="image/*" style="display: none;">
-
-    <!-- PHOTO CHECKER MODAL -->
-    <div id="photoCheckerModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 2000; overflow-y: auto;">
-        <div style="max-width: 100%; padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh;">
-            
-            <!-- BACK BUTTON -->
-            <button onclick="closePhotoChecker()" style="align-self: flex-start; background: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 20px;">← Назад</button>
-            
-            <!-- CANVAS FOR PHOTO + LINES -->
-            <div style="position: relative; width: 100%; max-width: 600px; background: white; border-radius: 12px; overflow: hidden; margin-bottom: 20px;">
-                <canvas id="photoCanvas" style="width: 100%; display: block; cursor: crosshair;"></canvas>
-            </div>
-            
-            <!-- LINE INDICATORS -->
-            <div style="width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; font-size: 13px; color: white;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 20px; height: 20px; background: #8B0000; border-radius: 50%; border: 2px solid white;"></div>
-                    <span id="lineRedLabel">Бордовая линия: верхняя точка головы</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 20px; height: 20px; background: #00008B; border-radius: 50%; border: 2px solid white;"></div>
-                    <span id="lineBlueLabel">Синяя линия: нижняя точка подбородка</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 20px; height: 20px; background: #006400; border-radius: 50%; border: 2px solid white;"></div>
-                    <span id="lineGreenLabel">Зеленая линия: центр глаз</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <div style="width: 20px; height: 20px; background: #8B6F47; border-radius: 50%; border: 2px solid white;"></div>
-                    <span id="lineBrownLabel">Коричневая линия: центр фото</span>
-                </div>
-            </div>
-            
-            <!-- BUTTONS -->
-            <div style="width: 100%; max-width: 600px; display: flex; gap: 12px;">
-                <button onclick="startPhotoCheck()" style="flex: 1; background: #4CAF50; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Начать проверку</button>
-                <button onclick="closePhotoChecker()" style="flex: 1; background: #f44336; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">Отмена</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/face-api.js"></script>
-    <script>
-        // ADMIN IDS
-        const ADMIN_IDS = [380950248, 375133882];
-
-        // ===== MULTILINGUAL CONTENT =====
-        const CONTENT = {
+        // Translation dictionary
+        const translations = {
             ru: {
-                selectLanguage: 'Выберите язык',
-                title: 'DV-Lottery Photo Check',
-                attempts_label: 'Осталось проверок:',
-                btn_upload: '📸 ЗАГРУЗИТЬ ФОТО',
-                btn_how_works: 'Как это работает',
-                btn_news: 'Новости',
-                btn_pricing: 'Тарифы',
-                btn_dv_form: 'Как заполнить DV-2027',
-                btn_support: 'Мы в Telegram',
-                promo_placeholder: 'Введите промокод',
-                btn_apply: 'Применить',
-                btn_back: '← Назад',
-                btn_buy: 'Купить',
-                description_toggle: 'Описание тарифа',
-                promo_success: '✓ Промокод принят! +5 попыток',
-                promo_invalid: '✗ Неверный промокод',
-                upload_success: '✅ Фото загружено!',
-                support_link: 'https://t.me/USAvisaPhoto',
-                pricing: [
-                    { 
-                        name: 'Соло Plan', 
-                        attempts: '10 попыток', 
-                        price: '99 ⭐',
-                        description: 'Идеально подходит, если подаётесь один.\n10 проверок достаточно, чтобы сделать несколько попыток и при необходимости спокойно перефотографироваться.\nПодойдёт тем, кто уже имел опыт использования инструментов для проверки фото и хочет получить всё необходимое без переплаты.'
-                    },
-                    { 
-                        name: 'Семейный DV', 
-                        attempts: '30 попыток', 
-                        price: '249 ⭐',
-                        description: 'Лучшее решение для подачи всей семьи.\nПодходит, если подаётесь вместе с супругом/супругой — проверки хватит на все фото в спокойном темпе.\nЕсли у вас есть дети, 30 проверок более чем достаточно для всех членов семьи, включая повторные снимки при необходимости.'
-                    },
-                    { 
-                        name: 'Agency PRO', 
-                        attempts: 'Безлимит', 
-                        price: '2499 ⭐',
-                        description: 'Максимальная свобода без ограничений.\nПодходит для фотоателье, агентств, частных фотографов, визовых специалистов, блогеров и малого бизнеса.\nВ период массовой подачи анкет тариф окупается за 1–2 дня активной работы.\nБезлимитное количество проверок на 6 месяцев с даты покупки — профессиональное решение для тех, кто работает с большим потоком клиентов.'
-                    }
-                ],
-                how_works: [
-                    { title: 'Что это?', text: 'DV-Lottery Photo Check — инструмент, который помогает быстро и точно проверить вашу фотографию перед подачей заявки на участие в лотерее Green Card 🇺🇸' },
-                    { title: 'Как работает?', text: 'Загрузите фото → система автоматически анализирует все ключевые параметры → вы мгновенно получаете результат и рекомендации под проверенной фотографией.' },
-                    { title: 'Что мы проверяем?', text: '✓ Размер и разрешение\n✓ Яркость, чёткость и контраст лица\n✓ Корректный однотонный фон\n✓ Положение головы и уровень глаз\n✓ Формат файла и технические требования' },
-                    { title: 'Зачем это нужно?', text: 'Фотография — один из самых частых причин отклонения заявки.\nПроверка помогает убедиться, что ваше фото соответствует официальным стандартам и готово к подаче.' },
-                    { title: 'Как начать?', text: 'Мы предоставляем 3 бесплатные проверки, чтобы вы могли спокойно протестировать сервис и подготовить своё фото.\nЕсли вам потребуется больше, вы в любой момент можете оформить дополнительные проверки в разделе Тарифы — выбрав удобный для себя вариант.\nПериодически мы публикуем промокоды на бесплатные проверки в нашем Telegram-канале.\nПодписаться на него можно через раздел "Мы в Telegram" в главном меню.' }
-                ],
-                news: [
-                    { date: '27.11.2025', title: 'Новое обновление', text: 'Улучшена точность распознавания лиц и добавлена поддержка 4 языков' },
-                    { date: '26.11.2025', title: 'Поддержка языков', text: 'Теперь приложение доступно на Русском, Английском, Французском и Арабском языках' },
-                    { date: '28.11.2025', title: 'Обновление по DV-2027: ждём официальный старт', text: 'На данный момент лотерея DV-2027 ещё не началась. США пока не публиковали официальные даты начала регистрации, и неизвестно, состоится ли старт в конце 2025 года или уже будет перенесён на 2026. Мы внимательно следим за обновлениями и сообщим информацию сразу после анонса.\n\nКак только Госдепартамент объявит о начале DV-2027, мы подготовим подробную пошаговую инструкцию по заполнению анкеты, чтобы вы могли спокойно и самостоятельно подать заявку.\n\nВажно: подавайте заявку самостоятельно\nЗаполнение анкеты DV не является сложным процессом. Мы настоятельно рекомендуем подавать заявку самостоятельно, не пользуясь услугами посредников, которые предлагают заполнить её за деньги.\n\nПочему это важно:\n• Вы рискуете потерять контроль над заявкой\n• Можете лишиться Confirmation Number\n• Возрастает риск столкнуться с мошенниками\n\nВ нашем разделе мы максимально подробно разберём каждый шаг подачи, чтобы полностью исключить любые трудности.\n\nВозможные изменения в DV-2027\nПо неофициальным данным обсуждается возможность введения обязательной пошлины за подачу заявки. Пока нет подтверждённой информации ни о цене, ни о том, будет ли нововведение принято.\n\nЕсли плата действительно появится, мы подготовим подробную инструкцию о том:\n• Как оплатить пошлину\n• Что делать, если ваша банковская карта не принимается\n• Какие есть альтернативные способы оплаты\n\nСледите за новостями\nМы обновим информацию сразу после официального объявления от Госдепартамента США. Оставайтесь с нами, чтобы не пропустить старт DV-2027 и получить точные инструкции по подаче заявки.' }
-                ],
-                dv_form_content: 'Обновление по DV-2027: ждём официальный старт\n\nНа данный момент лотерея DV-2027 ещё не началась. США пока не публиковали официальные даты начала регистрации, и неизвестно, состоится ли старт в конце 2025 года или уже будет перенесён на 2026. Мы внимательно следим за обновлениями и сообщим информацию сразу после анонса.\n\nКак только Госдепартамент объявит о начале DV-2027, мы подготовим подробную пошаговую инструкцию по заполнению анкеты, чтобы вы могли спокойно и самостоятельно подать заявку.\n\nВажно: подавайте заявку самостоятельно\nЗаполнение анкеты DV не является сложным процессом. Мы настоятельно рекомендуем подавать заявку самостоятельно, не пользуясь услугами посредников, которые предлагают заполнить её за деньги.\n\nПочему это важно:\n• Вы рискуете потерять контроль над заявкой\n• Можете лишиться Confirmation Number\n• Возрастает риск столкнуться с мошенниками\n\nВ нашем разделе мы максимально подробно разберём каждый шаг подачи, чтобы полностью исключить любые трудности.\n\nВозможные изменения в DV-2027\nПо неофициальным данным обсуждается возможность введения обязательной пошлины за подачу заявки. Пока нет подтверждённой информации ни о цене, ни о том, будет ли нововведение принято.\n\nЕсли плата действительно появится, мы подготовим подробную инструкцию о том:\n• Как оплатить пошлину\n• Что делать, если ваша банковская карта не принимается\n• Какие есть альтернативные способы оплаты\n\nСледите за новостями\nМы обновим информацию сразу после официального объявления от Госдепартамента США. Оставайтесь с нами, чтобы не пропустить старт DV-2027 и получить точные инструкции по подаче заявки.'
+                appTitle: 'Green Card Photo Validator',
+                appDescription: 'Профессиональная проверка фотографий для Green Card лотереи США',
+                uploadTitle: 'Загрузите фотографию',
+                uploadDesc: 'Перетащите изображение или нажмите для выбора файла',
+                uploadBtn: 'Выбрать фото',
+                loadingModels: 'Загрузка моделей распознавания лиц...',
+                processingImage: 'Обработка изображения...',
+                detectingFace: 'Определение лица...',
+                analyzingPhoto: 'Анализ фотографии...',
+                detectionTitle: 'Детекция лица',
+                validationTitle: 'Результаты проверки',
+                cropTitle: 'Обработанное фото 600×600',
+                downloadText: '⬇ Скачать фото',
+                resetText: '↻ Загрузить другое фото',
+                successMessage: '✓ Все проверки пройдены! Фотография готова к использованию.',
+                // Validation labels
+                faceDetected: 'Обнаружение лица',
+                faceDetectedPass: 'Лицо обнаружено',
+                faceDetectedFail: 'Лицо не обнаружено или обнаружено несколько лиц',
+                fileFormat: 'Формат файла',
+                fileFormatPass: 'JPEG формат',
+                fileFormatFail: 'Требуется JPEG формат',
+                fileSize: 'Размер файла',
+                fileSizePass: 'Размер в пределах нормы',
+                fileSizeFail: 'Размер превышает 240 КБ',
+                headHeight: 'Высота головы',
+                headHeightPass: 'Соответствует требованиям (50-69%)',
+                headHeightFail: 'Не соответствует требованиям (должно быть 50-69%)',
+                eyePosition: 'Позиция глаз',
+                eyePositionPass: 'Соответствует требованиям (56-69%)',
+                eyePositionFail: 'Не соответствует требованиям (должно быть 56-69%)',
+                headTilt: 'Наклон головы',
+                headTiltPass: 'Голова прямая',
+                headTiltFail: 'Голова наклонена более чем на 10°',
+                eyesOpen: 'Открытые глаза',
+                eyesOpenPass: 'Глаза открыты',
+                eyesOpenFail: 'Глаза закрыты или не видны',
+                background: 'Фон',
+                backgroundPass: 'Однородный светлый фон',
+                backgroundFail: 'Фон не соответствует требованиям',
+                compression: 'Сжатие',
+                compressionPass: 'Коэффициент сжатия в норме',
+                compressionFail: 'Слишком сильное сжатие',
+                // Metadata labels
+                dimensions: 'Размеры',
+                filesize: 'Размер файла',
+                format: 'Формат',
+                dateTaken: 'Дата съемки',
+                compressionRatio: 'Сжатие'
             },
             en: {
-                selectLanguage: 'Select language',
-                title: 'DV-Lottery Photo Check',
-                attempts_label: 'Attempts left:',
-                btn_upload: '📸 UPLOAD PHOTO',
-                btn_how_works: 'How it works',
-                btn_news: 'News',
-                btn_pricing: 'Pricing',
-                btn_dv_form: 'How to fill DV-2027',
-                btn_support: 'We on Telegram',
-                promo_placeholder: 'Enter promo code',
-                btn_apply: 'Apply',
-                btn_back: '← Back',
-                btn_buy: 'Buy',
-                description_toggle: 'Plan Description',
-                promo_success: '✓ Promo code accepted! +5 attempts',
-                promo_invalid: '✗ Invalid promo code',
-                upload_success: '✅ Photo uploaded!',
-                support_link: 'https://t.me/USAvisaPhoto',
-                pricing: [
-                    { 
-                        name: 'Solo Plan', 
-                        attempts: '10 attempts', 
-                        price: '99 ⭐',
-                        description: 'Perfect if you\'re applying alone.\n10 checks are enough to make several attempts and comfortably retake photos if needed.\nIdeal for those who already have experience using photo verification tools and want everything necessary without overpaying.'
-                    },
-                    { 
-                        name: 'Family DV', 
-                        attempts: '30 attempts', 
-                        price: '249 ⭐',
-                        description: 'Best solution for submitting with your whole family.\nPerfect if you\'re applying with your spouse — checks are enough for all photos at a comfortable pace.\nIf you have children, 30 checks are more than enough for all family members, including retakes if needed.'
-                    },
-                    { 
-                        name: 'Agency PRO', 
-                        attempts: 'Unlimited', 
-                        price: '2499 ⭐',
-                        description: 'Maximum freedom without limits.\nPerfect for photo studios, agencies, professional photographers, visa specialists, bloggers and small businesses.\nDuring peak application periods, the plan pays for itself in 1-2 days of active work.\nUnlimited checks for 6 months from purchase date — a professional solution for those working with high client volumes.'
-                    }
-                ],
-                how_works: [
-                    { title: 'What is it?', text: 'DV-Lottery Photo Check — a tool that helps you quickly and accurately verify your photo before submitting your application for the Green Card Lottery 🇺🇸' },
-                    { title: 'How does it work?', text: 'Upload your photo → system automatically analyzes all key parameters → you instantly get results and recommendations for your verified photo.' },
-                    { title: 'What do we verify?', text: '✓ Size and resolution\n✓ Face brightness, clarity and contrast\n✓ Correct solid background\n✓ Head position and eye level\n✓ File format and technical requirements' },
-                    { title: 'Why do you need it?', text: 'Photo is one of the most common reasons for application rejection.\nVerification helps ensure your photo meets official standards and is ready to submit.' },
-                    { title: 'How to start?', text: 'We provide 3 free checks so you can calmly test the service and prepare your photo.\nIf you need more, you can purchase additional checks in the Pricing section at any time — choose a plan that works for you.\nWe regularly publish promo codes for free checks in our Telegram channel.\nYou can subscribe to it through the "We on Telegram" section in the main menu.' }
-                ],
-                news: [
-                    { date: '27.11.2025', title: 'New Update', text: 'Improved face detection accuracy and added support for 4 languages' },
-                    { date: '26.11.2025', title: 'Language Support', text: 'Now available in Russian, English, French, and Arabic' },
-                    { date: '28.11.2025', title: 'DV-2027 Update: Waiting for Official Start', text: 'At this moment, the DV-2027 lottery has not yet started. The USA has not yet published official registration dates, and it is unclear whether the start will occur in late 2025 or be postponed to 2026. We are closely monitoring updates and will share the information immediately after the announcement.\n\nOnce the State Department announces the start of DV-2027, we will prepare a detailed step-by-step guide for filling out the application form so you can calmly and independently submit your application.\n\nImportant: Submit your application independently\nFilling out the DV application form is not a complicated process. We strongly recommend submitting your application independently, without using the services of intermediaries who offer to fill it out for money.\n\nWhy is this important:\n• You risk losing control of your application\n• You may lose your Confirmation Number\n• Risk of encountering scammers increases\n\nIn our section, we will analyze each step of the application process in detail to completely eliminate any difficulties.\n\nPossible changes in DV-2027\nAccording to unofficial reports, there is a possibility of introducing a mandatory fee for submitting an application. There is currently no confirmed information about the price or whether this change will be adopted.\n\nIf the fee does appear, we will prepare a detailed guide on:\n• How to pay the fee\n• What to do if your bank card is not accepted\n• What alternative payment methods are available\n\nFollow the news\nWe will update the information immediately after the official announcement from the US State Department. Stay with us so you don\'t miss the start of DV-2027 and get accurate instructions for submitting your application.' }
-                ],
-                dv_form_content: 'DV-2027 Update: Waiting for Official Start\n\nAt this moment, the DV-2027 lottery has not yet started. The USA has not yet published official registration dates, and it is unclear whether the start will occur in late 2025 or be postponed to 2026. We are closely monitoring updates and will share the information immediately after the announcement.\n\nOnce the State Department announces the start of DV-2027, we will prepare a detailed step-by-step guide for filling out the application form so you can calmly and independently submit your application.\n\nImportant: Submit your application independently\nFilling out the DV application form is not a complicated process. We strongly recommend submitting your application independently, without using the services of intermediaries who offer to fill it out for money.\n\nWhy is this important:\n• You risk losing control of your application\n• You may lose your Confirmation Number\n• Risk of encountering scammers increases\n\nIn our section, we will analyze each step of the application process in detail to completely eliminate any difficulties.\n\nPossible changes in DV-2027\nAccording to unofficial reports, there is a possibility of introducing a mandatory fee for submitting an application. There is currently no confirmed information about the price or whether this change will be adopted.\n\nIf the fee does appear, we will prepare a detailed guide on:\n• How to pay the fee\n• What to do if your bank card is not accepted\n• What alternative payment methods are available\n\nFollow the news\nWe will update the information immediately after the official announcement from the US State Department. Stay with us so you don\'t miss the start of DV-2027 and get accurate instructions for submitting your application.'
-            },
-            fr: {
-                selectLanguage: 'Choisir la langue',
-                title: 'Vérification Photo DV-Lottery',
-                attempts_label: 'Tentatives restantes:',
-                btn_upload: '📸 TÉLÉCHARGER',
-                btn_how_works: 'Comment ça marche',
-                btn_news: 'Actualités',
-                btn_pricing: 'Tarifs',
-                btn_dv_form: 'Comment remplir DV-2027',
-                btn_support: 'Nous sur Telegram',
-                promo_placeholder: 'Entrez le code promo',
-                btn_apply: 'Appliquer',
-                btn_back: '← Retour',
-                btn_buy: 'Acheter',
-                description_toggle: 'Description du plan',
-                promo_success: '✓ Code promo accepté! +5 tentatives',
-                promo_invalid: '✗ Code promo invalide',
-                upload_success: '✅ Photo téléchargée!',
-                support_link: 'https://t.me/USAvisaPhoto',
-                pricing: [
-                    { 
-                        name: 'Plan Solo', 
-                        attempts: '10 tentatives', 
-                        price: '99 ⭐',
-                        description: 'Parfait si vous postulez seul.\n10 vérifications suffisent pour faire plusieurs tentatives et reprendre les photos tranquillement si nécessaire.\nIdéal pour ceux qui ont déjà de l\'expérience avec les outils de vérification de photos et qui veulent tout le nécessaire sans surpayer.'
-                    },
-                    { 
-                        name: 'Famille DV', 
-                        attempts: '30 tentatives', 
-                        price: '249 ⭐',
-                        description: 'Meilleure solution pour toute la famille.\nParfait si vous postulez avec votre conjoint — les vérifications suffisent pour toutes les photos à votre rythme.\nSi vous avez des enfants, 30 vérifications sont plus que suffisantes pour tous les membres de la famille, y compris les reprises si nécessaire.'
-                    },
-                    { 
-                        name: 'Agence PRO', 
-                        attempts: 'Illimité', 
-                        price: '2499 ⭐',
-                        description: 'Liberté maximale sans limites.\nParfait pour les studios photo, agences, photographes professionnels, spécialistes visa, blogueurs et petites entreprises.\nPendant les périodes de forte activité, le plan se rembourse en 1-2 jours de travail actif.\nVérifications illimitées pendant 6 mois à partir de la date d\'achat — une solution professionnelle pour ceux travaillant avec de gros volumes de clients.'
-                    }
-                ],
-                how_works: [
-                    { title: 'Qu\'est-ce que c\'est?', text: 'DV-Lottery Photo Check — un outil qui vous aide à vérifier rapidement et précisément votre photo avant de soumettre votre candidature à la loterie Green Card 🇺🇸' },
-                    { title: 'Comment ça marche?', text: 'Téléchargez votre photo → le système analyse automatiquement tous les paramètres clés → vous obtenez instantanément les résultats et les recommandations pour votre photo vérifiée.' },
-                    { title: 'Que vérifions-nous?', text: '✓ Taille et résolution\n✓ Luminosité, netteté et contraste du visage\n✓ Fond uni correct\n✓ Position de la tête et niveau des yeux\n✓ Format du fichier et exigences techniques' },
-                    { title: 'Pourquoi c\'est important?', text: 'La photo est l\'une des raisons les plus courantes du rejet d\'une candidature.\nLa vérification vous aide à vous assurer que votre photo respecte les normes officielles et est prête à être soumise.' },
-                    { title: 'Comment commencer?', text: 'Nous fournissons 3 vérifications gratuites pour que vous puissiez tester tranquillement le service et préparer votre photo.\nSi vous en avez besoin de plus, vous pouvez acheter des vérifications supplémentaires dans la section Tarifs à tout moment — choisissez un plan qui vous convient.\nNous publions régulièrement des codes promo pour des vérifications gratuites dans notre canal Telegram.\nVous pouvez vous y abonner via la section "Nous sur Telegram" du menu principal.' }
-                ],
-                news: [
-                    { date: '27.11.2025', title: 'Nouvelle mise à jour', text: 'Précision améliorée de la détection des visages et support de 4 langues' },
-                    { date: '26.11.2025', title: 'Support multilingue', text: 'Disponible en russe, anglais, français et arabe' },
-                    { date: '28.11.2025', title: 'Mise à jour DV-2027 : En attente du démarrage officiel', text: 'À ce moment, la loterie DV-2027 n\'a pas encore commencé. Les États-Unis n\'ont pas encore publié les dates officielles d\'inscription, et on ne sait pas si le démarrage aura lieu fin 2025 ou sera reporté à 2026. Nous suivons de près les mises à jour et partagerons l\'information immédiatement après l\'annonce.\n\nUne fois que le Département d\'État annoncera le démarrage de DV-2027, nous préparerons un guide détaillé et étape par étape pour remplir le formulaire de demande afin que vous puissiez soumettre votre demande calmement et indépendamment.\n\nImportant : Soumettez votre demande indépendamment\nRemplir le formulaire de demande DV n\'est pas un processus compliqué. Nous vous recommandons vivement de soumettre votre demande indépendamment, sans utiliser les services d\'intermédiaires qui proposent de la remplir contre rémunération.\n\nPourquoi est-ce important :\n• Vous risquez de perdre le contrôle de votre demande\n• Vous pouvez perdre votre numéro de confirmation\n• Le risque de rencontrer des arnaqueurs augmente\n\nDans notre section, nous analyserons chaque étape du processus de demande en détail pour éliminer complètement toute difficulté.\n\nChangements possibles dans DV-2027\nSelon des rapports non officiels, il existe une possibilité d\'introduire un droit obligatoire pour soumettre une demande. Il n\'y a actuellement aucune information confirmée sur le prix ou sur le fait que ce changement sera adopté.\n\nSi les frais apparaissent réellement, nous préparerons un guide détaillé sur :\n• Comment payer les frais\n• Que faire si votre carte bancaire n\'est pas acceptée\n• Quelles méthodes de paiement alternatives sont disponibles\n\nSuivez les actualités\nNous mettrons à jour les informations immédiatement après l\'annonce officielle du Département d\'État américain. Restez avec nous pour ne pas manquer le démarrage de DV-2027 et obtenir des instructions précises pour soumettre votre demande.' }
-                ],
-                dv_form_content: 'Mise à jour DV-2027 : En attente du démarrage officiel\n\nÀ ce moment, la loterie DV-2027 n\'a pas encore commencé. Les États-Unis n\'ont pas encore publié les dates officielles d\'inscription, et on ne sait pas si le démarrage aura lieu fin 2025 ou sera reporté à 2026. Nous suivons de près les mises à jour et partagerons l\'information immédiatement après l\'annonce.\n\nUne fois que le Département d\'État annoncera le démarrage de DV-2027, nous préparerons un guide détaillé et étape par étape pour remplir le formulaire de demande afin que vous puissiez soumettre votre demande calmement et indépendamment.\n\nImportant : Soumettez votre demande indépendamment\nRemplir le formulaire de demande DV n\'est pas un processus compliqué. Nous vous recommandons vivement de soumettre votre demande indépendamment, sans utiliser les services d\'intermédiaires qui proposent de la remplir contre rémunération.\n\nPourquoi est-ce important :\n• Vous risquez de perdre le contrôle de votre demande\n• Vous pouvez perdre votre numéro de confirmation\n• Le risque de rencontrer des arnaqueurs augmente\n\nDans notre section, nous analyserons chaque étape du processus de demande en détail pour éliminer complètement toute difficulté.\n\nChangements possibles dans DV-2027\nSelon des rapports non officiels, il existe une possibilité d\'introduire un droit obligatoire pour soumettre une demande. Il n\'y a actuellement aucune information confirmée sur le prix ou sur le fait que ce changement sera adopté.\n\nSi les frais apparaissent réellement, nous préparerons un guide détaillé sur :\n• Comment payer les frais\n• Que faire si votre carte bancaire n\'est pas acceptée\n• Quelles méthodes de paiement alternatives sont disponibles\n\nSuivez les actualités\nNous mettrons à jour les informations immédiatement après l\'annonce officielle du Département d\'État américain. Restez avec nous pour ne pas manquer le démarrage de DV-2027 et obtenir des instructions précises pour soumettre votre demande.'
-            },
-            ar: {
-                selectLanguage: 'اختر اللغة',
-                title: 'التحقق من صور اليانصيب',
-                attempts_label: 'المحاولات المتبقية:',
-                btn_upload: '📸 تحميل صورة',
-                btn_how_works: 'كيفية العمل',
-                btn_news: 'الأخبار',
-                btn_pricing: 'الأسعار',
-                btn_dv_form: 'كيفية ملء DV-2027',
-                btn_support: 'نحن على تيليجرام',
-                promo_placeholder: 'أدخل رمز الترويج',
-                btn_apply: 'تطبيق',
-                btn_back: '← رجوع',
-                btn_buy: 'شراء',
-                description_toggle: 'وصف الخطة',
-                promo_success: '✓ تم قبول رمز الترويج! +5 محاولات',
-                promo_invalid: '✗ رمز ترويج غير صحيح',
-                upload_success: '✅ تم تحميل الصورة!',
-                support_link: 'https://t.me/USAvisaPhoto',
-                pricing: [
-                    { 
-                        name: 'خطة سولو', 
-                        attempts: '10 محاولات', 
-                        price: '99 ⭐',
-                        description: 'مثالي إذا كنت تتقدم وحدك.\n10 فحوصات كافية لعمل عدة محاولات وإعادة التقاط الصور براحة إذا لزم الأمر.\nمثالي لمن لديهم بالفعل خبرة في استخدام أدوات التحقق من الصور ويريدون كل ما يلزمهم دون دفع الكثير.'
-                    },
-                    { 
-                        name: 'عائلة DV', 
-                        attempts: '30 محاولة', 
-                        price: '249 ⭐',
-                        description: 'الحل الأفضل لتقديم العائلة بأكملها.\nمثالي إذا كنت تتقدم مع زوجتك — الفحوصات كافية لجميع الصور بوتيرة مريحة.\nإذا كان لديك أطفال، فإن 30 فحصًا أكثر من كافٍ لجميع أفراد الأسرة، بما في ذلك الصور المكررة إذا لزم الأمر.'
-                    },
-                    { 
-                        name: 'وكالة PRO', 
-                        attempts: 'غير محدود', 
-                        price: '2499 ⭐',
-                        description: 'حرية قصوى بدون قيود.\nمثالي لاستوديوهات الصور والوكالات والمصورين المحترفين واختصاصيي التأشيرات والمدونين والشركات الصغيرة.\nخلال فترات التقديم الضخمة، تعود تكاليف الخطة في 1-2 يوم من العمل النشط.\nفحوصات غير محدودة لمدة 6 أشهر من تاريخ الشراء — حل احترافي لمن يعملون مع أعداد كبيرة من العملاء.'
-                    }
-                ],
-                how_works: [
-                    { title: 'ما هذا؟', text: 'DV-Lottery Photo Check — أداة تساعدك على التحقق بسرعة وبدقة من صورتك قبل تقديم طلبك لليانصيب Green Card 🇺🇸' },
-                    { title: 'كيف يعمل؟', text: 'حمّل صورتك → يحلل النظام تلقائياً جميع المعاملات الأساسية → تحصل على النتائج والتوصيات فوراً لصورتك المُتحقق منها.' },
-                    { title: 'ماذا نتحقق؟', text: '✓ الحجم والدقة\n✓ سطوع الوجه والوضوح والتباين\n✓ خلفية موحدة صحيحة\n✓ وضع الرأس ومستوى العيون\n✓ صيغة الملف والمتطلبات التقنية' },
-                    { title: 'لماذا تحتاج إليها؟', text: 'الصورة هي أحد أكثر الأسباب شيوعاً لرفض الطلب.\nيساعدك التحقق على التأكد من أن صورتك تتوافق مع المعايير الرسمية وجاهزة للتقديم.' },
-                    { title: 'كيفية البدء؟', text: 'نوفر لك 3 تحققات مجانية حتى تتمكن من اختبار الخدمة بهدوء وتحضير صورتك.\nإذا كنت بحاجة إلى المزيد، يمكنك شراء تحققات إضافية في قسم الأسعار في أي وقت — اختر الخطة التي تناسبك.\nننشر بانتظام رموز ترويج للتحققات المجانية في قناتنا على تيليجرام.\nيمكنك الاشتراك فيها من خلال قسم "نحن على تيليجرام" في القائمة الرئيسية.' }
-                ],
-                news: [
-                    { date: '27.11.2025', title: 'تحديث جديد', text: 'تحسين دقة كشف الوجوه وإضافة دعم 4 لغات' },
-                    { date: '26.11.2025', title: 'دعم متعدد اللغات', text: 'متاح باللغات الروسية والإنجليزية والفرنسية والعربية' },
-                    { date: '28.11.2025', title: 'تحديث DV-2027: في انتظار البدء الرسمي', text: 'في هذه اللحظة، لم تبدأ يانصيب DV-2027 بعد. الولايات المتحدة لم تنشر بعد المواعيد الرسمية للتسجيل، ومن غير المعروف ما إذا كان البدء سيتم في أواخر عام 2025 أم سيتم تأجيله إلى عام 2026. نحن نراقب التحديثات عن كثب وسنشارك المعلومات فوراً بعد الإعلان.\n\nبمجرد أن يعلن وزارة الخارجية عن بدء DV-2027، سنعد دليلاً تفصيلياً خطوة بخطوة لملء نموذج الطلب حتى تتمكن من تقديم طلبك بهدوء واستقلالية.\n\nمهم: قدم طلبك بشكل مستقل\nملء نموذج طلب DV ليس عملية معقدة. نوصيك بشدة بتقديم طلبك بشكل مستقل، دون استخدام خدمات الوسطاء الذين يقدمون ملء الطلب مقابل المال.\n\nلماذا هذا مهم:\n• تخاطرة بفقدان السيطرة على طلبك\n• قد تفقد رقم تأكيد الاستقبال\n• يزداد خطر التعامل مع المحتالين\n\nفي قسمنا، سنحلل كل خطوة من خطوات عملية الطلب بالتفصيل لاستبعاد أي صعوبات تماماً.\n\nالتغييرات المحتملة في DV-2027\nوفقاً لتقارير غير رسمية، هناك احتمالية لفرض رسم إلزامي لتقديم الطلب. لا توجد حالياً أي معلومات مؤكدة حول السعر أو ما إذا كان سيتم اعتماد هذا التغيير.\n\nإذا ظهرت الرسوم فعلاً، سنعد دليلاً تفصيلياً حول:\n• كيفية دفع الرسوم\n• ماذا تفعل إذا لم تتم قبول بطاقتك البنكية\n• ما هي خيارات الدفع البديلة المتاحة\n\nتابع الأخبار\nسنحدث المعلومات فوراً بعد الإعلان الرسمي من وزارة الخارجية الأمريكية. ابقَ معنا حتى لا تفوتك بداية DV-2027 وتحصل على تعليمات دقيقة لتقديم طلبك.' }
-                ],
-                dv_form_content: 'تحديث DV-2027: في انتظار البدء الرسمي\n\nفي هذه اللحظة، لم تبدأ يانصيب DV-2027 بعد. الولايات المتحدة لم تنشر بعد المواعيد الرسمية للتسجيل، ومن غير المعروف ما إذا كان البدء سيتم في أواخر عام 2025 أم سيتم تأجيله إلى عام 2026. نحن نراقب التحديثات عن كثب وسنشارك المعلومات فوراً بعد الإعلان.\n\nبمجرد أن يعلن وزارة الخارجية عن بدء DV-2027، سنعد دليلاً تفصيلياً خطوة بخطوة لملء نموذج الطلب حتى تتمكن من تقديم طلبك بهدوء واستقلالية.\n\nمهم: قدم طلبك بشكل مستقل\nملء نموذج طلب DV ليس عملية معقدة. نوصيك بشدة بتقديم طلبك بشكل مستقل، دون استخدام خدمات الوسطاء الذين يقدمون ملء الطلب مقابل المال.\n\nلماذا هذا مهم:\n• تخاطرة بفقدان السيطرة على طلبك\n• قد تفقد رقم تأكيد الاستقبال\n• يزداد خطر التعامل مع المحتالين\n\nفي قسمنا، سنحلل كل خطوة من خطوات عملية الطلب بالتفصيل لاستبعاد أي صعوبات تماماً.\n\nالتغييرات المحتملة في DV-2027\nوفقاً لتقارير غير رسمية، هناك احتمالية لفرض رسم إلزامي لتقديم الطلب. لا توجد حالياً أي معلومات مؤكدة حول السعر أو ما إذا كان سيتم اعتماد هذا التغيير.\n\nإذا ظهرت الرسوم فعلاً، سنعد دليلاً تفصيلياً حول:\n• كيفية دفع الرسوم\n• ماذا تفعل إذا لم تتم قبول بطاقتك البنكية\n• ما هي خيارات الدفع البديلة المتاحة\n\nتابع الأخبار\nسنحدث المعلومات فوراً بعد الإعلان الرسمي من وزارة الخارجية الأمريكية. ابقَ معنا حتى لا تفوتك بداية DV-2027 وتحصل على تعليمات دقيقة لتقديم طلبك.'
+                appTitle: 'Green Card Photo Validator',
+                appDescription: 'Professional photo validation tool for US Green Card lottery',
+                uploadTitle: 'Upload Photo',
+                uploadDesc: 'Drag and drop an image or click to select a file',
+                uploadBtn: 'Select Photo',
+                loadingModels: 'Loading face detection models...',
+                processingImage: 'Processing image...',
+                detectingFace: 'Detecting face...',
+                analyzingPhoto: 'Analyzing photo...',
+                detectionTitle: 'Face Detection',
+                validationTitle: 'Validation Results',
+                cropTitle: 'Processed Photo 600×600',
+                downloadText: '⬇ Download Photo',
+                resetText: '↻ Upload Another Photo',
+                successMessage: '✓ All checks passed! Photo is ready to use.',
+                // Validation labels
+                faceDetected: 'Face Detection',
+                faceDetectedPass: 'Face detected',
+                faceDetectedFail: 'No face detected or multiple faces detected',
+                fileFormat: 'File Format',
+                fileFormatPass: 'JPEG format',
+                fileFormatFail: 'JPEG format required',
+                fileSize: 'File Size',
+                fileSizePass: 'Size within limits',
+                fileSizeFail: 'Size exceeds 240 KB',
+                headHeight: 'Head Height',
+                headHeightPass: 'Meets requirements (50-69%)',
+                headHeightFail: 'Does not meet requirements (must be 50-69%)',
+                eyePosition: 'Eye Position',
+                eyePositionPass: 'Meets requirements (56-69%)',
+                eyePositionFail: 'Does not meet requirements (must be 56-69%)',
+                headTilt: 'Head Tilt',
+                headTiltPass: 'Head is straight',
+                headTiltFail: 'Head tilted more than 10°',
+                eyesOpen: 'Eyes Open',
+                eyesOpenPass: 'Eyes are open',
+                eyesOpenFail: 'Eyes closed or not visible',
+                background: 'Background',
+                backgroundPass: 'Uniform light background',
+                backgroundFail: 'Background does not meet requirements',
+                compression: 'Compression',
+                compressionPass: 'Compression ratio within limits',
+                compressionFail: 'Compression ratio too high',
+                // Metadata labels
+                dimensions: 'Dimensions',
+                filesize: 'File Size',
+                format: 'Format',
+                dateTaken: 'Date Taken',
+                compressionRatio: 'Compression'
             }
         };
 
-        // ===== APP STATE =====
-        let appState = {
-            currentLang: null,
-            attempts: 3,
-            isAdmin: false,
-            languageSelected: false,
-            userId: null,
-            agencyProExpiry: null
-        };
+        let currentLang = 'ru';
+        let modelsLoaded = false;
+        let currentImage = null;
+        let detectionResult = null;
 
-        const LANGUAGES = ['ru', 'en', 'fr', 'ar'];
-        let currentLangIndex = 0;
-        let animationInterval = null;
+        // Update UI text based on language
+        function updateLanguage() {
+            const t = translations[currentLang];
+            document.getElementById('appTitle').textContent = t.appTitle;
+            document.getElementById('appDescription').textContent = t.appDescription;
+            document.getElementById('uploadTitle').textContent = t.uploadTitle;
+            document.getElementById('uploadDesc').textContent = t.uploadDesc;
+            document.getElementById('uploadBtn').textContent = t.uploadBtn;
+            document.getElementById('detectionTitle').textContent = t.detectionTitle;
+            document.getElementById('validationTitle').textContent = t.validationTitle;
+            document.getElementById('cropTitle').textContent = t.cropTitle;
+            document.getElementById('downloadText').textContent = t.downloadText;
+            document.getElementById('resetText').textContent = t.resetText;
+            document.getElementById('successMessage').textContent = t.successMessage;
+        }
 
-        // ===== INITIALIZATION =====
-        window.addEventListener('load', () => {
-            initApp();
+        // Language selector
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentLang = btn.dataset.lang;
+                updateLanguage();
+                if (detectionResult) {
+                    displayValidationResults(detectionResult);
+                }
+            });
         });
 
-        function initApp() {
-            // Get user ID from Telegram WebApp
-            if (window.Telegram?.WebApp) {
-                Telegram.WebApp.ready();
-                Telegram.WebApp.expand();
-                
-                const webAppData = Telegram.WebApp.initDataUnsafe;
-                if (webAppData?.user?.id) {
-                    appState.userId = webAppData.user.id;
-                    appState.isAdmin = ADMIN_IDS.includes(appState.userId);
-                }
-            }
-
-            // Set attempts based on admin status
-            appState.attempts = appState.isAdmin ? 999 : 3;
-
-            // Check if Agency PRO expired
-            checkAgencyProExpiry();
-
-            setupEventListeners();
-            startLanguageAnimation();
-        }
-
-        function checkAgencyProExpiry() {
-            const expiry = localStorage.getItem('agencyProExpiry_' + appState.userId);
-            if (expiry) {
-                const expiryDate = new Date(expiry);
-                if (new Date() > expiryDate) {
-                    // Expired, reset to 3 attempts
-                    appState.attempts = 3;
-                    localStorage.removeItem('agencyProExpiry_' + appState.userId);
-                } else {
-                    // Still valid
-                    appState.attempts = 999;
-                }
+        // Load face-api models
+        async function loadModels() {
+            try {
+                const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+                await Promise.all([
+                    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+                ]);
+                modelsLoaded = true;
+                console.log('Models loaded successfully');
+            } catch (error) {
+                console.error('Error loading models:', error);
+                alert('Error loading face detection models. Please refresh the page.');
             }
         }
 
-        function startLanguageAnimation() {
-            const subtitleEl = document.getElementById('splashSubtitle');
-            
-            animationInterval = setInterval(() => {
-                currentLangIndex = (currentLangIndex + 1) % LANGUAGES.length;
-                const lang = LANGUAGES[currentLangIndex];
-                subtitleEl.style.opacity = '0';
-                
-                setTimeout(() => {
-                    subtitleEl.textContent = CONTENT[lang].selectLanguage;
-                    subtitleEl.style.opacity = '1';
-                }, 300);
-            }, 2000);
-        }
+        // File upload handling
+        const fileInput = document.getElementById('fileInput');
+        const uploadSection = document.getElementById('uploadSection');
+        const processingSection = document.getElementById('processingSection');
 
-        function setupEventListeners() {
-            // Language selection
-            document.querySelectorAll('.lang-btn-splash').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    selectLanguage(btn.dataset.lang);
-                });
-            });
+        fileInput.addEventListener('change', handleFileSelect);
 
-            // Menu items
-            document.getElementById('menuHowItWorks').addEventListener('click', () => showSection('howWorks'));
-            document.getElementById('menuNews').addEventListener('click', () => showSection('news'));
-            document.getElementById('menuPricing').addEventListener('click', () => showSection('pricing'));
-            document.getElementById('menuDVForm').addEventListener('click', () => showSection('dvForm'));
-            document.getElementById('menuSupport').addEventListener('click', () => {
-                const link = CONTENT[appState.currentLang].support_link;
-                window.open(link, '_blank');
-            });
+        // Drag and drop
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
 
-            // Back buttons
-            ['backBtn1', 'backBtn2', 'backBtn3', 'backBtn4'].forEach(id => {
-                document.getElementById(id).addEventListener('click', () => backToMenu());
-            });
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('dragover');
+        });
 
-            // Upload
-            document.getElementById('uploadBtn').addEventListener('click', () => {
-                document.getElementById('photoInput').click();
-            });
-
-            document.getElementById('photoInput').addEventListener('change', (e) => {
-                const file = e.target.files[0];
-                if (file && file.type.startsWith('image/')) {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        photoCheckerState.originalImageData = event.target.result;
-                        openPhotoChecker();
-                    };
-                    reader.readAsDataURL(file);
-                }
-            });
-
-            document.getElementById('applyPromoBtn').addEventListener('click', applyPromoCode);
-        }
-
-        function selectLanguage(lang) {
-            if (animationInterval) clearInterval(animationInterval);
-            
-            appState.currentLang = lang;
-            appState.languageSelected = true;
-            
-            setTimeout(() => {
-                document.getElementById('splashScreen').classList.add('hidden');
-                document.getElementById('mainApp').classList.add('active');
-                updateAllContent();
-                
-                if (appState.currentLang === 'ar') {
-                    document.documentElement.setAttribute('dir', 'rtl');
-                    document.documentElement.lang = 'ar';
-                } else {
-                    document.documentElement.removeAttribute('dir');
-                    document.documentElement.lang = appState.currentLang;
-                }
-            }, 300);
-        }
-
-        function updateAllContent() {
-            const content = CONTENT[appState.currentLang];
-            
-            document.getElementById('textHowWorks').textContent = content.btn_how_works;
-            document.getElementById('textNews').textContent = content.btn_news;
-            document.getElementById('textPricing').textContent = content.btn_pricing;
-            document.getElementById('textDVForm').textContent = content.btn_dv_form;
-            document.getElementById('textSupport').textContent = content.btn_support;
-            document.getElementById('uploadBtn').textContent = content.btn_upload;
-            document.getElementById('applyPromoBtn').textContent = content.btn_apply;
-            document.getElementById('attemptsLabel').textContent = content.attempts_label;
-            document.getElementById('promoCode').placeholder = content.promo_placeholder;
-            
-            populateAllContent();
-        }
-
-        function populateAllContent() {
-            populateNews();
-            populatePricing();
-            populateHowWorks();
-            populateDVForm();
-            updateBackButtons();
-        }
-
-        function populateNews() {
-            const content = CONTENT[appState.currentLang];
-            const list = document.getElementById('newsFullList');
-            const itemsPerPage = 5;
-            const totalPages = Math.ceil(content.news.length / itemsPerPage);
-            let currentPage = 1;
-            
-            function showPage(page) {
-                const start = (page - 1) * itemsPerPage;
-                const end = start + itemsPerPage;
-                const pageNews = content.news.slice(start, end);
-                
-                let html = pageNews.map(n => `
-                    <div class="news-card">
-                        <div class="news-card-date">${n.date}</div>
-                        <div class="news-card-title">${n.title}</div>
-                        <div class="news-card-text">${n.text.replace(/\n/g, '<br>')}</div>
-                    </div>
-                `).join('');
-                
-                if (totalPages > 1) {
-                    html += '<div class="pagination">';
-                    for (let i = 1; i <= totalPages; i++) {
-                        html += `<button class="pagination-btn ${i === page ? 'active' : ''}" onclick="window.changeNewsPage(${i})">${i}</button>`;
-                    }
-                    html += '</div>';
-                }
-                
-                list.innerHTML = html;
-                currentPage = page;
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileSelect({ target: fileInput });
             }
+        });
+
+        async function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Show processing section
+            uploadSection.style.display = 'none';
+            processingSection.classList.add('active');
+            document.getElementById('loadingIndicator').classList.remove('hidden');
+            document.getElementById('resultsGrid').classList.add('hidden');
+            document.getElementById('cropPreview').classList.remove('active');
+
+            const t = translations[currentLang];
+            document.getElementById('loadingText').textContent = t.loadingModels;
+
+            // Load models if not loaded
+            if (!modelsLoaded) {
+                await loadModels();
+            }
+
+            document.getElementById('loadingText').textContent = t.processingImage;
+
+            // Process image
+            await processImage(file);
+        }
+
+        async function processImage(file) {
+            const t = translations[currentLang];
             
-            window.changeNewsPage = function(page) {
-                showPage(page);
+            try {
+                // Read file as image
+                const img = await loadImage(file);
+                currentImage = img;
+
+                // Get file metadata
+                const metadata = await getImageMetadata(file, img);
+
+                document.getElementById('loadingText').textContent = t.detectingFace;
+
+                // Detect face
+                const detection = await faceapi
+                    .detectSingleFace(img, new faceapi.TinyFaceDetectorOptions())
+                    .withFaceLandmarks();
+
+                document.getElementById('loadingText').textContent = t.analyzingPhoto;
+
+                // Validate image
+                const validation = validateImage(img, detection, file, metadata);
+
+                // Store results
+                detectionResult = { img, detection, validation, metadata, file };
+
+                // Display results
+                displayResults(img, detection, validation, metadata);
+
+                // Hide loading, show results
+                document.getElementById('loadingIndicator').classList.add('hidden');
+                document.getElementById('resultsGrid').classList.remove('hidden');
+
+                // If all passed, generate crop
+                if (validation.allPassed) {
+                    await generateCroppedImage(img, detection);
+                }
+
+            } catch (error) {
+                console.error('Error processing image:', error);
+                alert('Error processing image: ' + error.message);
+            }
+        }
+
+        function loadImage(file) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.onload = () => resolve(img);
+                img.onerror = reject;
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        async function getImageMetadata(file, img) {
+            const metadata = {
+                width: img.width,
+                height: img.height,
+                fileSize: file.size,
+                fileName: file.name,
+                fileType: file.type,
+                dateTaken: null
             };
-            
-            showPage(1);
-        }
 
-        function populatePricing() {
-            const content = CONTENT[appState.currentLang];
-            const list = document.getElementById('pricingList');
-            
-            list.innerHTML = content.pricing.map((p, idx) => `
-                <div class="pricing-card">
-                    <div class="pricing-name">${p.name}</div>
-                    <div class="pricing-attempts">${p.attempts}</div>
-                    <div class="pricing-price">${p.price}</div>
-                    <div class="pricing-description-toggle" onclick="toggleDescription(${idx})">${content.description_toggle}</div>
-                    <div class="pricing-description" id="desc_${idx}">${p.description.replace(/\n/g, '<br>')}</div>
-                    <button class="btn-buy" onclick="buyPlan('${p.name}', ${idx})">${content.btn_buy}</button>
-                </div>
-            `).join('');
-        }
-
-        function populateHowWorks() {
-            const content = CONTENT[appState.currentLang];
-            const list = document.getElementById('howWorksList');
-            
-            let html = '<div class="how-works-unified">';
-            html += content.how_works.map(h => `
-                <div class="how-works-section">
-                    <h3>${h.title}</h3>
-                    <p>${h.text.replace(/\n/g, '<br>')}</p>
-                </div>
-            `).join('');
-            html += '</div>';
-            
-            list.innerHTML = html;
-        }
-
-        function populateDVForm() {
-            const content = CONTENT[appState.currentLang];
-            const list = document.getElementById('dvFormList');
-            
-            list.innerHTML = `<div class="instruction-block" style="border-left: none;">
-                <p>${content.dv_form_content.replace(/\n/g, '<br>')}</p>
-            </div>`;
-        }
-
-        function updateBackButtons() {
-            const content = CONTENT[appState.currentLang];
-            ['backBtn1', 'backBtn2', 'backBtn3', 'backBtn4'].forEach(id => {
-                const btn = document.getElementById(id);
-                btn.textContent = content.btn_back;
-            });
-        }
-
-        function toggleDescription(idx) {
-            const desc = document.getElementById('desc_' + idx);
-            desc.classList.toggle('active');
-        }
-
-        function showSection(section) {
-            document.getElementById('menuView').style.display = 'none';
-            
-            const tabName = section === 'howWorks' ? 'howWorks' : section === 'dvForm' ? 'dvForm' : section;
-            document.getElementById(tabName + 'Tab').classList.add('active');
-        }
-
-        function backToMenu() {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.pricing-description').forEach(d => d.classList.remove('active'));
-            document.getElementById('menuView').style.display = 'flex';
-        }
-
-        function applyPromoCode() {
-            const code = document.getElementById('promoCode').value.toUpperCase();
-            const content = CONTENT[appState.currentLang];
-            
-            if (code === 'GIFT2026') {
-                appState.attempts += 5;
-                document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
-                alert(content.promo_success);
-                document.getElementById('promoCode').value = '';
-            } else {
-                alert(content.promo_invalid);
+            // Try to get EXIF data
+            try {
+                if (typeof exifr !== 'undefined') {
+                    const exif = await exifr.parse(file);
+                    if (exif && exif.DateTimeOriginal) {
+                        metadata.dateTaken = exif.DateTimeOriginal;
+                    }
+                }
+            } catch (error) {
+                console.log('Could not read EXIF data:', error);
             }
+
+            return metadata;
         }
 
-        function buyPlan(planName, idx) {
-            if (planName.includes('Agency')) {
-                // Agency PRO - set expiry to 6 months from now
-                const expiry = new Date();
-                expiry.setMonth(expiry.getMonth() + 6);
-                localStorage.setItem('agencyProExpiry_' + appState.userId, expiry.toISOString());
-                appState.attempts = 999;
-            }
+        function validateImage(img, detection, file, metadata) {
+            const validation = {
+                faceDetected: false,
+                fileFormat: false,
+                fileSize: false,
+                headHeight: false,
+                eyePosition: false,
+                headTilt: false,
+                eyesOpen: false,
+                background: false,
+                compression: false,
+                allPassed: false,
+                details: {}
+            };
+
+            // Face detection
+            validation.faceDetected = detection !== undefined;
             
-            window.Telegram?.WebApp?.openLink('https://t.me/Stars4tonBot?start=buy_' + planName.replace(/\s+/g, '_'));
+            // File format (JPEG)
+            validation.fileFormat = file.type === 'image/jpeg' || file.name.toLowerCase().endsWith('.jpg') || file.name.toLowerCase().endsWith('.jpeg');
+            
+            // File size (≤ 240 KB)
+            validation.fileSize = file.size <= 240 * 1024;
+            validation.details.fileSize = Math.round(file.size / 1024);
+
+            if (detection) {
+                const landmarks = detection.landmarks;
+                const positions = landmarks.positions;
+                
+                // Calculate head dimensions
+                const jawline = landmarks.getJawOutline();
+                const noseBridge = landmarks.getNose();
+                const leftEye = landmarks.getLeftEye();
+                const rightEye = landmarks.getRightEye();
+                
+                // Get key points
+                const topOfHead = Math.min(...positions.map(p => p.y));
+                const chin = Math.max(...jawline.map(p => p.y));
+                const eyeLevel = (leftEye[0].y + rightEye[0].y) / 2;
+                
+                // Calculate percentages
+                const headHeight = chin - topOfHead;
+                const headHeightPercent = (headHeight / img.height) * 100;
+                const eyePositionPercent = ((img.height - eyeLevel) / img.height) * 100;
+                
+                validation.details.headHeightPercent = headHeightPercent.toFixed(1);
+                validation.details.eyePositionPercent = eyePositionPercent.toFixed(1);
+                
+                // Head height validation (50-69%)
+                validation.headHeight = headHeightPercent >= 50 && headHeightPercent <= 69;
+                
+                // Eye position validation (56-69%)
+                validation.eyePosition = eyePositionPercent >= 56 && eyePositionPercent <= 69;
+                
+                // Head tilt calculation
+                const leftEyeCenter = { x: leftEye[0].x, y: leftEye[0].y };
+                const rightEyeCenter = { x: rightEye[0].x, y: rightEye[0].y };
+                const eyeAngle = Math.atan2(rightEyeCenter.y - leftEyeCenter.y, rightEyeCenter.x - leftEyeCenter.x);
+                const tiltDegrees = Math.abs(eyeAngle * (180 / Math.PI));
+                
+                validation.details.tiltDegrees = tiltDegrees.toFixed(1);
+                validation.headTilt = tiltDegrees < 10;
+                
+                // Eyes open check (basic heuristic based on eye landmarks)
+                const leftEyeHeight = Math.abs(leftEye[1].y - leftEye[5].y);
+                const rightEyeHeight = Math.abs(rightEye[1].y - rightEye[5].y);
+                const avgEyeHeight = (leftEyeHeight + rightEyeHeight) / 2;
+                validation.eyesOpen = avgEyeHeight > 2; // Threshold for open eyes
+                
+                // Background check (simplified - checks corners for uniform light color)
+                validation.background = checkBackground(img);
+                
+                // Compression ratio estimation
+                const uncompressedSize = img.width * img.height * 3; // 24-bit color
+                const compressionRatio = uncompressedSize / file.size;
+                validation.details.compressionRatio = compressionRatio.toFixed(1);
+                validation.compression = compressionRatio <= 20;
+            }
+
+            // Check if all validations passed
+            validation.allPassed = validation.faceDetected && 
+                                   validation.fileFormat && 
+                                   validation.fileSize && 
+                                   validation.headHeight && 
+                                   validation.eyePosition && 
+                                   validation.headTilt && 
+                                   validation.eyesOpen && 
+                                   validation.background && 
+                                   validation.compression;
+
+            return validation;
         }
 
-        // Smooth transitions
-        const style = document.createElement('style');
-        style.textContent = `
-            #splashSubtitle {
-                transition: opacity 0.3s ease;
-            }
-        `;
-        document.head.appendChild(style);
-
-        // Display attempts on load
-        window.addEventListener('load', () => {
-            document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
-        });
-
-        // ===== PHOTO CHECKER STATE =====
-        let photoCheckerState = {
-            originalImageData: null,
-            image: null,
-            canvas: null,
-            ctx: null,
-            lines: {
-                red: 150,       // верх головы
-                blue: 450,      // низ подбородка
-                green: 300,     // центр глаз
-                brown: 300      // центр фото (вертикальная)
-            },
-            draggingLine: null,
-            touchStartY: null,
-            canvasScale: 1
-        };
-
-        // ===== OPEN PHOTO CHECKER =====
-        function openPhotoChecker() {
-            document.getElementById('photoCheckerModal').style.display = 'flex';
-            
-            // Инициализируем canvas
-            const canvas = document.getElementById('photoCanvas');
+        function checkBackground(img) {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
             const ctx = canvas.getContext('2d');
-            photoCheckerState.canvas = canvas;
-            photoCheckerState.ctx = ctx;
-
-            // Загружаем изображение
-            const img = new Image();
-            img.onload = () => {
-                photoCheckerState.image = img;
-                
-                // Устанавливаем размер canvas 600x600
-                canvas.width = 600;
-                canvas.height = 600;
-                
-                // Масштабируем и рисуем изображение с сохранением пропорций
-                const imgAspect = img.width / img.height;
-                let sx = 0, sy = 0, sw = img.width, sh = img.height;
-                
-                if (imgAspect > 1) {
-                    // Ширина больше - обрезаем стороны
-                    sw = img.height;
-                    sx = (img.width - sw) / 2;
-                } else if (imgAspect < 1) {
-                    // Высота больше - обрезаем сверху/снизу
-                    sh = img.width;
-                    sy = (img.height - sh) / 2;
-                }
-                
-                // Рисуем с коррекцией масштаба
-                ctx.drawImage(img, sx, sy, sw, sh, 0, 0, 600, 600);
-                
-                // Устанавливаем линии по умолчанию
-                setDefaultLines();
-                
-                // Рисуем линии
-                redrawCanvasWithLines();
-                setupCanvasInteraction();
-            };
-            img.src = photoCheckerState.originalImageData;
-        }
-
-        // ===== SET DEFAULT LINES =====
-        function setDefaultLines() {
-            photoCheckerState.lines.red = 150;       // верх головы
-            photoCheckerState.lines.blue = 450;      // низ подбородка
-            photoCheckerState.lines.green = 300;     // центр глаз
-            photoCheckerState.lines.brown = 300;     // центр фото
-        }
-
-        // ===== REDRAW CANVAS WITH LINES =====
-        function redrawCanvasWithLines() {
-            const ctx = photoCheckerState.ctx;
-            const img = photoCheckerState.image;
+            ctx.drawImage(img, 0, 0);
             
-            // Очищаем и перерисовываем изображение
-            ctx.clearRect(0, 0, 600, 600);
-            ctx.drawImage(img, 0, 0, 600, 600);
+            // Sample corners
+            const sampleSize = 20;
+            const corners = [
+                ctx.getImageData(0, 0, sampleSize, sampleSize),
+                ctx.getImageData(img.width - sampleSize, 0, sampleSize, sampleSize),
+                ctx.getImageData(0, img.height - sampleSize, sampleSize, sampleSize),
+                ctx.getImageData(img.width - sampleSize, img.height - sampleSize, sampleSize, sampleSize)
+            ];
             
-            // Рисуем бордовую линию (верх головы)
-            drawHorizontalLine(ctx, photoCheckerState.lines.red, '#8B0000', 4);
+            // Calculate average brightness and uniformity
+            let totalBrightness = 0;
+            let count = 0;
             
-            // Рисуем синюю линию (низ подбородка)
-            drawHorizontalLine(ctx, photoCheckerState.lines.blue, '#00008B', 4);
-            
-            // Рисуем зеленую прерывистую линию (центр глаз)
-            drawDashedHorizontalLine(ctx, photoCheckerState.lines.green, '#006400', 4);
-            
-            // Рисуем коричневую прерывистую вертикальную линию (центр фото)
-            drawDashedVerticalLine(ctx, photoCheckerState.lines.brown, '#8B6F47', 4);
-        }
-
-        // ===== DRAW HORIZONTAL LINE =====
-        function drawHorizontalLine(ctx, y, color, width) {
-            ctx.strokeStyle = color;
-            ctx.lineWidth = width;
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(600, y);
-            ctx.stroke();
-        }
-
-        // ===== DRAW DASHED HORIZONTAL LINE =====
-        function drawDashedHorizontalLine(ctx, y, color, width) {
-            ctx.strokeStyle = color;
-            ctx.lineWidth = width;
-            ctx.setLineDash([10, 5]);
-            ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(600, y);
-            ctx.stroke();
-            ctx.setLineDash([]);
-        }
-
-        // ===== DRAW DASHED VERTICAL LINE =====
-        function drawDashedVerticalLine(ctx, x, color, width) {
-            ctx.strokeStyle = color;
-            ctx.lineWidth = width;
-            ctx.setLineDash([10, 5]);
-            ctx.beginPath();
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, 600);
-            ctx.stroke();
-            ctx.setLineDash([]);
-        }
-
-        // ===== SETUP CANVAS INTERACTION =====
-        function setupCanvasInteraction() {
-            const canvas = document.getElementById('photoCanvas');
-            
-            function getYFromEvent(e) {
-                const rect = canvas.getBoundingClientRect();
-                const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
-                return (clientY - rect.top) * (600 / rect.height);
-            }
-            
-            function getLineAtY(y) {
-                const tolerance = 20;
-                
-                if (Math.abs(y - photoCheckerState.lines.red) < tolerance) return 'red';
-                if (Math.abs(y - photoCheckerState.lines.blue) < tolerance) return 'blue';
-                if (Math.abs(y - photoCheckerState.lines.green) < tolerance) return 'green';
-                return null;
-            }
-            
-            // MOUSE EVENTS
-            canvas.addEventListener('mousedown', (e) => {
-                const y = getYFromEvent(e);
-                photoCheckerState.draggingLine = getLineAtY(y);
-                if (photoCheckerState.draggingLine) {
-                    canvas.style.cursor = 'grabbing';
+            corners.forEach(imageData => {
+                for (let i = 0; i < imageData.data.length; i += 4) {
+                    const brightness = (imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2]) / 3;
+                    totalBrightness += brightness;
+                    count++;
                 }
             });
             
-            canvas.addEventListener('mousemove', (e) => {
-                if (!photoCheckerState.draggingLine) {
-                    const y = getYFromEvent(e);
-                    canvas.style.cursor = getLineAtY(y) ? 'grab' : 'default';
-                    return;
-                }
-                
-                const y = getYFromEvent(e);
-                const newY = Math.max(0, Math.min(600, y));
-                photoCheckerState.lines[photoCheckerState.draggingLine] = newY;
-                redrawCanvasWithLines();
-            });
+            const avgBrightness = totalBrightness / count;
             
-            canvas.addEventListener('mouseup', () => {
-                photoCheckerState.draggingLine = null;
-                canvas.style.cursor = 'default';
-            });
-            
-            canvas.addEventListener('mouseleave', () => {
-                photoCheckerState.draggingLine = null;
-                canvas.style.cursor = 'default';
-            });
-            
-            // TOUCH EVENTS
-            canvas.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                const y = getYFromEvent(e);
-                photoCheckerState.draggingLine = getLineAtY(y);
-            }, { passive: false });
-            
-            canvas.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                if (!photoCheckerState.draggingLine) return;
-                
-                const y = getYFromEvent(e);
-                const newY = Math.max(0, Math.min(600, y));
-                photoCheckerState.lines[photoCheckerState.draggingLine] = newY;
-                redrawCanvasWithLines();
-            }, { passive: false });
-            
-            canvas.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                photoCheckerState.draggingLine = null;
-            }, { passive: false });
+            // Check if background is light (> 200 out of 255) and relatively uniform
+            return avgBrightness > 200;
         }
 
-        // ===== CALCULATE HEAD PERCENTAGE =====
-        function calculateHeadPercentage() {
-            const headHeight = photoCheckerState.lines.blue - photoCheckerState.lines.red;
-            const headPercentage = Math.round((headHeight / 600) * 100);
-            return headPercentage;
+        function displayResults(img, detection, validation, metadata) {
+            // Draw detection canvas
+            drawDetectionCanvas(img, detection);
+            
+            // Display metadata
+            displayMetadata(metadata, validation.details);
+            
+            // Display validation results
+            displayValidationResults(validation);
         }
 
-        // ===== CALCULATE EYE PERCENTAGE =====
-        function calculateEyePercentage() {
-            const eyeFromBottom = 600 - photoCheckerState.lines.green;
-            const eyePercentage = Math.round((eyeFromBottom / 600) * 100);
-            return eyePercentage;
-        }
-
-        // ===== ANALYZE PHOTO QUALITY =====
-        function analyzePhotoQuality() {
-            return new Promise((resolve) => {
-                const canvas = photoCheckerState.canvas;
-                const ctx = photoCheckerState.ctx;
-                
-                // Получаем данные пикселей
-                const imageData = ctx.getImageData(0, 0, 600, 600);
-                const data = imageData.data;
-                
-                let totalBrightness = 0;
-                const colorVariance = {};
-                
-                // Анализируем яркость, контраст и цветовое распределение
-                for (let i = 0; i < data.length; i += 4) {
-                    const r = data[i];
-                    const g = data[i + 1];
-                    const b = data[i + 2];
-                    const a = data[i + 3];
-                    
-                    if (a > 0) {
-                        const brightness = (r + g + b) / 3;
-                        totalBrightness += brightness;
-                        
-                        // Определяем цвет пикселя (для проверки фона)
-                        const colorKey = Math.round(r / 50) + '_' + Math.round(g / 50) + '_' + Math.round(b / 50);
-                        colorVariance[colorKey] = (colorVariance[colorKey] || 0) + 1;
-                    }
-                }
-                
-                const avgBrightness = totalBrightness / (data.length / 4);
-                const uniqueColors = Object.keys(colorVariance).length;
-                
-                // Вычисляем проценты по требованиям госдепа
-                const headPercentage = calculateHeadPercentage();
-                const eyePercentage = calculateEyePercentage();
-                
-                // Результаты проверки
-                const results = {
-                    headPercentage: headPercentage,
-                    eyePercentage: eyePercentage,
-                    backgroundUniformity: Math.round((1 - Math.min(uniqueColors / 500, 1)) * 100),
-                    issues: []
-                };
-                
-                // Проверяем критерии госдепа
-                if (results.headPercentage < 50 || results.headPercentage > 69) {
-                    results.issues.push('HEAD_SIZE_INVALID');
-                }
-                if (results.eyePercentage < 56 || results.eyePercentage > 69) {
-                    results.issues.push('EYE_POSITION_INVALID');
-                }
-                if (results.backgroundUniformity < 60) {
-                    results.issues.push('BACKGROUND_NOT_SOLID');
-                }
-                
-                resolve(results);
-            });
-        }
-
-        // ===== FORMAT RESULTS MESSAGE =====
-        function formatResultsMessage(results) {
-            const lang = appState.currentLang;
-            const translations = {
-                ru: {
-                    title: '📊 Результаты проверки фото',
-                    brightness: 'Яркость:',
-                    headHeight: 'Высота головы:',
-                    bgUniformity: 'Однородность фона:',
-                    status: 'Статус:',
-                    pass: '✅ ГОТОВО К ПОДАЧЕ',
-                    fail: '❌ ТРЕБУЕТ ДОРАБОТКИ',
-                    issues: {
-                        HEAD_TOO_SMALL: '• Голова слишком мала',
-                        TOO_DARK: '• Фото слишком тёмное',
-                        TOO_BRIGHT: '• Фото слишком светлое',
-                        EYES_MISALIGNED: '• Глаза не по центру',
-                        BACKGROUND_NOT_SOLID: '• Фон не однородный'
-                    },
-                    recommendation: 'Рекомендация: Переснимите фото с учётом указанных замечаний'
-                },
-                en: {
-                    title: '📊 Photo Check Results',
-                    brightness: 'Brightness:',
-                    headHeight: 'Head Height:',
-                    bgUniformity: 'Background Uniformity:',
-                    status: 'Status:',
-                    pass: '✅ READY TO SUBMIT',
-                    fail: '❌ NEEDS ADJUSTMENT',
-                    issues: {
-                        HEAD_TOO_SMALL: '• Head is too small',
-                        TOO_DARK: '• Photo is too dark',
-                        TOO_BRIGHT: '• Photo is too bright',
-                        EYES_MISALIGNED: '• Eyes are not centered',
-                        BACKGROUND_NOT_SOLID: '• Background is not uniform'
-                    },
-                    recommendation: 'Recommendation: Retake the photo according to the comments'
-                }
-            };
+        function drawDetectionCanvas(img, detection) {
+            const canvas = document.getElementById('detectionCanvas');
+            const displayWidth = Math.min(600, img.width);
+            const scale = displayWidth / img.width;
             
-            const t = translations[lang] || translations.en;
-            const isPassed = results.issues.length === 0;
+            canvas.width = displayWidth;
+            canvas.height = img.height * scale;
             
-            let msg = `${t.title}\n\n`;
-            msg += `${t.brightness} ${results.avgBrightness}%\n`;
-            msg += `${t.headHeight} ${results.headHeight}px\n`;
-            msg += `${t.bgUniformity} ${results.backgroundUniformity}%\n\n`;
-            msg += `${t.status} ${isPassed ? t.pass : t.fail}\n`;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
             
-            if (!isPassed) {
-                msg += '\n' + results.issues.map(issue => t.issues[issue] || '').filter(Boolean).join('\n');
-                msg += '\n\n' + t.recommendation;
+            if (detection) {
+                const landmarks = detection.landmarks;
+                
+                // Scale landmarks
+                const scaledLandmarks = landmarks.positions.map(p => ({
+                    x: p.x * scale,
+                    y: p.y * scale
+                }));
+                
+                // Draw landmarks
+                ctx.fillStyle = 'cyan';
+                scaledLandmarks.forEach(point => {
+                    ctx.beginPath();
+                    ctx.arc(point.x, point.y, 2, 0, 2 * Math.PI);
+                    ctx.fill();
+                });
+                
+                // Calculate and draw reference lines
+                const topOfHead = Math.min(...scaledLandmarks.map(p => p.y));
+                const jawline = landmarks.getJawOutline().map(p => ({ x: p.x * scale, y: p.y * scale }));
+                const chin = Math.max(...jawline.map(p => p.y));
+                const leftEye = landmarks.getLeftEye().map(p => ({ x: p.x * scale, y: p.y * scale }));
+                const rightEye = landmarks.getRightEye().map(p => ({ x: p.x * scale, y: p.y * scale }));
+                const eyeLevel = (leftEye[0].y + rightEye[0].y) / 2;
+                
+                // Draw three reference lines
+                ctx.strokeStyle = 'yellow';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                
+                // Top line (top of head)
+                ctx.beginPath();
+                ctx.moveTo(0, topOfHead);
+                ctx.lineTo(canvas.width, topOfHead);
+                ctx.stroke();
+                
+                // Middle line (eye level)
+                ctx.strokeStyle = 'lime';
+                ctx.beginPath();
+                ctx.moveTo(0, eyeLevel);
+                ctx.lineTo(canvas.width, eyeLevel);
+                ctx.stroke();
+                
+                // Bottom line (chin)
+                ctx.strokeStyle = 'red';
+                ctx.beginPath();
+                ctx.moveTo(0, chin);
+                ctx.lineTo(canvas.width, chin);
+                ctx.stroke();
+                
+                ctx.setLineDash([]);
+                
+                // Add labels
+                ctx.fillStyle = 'yellow';
+                ctx.font = '12px sans-serif';
+                ctx.fillText('Top', 5, topOfHead - 5);
+                
+                ctx.fillStyle = 'lime';
+                ctx.fillText('Eyes', 5, eyeLevel - 5);
+                
+                ctx.fillStyle = 'red';
+                ctx.fillText('Chin', 5, chin + 15);
             }
-            
-            return msg;
         }
 
-        // ===== START PHOTO CHECK =====
-        async function startPhotoCheck() {
-            // Проверяем минимальное расстояние между линиями (для обрезки)
-            const topHead = photoCheckerState.lines.red;
-            const bottomChin = photoCheckerState.lines.blue;
-            const headHeight = bottomChin - topHead;
-            
-            // Минимум 200px для безопасной обрезки
-            if (headHeight < 200) {
-                const msgRu = 'Извините, на фото мало места для обрезки.\nУстановите линии корректно.';
-                const msgEn = 'Sorry, there is not enough space on the photo to crop.\nPlace the lines correctly.';
-                alert(appState.currentLang === 'ru' ? msgRu : msgEn);
-                return;
-            }
-            
-            // Уменьшаем попытки
-            if (!appState.isAdmin) {
-                appState.attempts--;
-                document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
-            }
-            
-            // Создаём обрезанное фото 600x600
-            const croppedCanvas = createCroppedPhoto();
-            
-            // Анализируем фото
-            const results = await analyzePhotoQuality();
-            
-            // Закрываем окно и показываем результаты с кропом
-            closePhotoChecker();
-            showResultsWithCrop(croppedCanvas, results);
-        }
-
-        // ===== CREATE CROPPED PHOTO (WITHOUT LINES) =====
-        function createCroppedPhoto() {
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = 600;
-            tempCanvas.height = 600;
-            const tempCtx = tempCanvas.getContext('2d');
-            
-            // Рисуем фото без линий (чистое изображение)
-            if (photoCheckerState.image) {
-                const imgAspect = photoCheckerState.image.width / photoCheckerState.image.height;
-                let sx = 0, sy = 0, sw = photoCheckerState.image.width, sh = photoCheckerState.image.height;
-                
-                if (imgAspect > 1) {
-                    sw = photoCheckerState.image.height;
-                    sx = (photoCheckerState.image.width - sw) / 2;
-                } else if (imgAspect < 1) {
-                    sh = photoCheckerState.image.width;
-                    sy = (photoCheckerState.image.height - sh) / 2;
-                }
-                
-                tempCtx.drawImage(photoCheckerState.image, sx, sy, sw, sh, 0, 0, 600, 600);
-            }
-            
-            return tempCanvas;
-        }
-
-        // ===== SHOW RESULTS WITH CROP =====
-        function showResultsWithCrop(croppedCanvas, results) {
-            const lang = appState.currentLang;
-            const isPassed = results.issues.length === 0;
-            
-            // Создаём модальное окно с результатами
-            const modal = document.createElement('div');
-            modal.id = 'resultsModal';
-            modal.style.cssText = `
-                display: flex;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.9);
-                z-index: 3000;
-                flex-direction: column;
-                align-items: center;
-                justify-content: flex-start;
-                overflow-y: auto;
-                padding: 20px;
-            `;
-            
-            const translations = {
-                ru: {
-                    title: '📊 Результаты проверки',
-                    bgUniformity: 'Однородный фон',
-                    photoWidth: 'Ширина фото',
-                    photoHeight: 'Высота фото',
-                    fileSize: 'Размер файла',
-                    photoFormat: 'Формат фото',
-                    status: 'Статус',
-                    statusPass: 'Соответствует требованиям',
-                    statusFail: 'Требует доработки',
-                    download: '⬇️ Скачать фото',
-                    back: '← Назад',
-                    yes: 'Да'
-                },
-                en: {
-                    title: '📊 Photo Check Results',
-                    bgUniformity: 'Uniform background',
-                    photoWidth: 'Photo width',
-                    photoHeight: 'Photo height',
-                    fileSize: 'File size',
-                    photoFormat: 'Photo format',
-                    status: 'Status',
-                    statusPass: 'Meets requirements',
-                    statusFail: 'Needs adjustment',
-                    download: '⬇️ Download Photo',
-                    back: '← Back',
-                    yes: 'Yes'
-                }
-            };
-            
-            const t = translations[lang] || translations.en;
-            const checkMark = '✅';
-            
-            // Вычисляем размер файла
-            const fileBlob = croppedCanvas.toDataURL('image/jpeg', 0.95);
-            const fileSizeKB = Math.round((fileBlob.length * 0.75) / 1024);
-            
-            // Функция для определения ошибки
-            function getCheckMarkForMetric(metricName) {
-                if (isPassed) return '✅';
-                
-                if (metricName === 'headPercentage' && (results.headPercentage < 50 || results.headPercentage > 69)) {
-                    return '❌';
-                }
-                if (metricName === 'eyePercentage' && (results.eyePercentage < 56 || results.eyePercentage > 69)) {
-                    return '❌';
-                }
-                return '✅';
-            }
-            
-            let resultsHTML = `
-                <div style="background: white; border-radius: 12px; padding: 20px; max-width: 600px; width: 100%; margin-top: 20px; margin-bottom: 20px;">
-                    <h2 style="margin: 0 0 16px 0; color: #333; font-size: 20px;">${t.title}</h2>
-                    
-                    <canvas id="croppedPhotoDisplay" style="width: 100%; height: auto; border-radius: 8px; margin-bottom: 20px; display: block; background: #f0f0f0; max-height: 400px;"></canvas>
-                    
-                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; font-size: 14px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="font-size: 16px;">${getCheckMarkForMetric('headPercentage')}</span>
-                                <span style="color: #333; font-weight: 500;">Высота головы</span>
-                            </div>
-                            <span style="color: #555; font-weight: 500;">${results.headPercentage}%</span>
-                        </div>
-                        
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="font-size: 16px;">${getCheckMarkForMetric('eyePercentage')}</span>
-                                <span style="color: #333; font-weight: 500;">Высота глаз</span>
-                            </div>
-                            <span style="color: #555; font-weight: 500;">${results.eyePercentage}%</span>
-                        </div>
-                        
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="color: #4CAF50; font-size: 16px;">✅</span>
-                                <span style="color: #333; font-weight: 500;">${t.bgUniformity}</span>
-                            </div>
-                            <span style="color: #555; font-weight: 500;">${t.yes}</span>
-                        </div>
-                        
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="color: #4CAF50; font-size: 16px;">✅</span>
-                                <span style="color: #333; font-weight: 500;">${t.photoWidth}</span>
-                            </div>
-                            <span style="color: #555; font-weight: 500;">600 px</span>
-                        </div>
-                        
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="color: #4CAF50; font-size: 16px;">✅</span>
-                                <span style="color: #333; font-weight: 500;">${t.photoHeight}</span>
-                            </div>
-                            <span style="color: #555; font-weight: 500;">600 px</span>
-                        </div>
-                        
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="color: #4CAF50; font-size: 16px;">✅</span>
-                                <span style="color: #333; font-weight: 500;">${t.fileSize}</span>
-                            </div>
-                            <span style="color: #555; font-weight: 500;">${fileSizeKB} KB</span>
-                        </div>
-                        
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="color: #4CAF50; font-size: 16px;">✅</span>
-                                <span style="color: #333; font-weight: 500;">${t.photoFormat}</span>
-                            </div>
-                            <span style="color: #555; font-weight: 500;">JPEG</span>
-                        </div>
-                    </div>
-                    
-                    <div style="padding: 12px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; ${isPassed ? 'background: rgba(76, 175, 80, 0.1); color: #4CAF50;' : 'background: rgba(244, 67, 54, 0.1); color: #f44336;'}">
-                        <span style="font-size: 16px;">${isPassed ? '✅' : '❌'}</span>
-                        <span>${t.status}: ${isPassed ? t.statusPass : 'Не соответствует требованиям'}</span>
-                    </div>
-                    
-                    ${results.issues.length > 0 ? `
-                        <div style="background: #fff3cd; padding: 12px; border-radius: 8px; margin-bottom: 16px; border-left: 4px solid #ffc107;">
-                            <div style="font-size: 13px; color: #000; margin-bottom: 8px; font-weight: 700;">Обратите внимание:</div>
-                            <div style="font-size: 13px; color: #333; line-height: 1.6;">
-                                Фото не полностью соответствует официальным требованиям лотереи Green Card. Несоответствия отмечены в списке красным крестиком.<br><br>
-                                Мы рекомендуем сделать новое фото, чтобы увеличить шансы на успешную подачу.<br><br>
-                                Тем не менее, вы можете скачать текущий файл по своему усмотрению.
-                            </div>
-                        </div>
-                    ` : ''}
-                    
-                    <div style="display: flex; gap: 12px; flex-direction: column;">
-                        <button onclick="downloadCroppedPhoto()" style="width: 100%; background: #4CAF50; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">
-                            ${t.download}
-                        </button>
-                        <button onclick="closeResultsModal()" style="width: 100%; background: #194E84; color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">
-                            ${t.back}
-                        </button>
-                    </div>
+        function displayMetadata(metadata, details) {
+            const t = translations[currentLang];
+            const grid = document.getElementById('metadataGrid');
+            grid.innerHTML = `
+                <div class="metadata-item">
+                    <span class="metadata-label">${t.dimensions}</span>
+                    <span class="metadata-value">${metadata.width}×${metadata.height}px</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="metadata-label">${t.filesize}</span>
+                    <span class="metadata-value">${details.fileSize} KB</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="metadata-label">${t.format}</span>
+                    <span class="metadata-value">${metadata.fileType}</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="metadata-label">${t.compressionRatio}</span>
+                    <span class="metadata-value">${details.compressionRatio}:1</span>
                 </div>
             `;
             
-            modal.innerHTML = resultsHTML;
-            document.body.appendChild(modal);
-            
-            // Отображаем обрезанное фото
-            setTimeout(() => {
-                const display = document.getElementById('croppedPhotoDisplay');
-                if (display) {
-                    display.width = 600;
-                    display.height = 600;
-                    const displayCtx = display.getContext('2d');
-                    displayCtx.drawImage(croppedCanvas, 0, 0);
-                }
-            }, 0);
-            
-            // Сохраняем для скачивания
-            window.croppedPhotoForDownload = croppedCanvas;
-        }
-
-        // ===== DOWNLOAD CROPPED PHOTO (MOBILE & DESKTOP FIX) =====
-        function downloadCroppedPhoto() {
-            if (!window.croppedPhotoForDownload) return;
-            
-            const canvas = window.croppedPhotoForDownload;
-            
-            // Конвертируем canvas в blob для мобильной совместимости
-            canvas.toBlob(function(blob) {
-                // Для мобильных устройств - используем Web Share API
-                if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-                    // Проверяем поддержку Web Share API
-                    if (navigator.share && navigator.canShare) {
-                        const file = new File([blob], 'CROPPED.jpg', { type: 'image/jpeg' });
-                        
-                        if (navigator.canShare({ files: [file] })) {
-                            navigator.share({
-                                files: [file],
-                                title: 'DV Photo',
-                                text: 'Green Card Photo'
-                            }).catch(err => {
-                                if (err.name !== 'AbortError') {
-                                    console.error('Share failed:', err);
-                                    fallbackDownload(blob);
-                                }
-                            });
-                        } else {
-                            // Если файл не поддерживается - используем fallback
-                            fallbackDownload(blob);
-                        }
-                    } else {
-                        // Fallback для старых браузеров
-                        fallbackDownload(blob);
-                    }
-                } else {
-                    // Для десктопа - обычное скачивание
-                    const blobUrl = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
-                    link.href = blobUrl;
-                    link.download = 'CROPPED.jpg';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(blobUrl);
-                }
-            }, 'image/jpeg', 0.95);
-        }
-        
-        // ===== FALLBACK DOWNLOAD =====
-        function fallbackDownload(blob) {
-            const blobUrl = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = blobUrl;
-            link.download = 'CROPPED.jpg';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
-        }
-
-        // ===== CLOSE RESULTS MODAL =====
-        function closeResultsModal() {
-            const modal = document.getElementById('resultsModal');
-            if (modal) {
-                modal.remove();
+            if (metadata.dateTaken) {
+                grid.innerHTML += `
+                    <div class="metadata-item">
+                        <span class="metadata-label">${t.dateTaken}</span>
+                        <span class="metadata-value">${new Date(metadata.dateTaken).toLocaleDateString()}</span>
+                    </div>
+                `;
             }
-            window.croppedPhotoForDownload = null;
         }
 
-        // ===== CLOSE PHOTO CHECKER =====
-        function closePhotoChecker() {
-            document.getElementById('photoCheckerModal').style.display = 'none';
-            photoCheckerState = {
-                originalImageData: null,
-                image: null,
-                canvas: null,
-                ctx: null,
-                detection: null,
-                lines: { red: null, blue: null, green: null, brown: null },
-                draggingLine: null,
-                canvasWidth: 600,
-                canvasHeight: 600
-            };
-            document.getElementById('photoInput').value = '';
+        function displayValidationResults(validation) {
+            const t = translations[currentLang];
+            const list = document.getElementById('validationList');
+            
+            const checks = [
+                {
+                    key: 'faceDetected',
+                    label: t.faceDetected,
+                    pass: validation.faceDetected,
+                    passText: t.faceDetectedPass,
+                    failText: t.faceDetectedFail
+                },
+                {
+                    key: 'fileFormat',
+                    label: t.fileFormat,
+                    pass: validation.fileFormat,
+                    passText: t.fileFormatPass,
+                    failText: t.fileFormatFail
+                },
+                {
+                    key: 'fileSize',
+                    label: t.fileSize,
+                    pass: validation.fileSize,
+                    passText: t.fileSizePass + ` (${validation.details.fileSize} KB)`,
+                    failText: t.fileSizeFail + ` (${validation.details.fileSize} KB)`
+                },
+                {
+                    key: 'headHeight',
+                    label: t.headHeight,
+                    pass: validation.headHeight,
+                    passText: t.headHeightPass + ` (${validation.details.headHeightPercent}%)`,
+                    failText: t.headHeightFail + ` (${validation.details.headHeightPercent}%)`
+                },
+                {
+                    key: 'eyePosition',
+                    label: t.eyePosition,
+                    pass: validation.eyePosition,
+                    passText: t.eyePositionPass + ` (${validation.details.eyePositionPercent}%)`,
+                    failText: t.eyePositionFail + ` (${validation.details.eyePositionPercent}%)`
+                },
+                {
+                    key: 'headTilt',
+                    label: t.headTilt,
+                    pass: validation.headTilt,
+                    passText: t.headTiltPass + ` (${validation.details.tiltDegrees}°)`,
+                    failText: t.headTiltFail + ` (${validation.details.tiltDegrees}°)`
+                },
+                {
+                    key: 'eyesOpen',
+                    label: t.eyesOpen,
+                    pass: validation.eyesOpen,
+                    passText: t.eyesOpenPass,
+                    failText: t.eyesOpenFail
+                },
+                {
+                    key: 'background',
+                    label: t.background,
+                    pass: validation.background,
+                    passText: t.backgroundPass,
+                    failText: t.backgroundFail
+                },
+                {
+                    key: 'compression',
+                    label: t.compression,
+                    pass: validation.compression,
+                    passText: t.compressionPass + ` (${validation.details.compressionRatio}:1)`,
+                    failText: t.compressionFail + ` (${validation.details.compressionRatio}:1)`
+                }
+            ];
+            
+            list.innerHTML = checks.map(check => `
+                <li class="validation-item ${check.pass ? 'pass' : 'fail'}">
+                    <span class="validation-icon">${check.pass ? '✓' : '✗'}</span>
+                    <div class="validation-text">
+                        <span class="validation-label">${check.label}</span>
+                        <span class="validation-detail">${check.pass ? check.passText : check.failText}</span>
+                    </div>
+                </li>
+            `).join('');
         }
+
+        async function generateCroppedImage(img, detection) {
+            if (!detection) return;
+            
+            const landmarks = detection.landmarks;
+            const jawline = landmarks.getJawOutline();
+            const leftEye = landmarks.getLeftEye();
+            const rightEye = landmarks.getRightEye();
+            
+            // Calculate key points
+            const topOfHead = Math.min(...landmarks.positions.map(p => p.y));
+            const chin = Math.max(...jawline.map(p => p.y));
+            const eyeLevel = (leftEye[0].y + rightEye[0].y) / 2;
+            const faceCenter = {
+                x: (detection.box.x + detection.box.width / 2),
+                y: (topOfHead + chin) / 2
+            };
+            
+            // Calculate head height
+            const headHeight = chin - topOfHead;
+            
+            // Calculate required crop size to meet 50-69% head height in 600px image
+            // We want head to be 60% of image (middle of range)
+            const targetHeadPercent = 0.60;
+            const requiredImageHeight = headHeight / targetHeadPercent;
+            const scale = 600 / requiredImageHeight;
+            
+            // Create crop canvas
+            const canvas = document.getElementById('croppedCanvas');
+            canvas.width = 600;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+            
+            // Calculate source crop area
+            const sourceSize = 600 / scale;
+            const sourceX = faceCenter.x - sourceSize / 2;
+            const sourceY = faceCenter.y - sourceSize / 2;
+            
+            // Draw cropped and scaled image
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, 600, 600);
+            ctx.drawImage(
+                img,
+                Math.max(0, sourceX),
+                Math.max(0, sourceY),
+                Math.min(sourceSize, img.width - sourceX),
+                Math.min(sourceSize, img.height - sourceY),
+                0,
+                0,
+                600,
+                600
+            );
+            
+            // Show crop preview
+            document.getElementById('cropPreview').classList.add('active');
+        }
+
+        // Download button
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            const canvas = document.getElementById('croppedCanvas');
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'greencard_photo_600x600.jpg';
+                a.click();
+                URL.revokeObjectURL(url);
+            }, 'image/jpeg', 0.95);
+        });
+
+        // Reset button
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            uploadSection.style.display = 'block';
+            processingSection.classList.remove('active');
+            document.getElementById('cropPreview').classList.remove('active');
+            fileInput.value = '';
+            currentImage = null;
+            detectionResult = null;
+        });
+
+        // Initialize
+        updateLanguage();
     </script>
 </body>
 </html>
-
-
-
-
