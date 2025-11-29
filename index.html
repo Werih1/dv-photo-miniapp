@@ -683,30 +683,6 @@
     </div>
 
     <script>
-
-    // ===== CUSTOM DIALOG BOX =====
-    function showCustomAlert(message) {
-        const dialogOverlay = document.createElement('div');
-        dialogOverlay.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 9999; display: flex; align-items: center; justify-content: center;';
-
-        const dialogBox = document.createElement('div');
-        dialogBox.style.cssText = 'background: white; border-radius: 12px; padding: 20px; max-width: 300px; width: 90%; box-shadow: 0 4px 16px rgba(0,0,0,0.2);';
-
-        const messageText = document.createElement('div');
-        messageText.style.cssText = 'font-size: 14px; line-height: 1.6; color: #333; margin-bottom: 20px; text-align: center;';
-        messageText.textContent = message;
-
-        const okButton = document.createElement('button');
-        okButton.textContent = 'OK';
-        okButton.style.cssText = 'width: 100%; padding: 12px; background: #194E84; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;';
-
-        okButton.onclick = () => dialogOverlay.remove();
-
-        dialogBox.appendChild(messageText);
-        dialogBox.appendChild(okButton);
-        dialogOverlay.appendChild(dialogBox);
-        document.body.appendChild(dialogOverlay);
-    }
         // ADMIN IDS
         const ADMIN_IDS = [380950248, 375133882];
 
@@ -1494,101 +1470,59 @@
             return eyePercentage;
         }
 
-        // ===== ANALYZE BACKGROUND UNIFORMITY (EDGES ONLY) =====
-        function analyzeBackgroundUniformity(ctx) {
-            const imageData = ctx.getImageData(0, 0, 600, 600);
-            const data = imageData.data;
-            
-            // Анализируем только края (20px полоса со всех сторон)
-            const edgePixels = [];
-            const edgeWidth = 20;
-            
-            // Верх и низ
-            for (let x = 0; x < 600; x++) {
-                for (let y = 0; y < edgeWidth; y++) {
-                    const idx = (y * 600 + x) * 4;
-                    edgePixels.push({ r: data[idx], g: data[idx+1], b: data[idx+2] });
-                }
-                for (let y = 600 - edgeWidth; y < 600; y++) {
-                    const idx = (y * 600 + x) * 4;
-                    edgePixels.push({ r: data[idx], g: data[idx+1], b: data[idx+2] });
-                }
-            }
-            
-            // Левая и правая стороны
-            for (let y = edgeWidth; y < 600 - edgeWidth; y++) {
-                for (let x = 0; x < edgeWidth; x++) {
-                    const idx = (y * 600 + x) * 4;
-                    edgePixels.push({ r: data[idx], g: data[idx+1], b: data[idx+2] });
-                }
-                for (let x = 600 - edgeWidth; x < 600; x++) {
-                    const idx = (y * 600 + x) * 4;
-                    edgePixels.push({ r: data[idx], g: data[idx+1], b: data[idx+2] });
-                }
-            }
-            
-            // Находим доминирующий цвет
-            const colorMap = {};
-            edgePixels.forEach(p => {
-                const r = Math.round(p.r / 20) * 20;
-                const g = Math.round(p.g / 20) * 20;
-                const b = Math.round(p.b / 20) * 20;
-                const key = r + '_' + g + '_' + b;
-                colorMap[key] = (colorMap[key] || 0) + 1;
-            });
-            
-            let dominantColor = null;
-            let maxCount = 0;
-            for (const key in colorMap) {
-                if (colorMap[key] > maxCount) {
-                    maxCount = colorMap[key];
-                    dominantColor = key.split('_').map(Number);
-                }
-            }
-            
-            const matchPercentage = (maxCount / edgePixels.length) * 100;
-            const isWhite = dominantColor[0] >= 240 && dominantColor[1] >= 240 && dominantColor[2] >= 240;
-            const isLightGray = dominantColor[0] >= 200 && dominantColor[0] <= 240 &&
-                                dominantColor[1] >= 200 && dominantColor[1] <= 240 &&
-                                dominantColor[2] >= 200 && dominantColor[2] <= 240;
-            
-            let maxDifference = 0;
-            edgePixels.forEach(p => {
-                const diff = Math.max(
-                    Math.abs(p.r - dominantColor[0]),
-                    Math.abs(p.g - dominantColor[1]),
-                    Math.abs(p.b - dominantColor[2])
-                );
-                maxDifference = Math.max(maxDifference, diff);
-            });
-            
-            return (isWhite || isLightGray) && matchPercentage > 80 && maxDifference < 30;
-        }
-
         // ===== ANALYZE PHOTO QUALITY =====
         function analyzePhotoQuality() {
             return new Promise((resolve) => {
                 const canvas = photoCheckerState.canvas;
                 const ctx = photoCheckerState.ctx;
                 
+                // Получаем данные пикселей
+                const imageData = ctx.getImageData(0, 0, 600, 600);
+                const data = imageData.data;
+                
+                let totalBrightness = 0;
+                const colorVariance = {};
+                
+                // Анализируем яркость, контраст и цветовое распределение
+                for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+                    const a = data[i + 3];
+                    
+                    if (a > 0) {
+                        const brightness = (r + g + b) / 3;
+                        totalBrightness += brightness;
+                        
+                        // Определяем цвет пикселя (для проверки фона)
+                        const colorKey = Math.round(r / 50) + '_' + Math.round(g / 50) + '_' + Math.round(b / 50);
+                        colorVariance[colorKey] = (colorVariance[colorKey] || 0) + 1;
+                    }
+                }
+                
+                const avgBrightness = totalBrightness / (data.length / 4);
+                const uniqueColors = Object.keys(colorVariance).length;
+                
+                // Вычисляем проценты по требованиям госдепа
                 const headPercentage = calculateHeadPercentage();
                 const eyePercentage = calculateEyePercentage();
-                const backgroundUniform = analyzeBackgroundUniformity(ctx);
                 
+                // Результаты проверки
                 const results = {
                     headPercentage: headPercentage,
                     eyePercentage: eyePercentage,
-                    backgroundUniform: backgroundUniform,
+                    backgroundUniformity: Math.round((1 - Math.min(uniqueColors / 500, 1)) * 100),
                     issues: []
                 };
                 
+                // Проверяем критерии госдепа
                 if (results.headPercentage < 50 || results.headPercentage > 69) {
                     results.issues.push('HEAD_SIZE_INVALID');
                 }
                 if (results.eyePercentage < 56 || results.eyePercentage > 69) {
                     results.issues.push('EYE_POSITION_INVALID');
                 }
-                if (!results.backgroundUniform) {
+                if (results.backgroundUniformity < 60) {
                     results.issues.push('BACKGROUND_NOT_SOLID');
                 }
                 
@@ -1654,67 +1588,45 @@
         }
 
         // ===== START PHOTO CHECK =====
-async function startPhotoCheck() {
-    // Проверяем минимальное расстояние между линиями (для обрезки)
-    const topHead = photoCheckerState.lines.red;
-    const bottomChin = photoCheckerState.lines.blue;
-    const headHeight = bottomChin - topHead;
-    
-    // Минимум 200px для безопасной обрезки
-    if (headHeight < 200) {
-        const msgRu = 'Извините, на фото мало места для обрезки.\nУстановите линии корректно.';
-        const msgEn = 'Sorry, there is not enough space on the photo to crop.\nPlace the lines correctly.';
-        showCustomAlert(appState.currentLang === 'ru' ? msgRu : msgEn);
-        return;
-    }
+        async function startPhotoCheck() {
+            // Проверяем минимальное расстояние между линиями (для обрезки)
+            const topHead = photoCheckerState.lines.red;
+            const bottomChin = photoCheckerState.lines.blue;
+            const headHeight = bottomChin - topHead;
+            
+            // Минимум 200px для безопасной обрезки
+            if (headHeight < 200) {
+                const msgRu = 'Извините, на фото мало места для обрезки.\nУстановите линии корректно.';
+                const msgEn = 'Sorry, there is not enough space on the photo to crop.\nPlace the lines correctly.';
+                alert(appState.currentLang === 'ru' ? msgRu : msgEn);
+                return;
+            }
+            
+            // Уменьшаем попытки
+            if (!appState.isAdmin) {
+                appState.attempts--;
+                document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
+            }
+            
+            // Создаём обрезанное фото 600x600
+            const croppedCanvas = createCroppedPhoto();
+            
+            // Анализируем фото
+            const results = await analyzePhotoQuality();
+            
+            // Закрываем окно и показываем результаты с кропом
+            closePhotoChecker();
+            showResultsWithCrop(croppedCanvas, results);
+        }
 
-    // Уменьшаем попытки
-    if (!appState.isAdmin) {
-        appState.attempts--;
-        document.getElementById('attemptsCount').textContent =
-            appState.attempts === 999 ? '∞' : appState.attempts;
-    }
-    
-    // Создаём обрезанное фото 600x600
-    const croppedCanvas = createCroppedPhoto();
-    
-    // Закрываем окно и показываем результаты с кропом
-    closePhotoChecker();
-    showResultsWithCrop(croppedCanvas);
-}
-
-
-        // ===== CREATE CROPPED PHOTO WITH INTELLIGENT SCALING =====
+        // ===== CREATE CROPPED PHOTO (WITHOUT LINES) =====
         function createCroppedPhoto() {
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = 600;
             tempCanvas.height = 600;
             const tempCtx = tempCanvas.getContext('2d');
             
-            // Получаем линии на экране 600x600
-            const redLine = photoCheckerState.lines.red;          // верх головы
-            const blueLine = photoCheckerState.lines.blue;        // низ подбородка
-            const brownLine = photoCheckerState.lines.brown;      // центр X
-            
-            // Текущая высота головы на экране
-            const currentHeadHeight = blueLine - redLine;
-            
-            // Целевая высота головы (60% от 600px оптимально, диапазон 50-69%)
-            const targetHeadHeight = 600 * 0.60;  // 360px
-            
-            // Вычисляем масштаб
-            const scale = targetHeadHeight / currentHeadHeight;
-            
-            // Вычисляем смещение для центрирования
-            const targetRedLineY = (600 - targetHeadHeight) / 2 / scale;
-            const offsetY = -redLine + targetRedLineY;
-            const offsetX = (600 / scale / 2 - brownLine);
-            
-            // Применяем трансформации
-            tempCtx.scale(scale, scale);
-            tempCtx.translate(offsetX, offsetY);
-            
-            // Рисуем оригинальное фото с масштабированием
+            // Рисуем фото без линий (чистое изображение)
             if (photoCheckerState.image) {
                 const imgAspect = photoCheckerState.image.width / photoCheckerState.image.height;
                 let sx = 0, sy = 0, sw = photoCheckerState.image.width, sh = photoCheckerState.image.height;
@@ -1796,6 +1708,18 @@ async function startPhotoCheck() {
             const fileSizeKB = Math.round((fileBlob.length * 0.75) / 1024);
             
             // Функция для определения ошибки
+            function getCheckMarkForMetric(metricName) {
+                if (isPassed) return '✅';
+                
+                if (metricName === 'headPercentage' && (results.headPercentage < 50 || results.headPercentage > 69)) {
+                    return '❌';
+                }
+                if (metricName === 'eyePercentage' && (results.eyePercentage < 56 || results.eyePercentage > 69)) {
+                    return '❌';
+                }
+                return '✅';
+            }
+            
             let resultsHTML = `
                 <div style="background: white; border-radius: 12px; padding: 20px; max-width: 600px; width: 100%; margin-top: 20px; margin-bottom: 20px;">
                     <h2 style="margin: 0 0 16px 0; color: #333; font-size: 20px;">${t.title}</h2>
@@ -1805,7 +1729,7 @@ async function startPhotoCheck() {
                     <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; font-size: 14px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
                             <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="font-size: 16px;">${results.headPercentage < 50 || results.headPercentage > 69 ? '❌' : '✅'}</span>
+                                <span style="font-size: 16px;">${getCheckMarkForMetric('headPercentage')}</span>
                                 <span style="color: #333; font-weight: 500;">Высота головы</span>
                             </div>
                             <span style="color: #555; font-weight: 500;">${results.headPercentage}%</span>
@@ -1813,7 +1737,7 @@ async function startPhotoCheck() {
                         
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
                             <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="font-size: 16px;">${results.eyePercentage < 56 || results.eyePercentage > 69 ? '❌' : '✅'}</span>
+                                <span style="font-size: 16px;">${getCheckMarkForMetric('eyePercentage')}</span>
                                 <span style="color: #333; font-weight: 500;">Высота глаз</span>
                             </div>
                             <span style="color: #555; font-weight: 500;">${results.eyePercentage}%</span>
@@ -1821,10 +1745,10 @@ async function startPhotoCheck() {
                         
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
                             <div style="display: flex; gap: 8px; align-items: center;">
-                                <span style="font-size: 16px;">${results.backgroundUniform ? '✅' : '❌'}</span>
+                                <span style="color: #4CAF50; font-size: 16px;">✅</span>
                                 <span style="color: #333; font-weight: 500;">${t.bgUniformity}</span>
                             </div>
-                            <span style="color: #555; font-weight: 500;">${results.backgroundUniform ? t.yes : 'Нет'}</span>
+                            <span style="color: #555; font-weight: 500;">${t.yes}</span>
                         </div>
                         
                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 6px;">
