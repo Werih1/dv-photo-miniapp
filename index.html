@@ -736,16 +736,27 @@ body {
 
         async function loadMediaPipe() {
             if (mpInstance) return mpInstance;
-            const vision = window.Vision;
-            if (!vision) throw new Error('MediaPipe not loaded');
-            // BlazePose: best for head crown/ear/jaw detection
-            mpInstance = await vision.createDetector('BlazePose', {
-                delegate: 'wasm',
-                selfieMode: false,
-                modelType: 'full',
-                runningMode: 'IMAGE'
-            });
-            return mpInstance;
+            try {
+                // Попытка использовать MediaPipe если загружена
+                if (window.poseDetection && window.poseDetection.createDetector) {
+                    mpInstance = await window.poseDetection.createDetector(
+                        window.poseDetection.SupportedModels.BlazePose,
+                        {
+                            runtime: 'tfjs',
+                            enableSmoothing: true,
+                            modelType: 'full'
+                        }
+                    );
+                    console.log('✅ MediaPipe BlazePose loaded');
+                    return mpInstance;
+                } else {
+                    console.warn('⚠️ MediaPipe not available, using face-api only');
+                    return null;
+                }
+            } catch (error) {
+                console.warn('⚠️ MediaPipe warning:', error.message);
+                return null;
+            }
         }
 
         async function loadModels() {
@@ -840,28 +851,25 @@ body {
                 // Mediapipe (head/body) load and inference
                 document.getElementById('loadingText').textContent = t.detectingFace;
                 const mp = await loadMediaPipe();
-                const mpPersons = await mp.detect(offCanvas);
-                let mpKeypoints = [], headContour = [], mpHeadTopY = null;
-                let mpDetection = null;
-                if (mpPersons && mpPersons.length > 0) {
-                    mpDetection = mpPersons[0];
-                    mpKeypoints = mpDetection.keypoints || [];
-                    // Get head (face/ears/crown) keypoints
-                    headContour = mpKeypoints.filter(kp => kp.name && (
-                        kp.name.indexOf('left_ear') !== -1 ||
-                        kp.name.indexOf('right_ear') !== -1 ||
-                        kp.name.indexOf('nose') !== -1 ||
-                        kp.name.indexOf('left_eye') !== -1 ||
-                        kp.name.indexOf('right_eye') !== -1 ||
-                        kp.name.indexOf('mouth') !== -1 ||
-                        kp.name.indexOf('chin') !== -1 ||
-                        kp.name.indexOf('head') !== -1 ||
-                        kp.name.indexOf('face') !== -1 ||
-                        kp.name.indexOf('top_head') !== -1 ||
-                        kp.name.indexOf('forehead') !== -1
-                    ));
-                    // Find the highest Y point: the crown
-                    mpHeadTopY = Math.min(...headContour.map(pt => pt.y));
+                let mpHeadTopY = null;
+
+                // Безопасная обработка MediaPipe (с fallback если не загружена)
+                if (mp) {
+                    try {
+                        const mpPersons = await mp.estimatePoses(offCanvas, false);
+                        if (mpPersons && mpPersons.length > 0) {
+                            const poses = mpPersons[0].keypoints || [];
+                            // Найдём верхнюю точку (макушку) через поиск самой верхней точки
+                            const allYs = poses.map(p => p.y).filter(y => y > 0);
+                            if (allYs.length > 0) {
+                                mpHeadTopY = Math.min(...allYs);
+                                console.log('✅ MediaPipe head top found:', mpHeadTopY);
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('⚠️ MediaPipe detection skipped:', e.message);
+                        // Продолжаем с face-api (fallback)
+                    }
                 }
 
                 // 2. Run face-api after
@@ -976,13 +984,12 @@ body {
                         eyeLevel = (mpEyes[0].y + mpEyes[1].y) / 2;
                     }
                 }
-            } else if (detection && detection.landmarks) {
+            } else if (detection) {
                 const landmarks = detection.landmarks;
-                if (landmarks.positions) {
-                    topOfHead = Math.min(...landmarks.positions.map(p => p.y));
-                }
-                if (landmarks.getJawOutline) {
-                    const jawline = landmarks.getJawOutline();
+                const positions = landmarks.positions;
+                // classic fallback - not recommended
+                topOfHead = Math.min(...positions.map(p => p.y));
+                const jawline = landmarks.getJawOutline();
                 chin = Math.max(...jawline.map(p => p.y));
                 const leftEye = landmarks.getLeftEye();
                 const rightEye = landmarks.getRightEye();
@@ -1137,11 +1144,10 @@ body {
             }
 
             // Draw face-api classic 68 pts as magenta
-            if (detection && detection.landmarks) {
+            if (detection) {
                 ctx.fillStyle = '#FFC185';
                 const landmarks = detection.landmarks;
-                if (landmarks.positions) {
-                    landmarks.positions.forEach(p => {
+                landmarks.positions.forEach(p => {
                     ctx.beginPath();
                     ctx.arc(p.x * scale, p.y * scale, 1.8, 0, 2 * Math.PI);
                     ctx.fill();
