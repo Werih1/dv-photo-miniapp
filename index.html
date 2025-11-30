@@ -879,15 +879,15 @@ body {
                 document.getElementById('loadingText').textContent = t.analyzingPhoto;
 
                 // Validate
-                const validation = validateImage(img, detection, file, metadata, mpDetection, mpHeadTopY);
+                const validation = validateImage(img, detection, file, metadata, mpHeadTopY);
 
-                detectionResult = { img, detection, validation, metadata, file, mpDetection, mpKeypoints, mpHeadTopY, headContour };
-                displayResults(img, detection, validation, metadata, mpDetection, mpKeypoints, mpHeadTopY, headContour);
+                detectionResult = { img, detection, validation, metadata, file, mpHeadTopY };
+                displayResults(img, detection, validation, metadata, mpHeadTopY);
 
                 document.getElementById('loadingIndicator').classList.add('hidden');
                 document.getElementById('resultsGrid').classList.remove('hidden');
                 if (validation.allPassed) {
-                    await generateCroppedImage(img, detection, mpDetection, mpHeadTopY);
+                    await generateCroppedImage(img, detection, mpHeadTopY);
                 }
             } catch (error) {
                 console.error('Error processing image:', error);
@@ -929,7 +929,7 @@ body {
             return metadata;
         }
 
-        function validateImage(img, detection, file, metadata, mpDetection, mpHeadTopY) {
+        function validateImage(img, detection, file, metadata, mpHeadTopY) {
             const validation = {
                 faceDetected: false,
                 fileFormat: false,
@@ -960,7 +960,7 @@ body {
                 topOfHead = mpHeadTopY;
                 // chin from Mediapipe or face-api (use whichever is lower)
                 let mpChinPoint = null;
-                if (mpDetection.keypoints) {
+                if (false) {
                     const chinPts = mpDetection.keypoints.filter(kp => kp.name && kp.name.includes('chin'));
                     if (chinPts.length > 0) {
                         mpChinPoint = Math.max(...chinPts.map(pt => pt.y));
@@ -1097,14 +1097,14 @@ body {
             return avgBrightness > 200;
         }
 
-        function displayResults(img, detection, validation, metadata, mpDetection, mpKeypoints, mpHeadTopY, headContour) {
+        function displayResults(img, detection, validation, metadata, mpHeadTopY) {
             // Draw all overlays
-            drawDetectionCanvas(img, detection, mpDetection, mpKeypoints, mpHeadTopY, headContour);
+            drawDetectionCanvas(img, detection, mpHeadTopY);
             displayMetadata(metadata, validation.details);
             displayValidationResults(validation);
         }
 
-        function drawDetectionCanvas(img, detection, mpDetection, mpKeypoints, mpHeadTopY, headContour) {
+        function drawDetectionCanvas(img, detection, mpHeadTopY) {
             // All drawing in SAME canvas for proper overlays
             const canvas = document.getElementById('detectionCanvas');
             const displayWidth = Math.min(600, img.width);
@@ -1173,7 +1173,7 @@ body {
                     eyeY = (mpEyes[0].y + mpEyes[1].y) / 2 * scale;
                 }
             }
-            if (false) {
+            if (mpDetection && mpDetection.keypoints) {
                 // Use whichever is lower (more towards the bottom), face-api chin or mediapipe chin
                 let mediapipeChin = null;
                 const chins = mpDetection.keypoints.filter(kp => kp.name && kp.name.includes('chin'));
@@ -1335,14 +1335,14 @@ body {
             `).join('');
         }
 
-        async function generateCroppedImage(img, detection, mpDetection, mpHeadTopY) {
+        async function generateCroppedImage(img, detection, mpHeadTopY) {
             // Crop by MediaPipe crown and chin if available, fallback to face-api
             let topOfHead = undefined, chin = undefined, centerX = undefined, centerY = undefined;
             if (false) {
                 topOfHead = mpHeadTopY;
                 // chin from mediapipe or face-api (use whichever is lower)
                 let mpChin = null;
-                if (mpDetection.keypoints) {
+                if (false) {
                     const chins = mpDetection.keypoints.filter(kp => kp.name && kp.name.includes('chin'));
                     if (chins.length > 0) mpChin = Math.max(...chins.map(pt => pt.y));
                 }
