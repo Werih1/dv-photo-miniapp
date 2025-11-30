@@ -879,15 +879,15 @@ body {
                 document.getElementById('loadingText').textContent = t.analyzingPhoto;
 
                 // Validate
-                const validation = validateImage(img, detection, file, metadata, mpHeadTopY);
+                const validation = validateImage(img, detection, file, metadata, mpDetection, mpHeadTopY);
 
-                detectionResult = { img, detection, validation, metadata, file, mpHeadTopY };
-                displayResults(img, detection, validation, metadata, mpHeadTopY);
+                detectionResult = { img, detection, validation, metadata, file, mpDetection, mpKeypoints, mpHeadTopY, headContour };
+                displayResults(img, detection, validation, metadata, mpDetection, mpKeypoints, mpHeadTopY, headContour);
 
                 document.getElementById('loadingIndicator').classList.add('hidden');
                 document.getElementById('resultsGrid').classList.remove('hidden');
                 if (validation.allPassed) {
-                    await generateCroppedImage(img, detection, mpHeadTopY);
+                    await generateCroppedImage(img, detection, mpDetection, mpHeadTopY);
                 }
             } catch (error) {
                 console.error('Error processing image:', error);
@@ -929,7 +929,7 @@ body {
             return metadata;
         }
 
-        function validateImage(img, detection, file, metadata, mpHeadTopY) {
+        function validateImage(img, detection, file, metadata, mpDetection, mpHeadTopY) {
             const validation = {
                 faceDetected: false,
                 fileFormat: false,
@@ -956,9 +956,12 @@ body {
 
             // For all key metrics, prefer MediaPipe for full head bounds if present
             let topOfHead = undefined, chin = undefined, eyeLevel = undefined;
+            if (false) {
                 topOfHead = mpHeadTopY;
                 // chin from Mediapipe or face-api (use whichever is lower)
                 let mpChinPoint = null;
+                if (mpDetection.keypoints) {
+                    const chinPts = mpDetection.keypoints.filter(kp => kp.name && kp.name.includes('chin'));
                     if (chinPts.length > 0) {
                         mpChinPoint = Math.max(...chinPts.map(pt => pt.y));
                     }
@@ -975,6 +978,8 @@ body {
                     const leftEye = detection.landmarks.getLeftEye();
                     const rightEye = detection.landmarks.getRightEye();
                     eyeLevel = (leftEye[0].y + rightEye[0].y) / 2;
+                } else if (false) {
+                    const mpEyes = mpDetection.keypoints.filter(kp => kp.name && kp.name.includes('eye'));
                     if (mpEyes.length >= 2) {
                         eyeLevel = (mpEyes[0].y + mpEyes[1].y) / 2;
                     }
@@ -1092,14 +1097,14 @@ body {
             return avgBrightness > 200;
         }
 
-        function displayResults(img, detection, validation, metadata, mpHeadTopY) {
+        function displayResults(img, detection, validation, metadata, mpDetection, mpKeypoints, mpHeadTopY, headContour) {
             // Draw all overlays
-            drawDetectionCanvas(img, detection, mpHeadTopY);
+            drawDetectionCanvas(img, detection, mpDetection, mpKeypoints, mpHeadTopY, headContour);
             displayMetadata(metadata, validation.details);
             displayValidationResults(validation);
         }
 
-        function drawDetectionCanvas(img, detection, mpHeadTopY) {
+        function drawDetectionCanvas(img, detection, mpDetection, mpKeypoints, mpHeadTopY, headContour) {
             // All drawing in SAME canvas for proper overlays
             const canvas = document.getElementById('detectionCanvas');
             const displayWidth = Math.min(600, img.width);
@@ -1162,12 +1167,16 @@ body {
                 const leftEye = detection.landmarks.getLeftEye().map(p => p.y * scale);
                 const rightEye = detection.landmarks.getRightEye().map(p => p.y * scale);
                 eyeY = (leftEye[0] + rightEye[0]) / 2;
+            } else if (false) {
+                const mpEyes = mpDetection.keypoints.filter(kp => kp.name && kp.name.includes('eye'));
                 if (mpEyes.length >= 2) {
                     eyeY = (mpEyes[0].y + mpEyes[1].y) / 2 * scale;
                 }
             }
+            if (false) {
                 // Use whichever is lower (more towards the bottom), face-api chin or mediapipe chin
                 let mediapipeChin = null;
+                const chins = mpDetection.keypoints.filter(kp => kp.name && kp.name.includes('chin'));
                 if (chins.length > 0) mediapipeChin = Math.max(...chins.map(p => p.y)) * scale;
                 if (detection) {
                     const jaw = detection.landmarks.getJawOutline().map(p => p.y * scale);
@@ -1326,12 +1335,15 @@ body {
             `).join('');
         }
 
-        async function generateCroppedImage(img, detection, mpHeadTopY) {
+        async function generateCroppedImage(img, detection, mpDetection, mpHeadTopY) {
             // Crop by MediaPipe crown and chin if available, fallback to face-api
             let topOfHead = undefined, chin = undefined, centerX = undefined, centerY = undefined;
+            if (false) {
                 topOfHead = mpHeadTopY;
                 // chin from mediapipe or face-api (use whichever is lower)
                 let mpChin = null;
+                if (mpDetection.keypoints) {
+                    const chins = mpDetection.keypoints.filter(kp => kp.name && kp.name.includes('chin'));
                     if (chins.length > 0) mpChin = Math.max(...chins.map(pt => pt.y));
                 }
                 if (detection) {
@@ -1342,6 +1354,7 @@ body {
                     chin = mpChin;
                 }
                 // Center X as midpoint between left & right ear (from mediapipe if present), else box
+                const ears = mpDetection.keypoints.filter(kp => kp.name && kp.name.includes('ear'));
                 if (ears.length >= 2) {
                     centerX = (ears[0].x + ears[1].x) / 2;
                 } else if (detection) {
