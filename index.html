@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Green Card Photo Validator - MediaPipe</title>
+    <title>Green Card Photo Validator</title>
     <style>
         :root {
             --color-primary: #218d8d;
@@ -44,6 +44,48 @@
         
         .header p {
             color: #666;
+        }
+        
+        .status-bar {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .status-bar.loading {
+            border-left: 4px solid var(--color-warning);
+        }
+        
+        .status-bar.success {
+            border-left: 4px solid var(--color-success);
+        }
+        
+        .status-bar.error {
+            border-left: 4px solid var(--color-error);
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--color-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .status-bar.success .spinner {
+            display: none;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         .upload-area {
@@ -169,28 +211,6 @@
             padding: 5px 0;
         }
         
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: #666;
-        }
-        
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid var(--color-primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 10px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
         .download-btn {
             background: var(--color-success);
             color: white;
@@ -213,6 +233,14 @@
             cursor: not-allowed;
         }
         
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+        
         @media (max-width: 768px) {
             .content {
                 grid-template-columns: 1fr;
@@ -227,15 +255,15 @@
             <p>Проверка соответствия фотографии требованиям лотереи</p>
         </div>
         
-        <div class="upload-area" id="uploadArea">
+        <div class="status-bar loading" id="statusBar">
+            <div class="spinner"></div>
+            <span id="statusText">Загрузка моделей распознавания лиц... (это может занять время)</span>
+        </div>
+        
+        <div class="upload-area" id="uploadArea" style="display: none;">
             <p>Перетащите изображение или нажмите для выбора</p>
             <button class="upload-btn">Выбрать фото</button>
             <input type="file" id="fileInput" accept="image/*">
-        </div>
-        
-        <div id="loadingDiv" class="loading" style="display: none;">
-            <div class="spinner"></div>
-            Загрузка моделей MediaPipe...
         </div>
         
         <div class="content" id="contentDiv" style="display: none;">
@@ -243,7 +271,7 @@
                 <h3>Анализ лица (распознавание верхней точки)</h3>
                 <canvas id="detectionCanvas"></canvas>
                 <p style="margin-top: 10px; font-size: 12px; color: #666;">
-                    Желтая линия (top): верхняя точка головы<br>
+                    Желтая линия (TOP): верхняя точка головы<br>
                     Зеленая линия: уровень глаз<br>
                     Красная линия: подбородок
                 </p>
@@ -265,10 +293,6 @@
                         <span>Ширина лица:</span>
                         <span id="faceWidthPercent">-</span>
                     </div>
-                    <div class="metadata-item">
-                        <span>Дата фото:</span>
-                        <span id="photoDate">-</span>
-                    </div>
                 </div>
                 
                 <div id="validationResults">
@@ -285,41 +309,48 @@
         </div>
     </div>
 
-    <!-- MediaPipe Face Mesh -->
-    <script async src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.4.1646424915/camera_utils.js"></script>
-    <script async src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils@0.4.1646424915/control_utils.js"></script>
-    <script async src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.4.1646424915/drawing_utils.js"></script>
-    <script async src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation@0.4.1646424915/selfie_segmentation.js"></script>
-    <script async src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1646424915/face_mesh.js"></script>
+    <!-- Загрузка face-api.js вместо MediaPipe для надежности -->
+    <script async src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
 
     <script>
         const fileInput = document.getElementById('fileInput');
         const uploadArea = document.getElementById('uploadArea');
-        const loadingDiv = document.getElementById('loadingDiv');
+        const statusBar = document.getElementById('statusBar');
+        const statusText = document.getElementById('statusText');
         const contentDiv = document.getElementById('contentDiv');
         const detectionCanvas = document.getElementById('detectionCanvas');
         const downloadBtn = document.getElementById('downloadBtn');
         
-        let faceMesh;
-        let currentImage = null;
-        let currentImageData = null;
+        let modelsLoaded = false;
         
-        // Инициализация MediaPipe Face Mesh
-        async function initializeMediaPipe() {
-            faceMesh = new window.FaceMesh({
-                locateFile: (file) => {
-                    return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4.1646424915/${file}`;
-                }
-            });
-            
-            faceMesh.setOptions({
-                maxNumFaces: 1,
-                refineLandmarks: true,
-                minDetectionConfidence: 0.5,
-                minTrackingConfidence: 0.5
-            });
-            
-            console.log('MediaPipe Face Mesh инициализирован');
+        // Инициализация моделей face-api
+        async function initializeFaceApi() {
+            try {
+                statusText.textContent = 'Загрузка моделей распознавания лиц...';
+                
+                const MODEL_URL = 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights/';
+                
+                await Promise.all([
+                    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceDetectionNet.loadFromUri(MODEL_URL),
+                ]);
+                
+                modelsLoaded = true;
+                statusBar.className = 'status-bar success';
+                statusText.textContent = '✓ Модели загружены. Готово к использованию.';
+                uploadArea.style.display = 'block';
+                
+                setTimeout(() => {
+                    statusBar.style.display = 'none';
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Ошибка при загрузке моделей:', error);
+                statusBar.className = 'status-bar error';
+                statusText.textContent = '✗ Ошибка загрузки моделей. Обновите страницу.';
+            }
         }
         
         // Загрузка и обработка изображения
@@ -331,15 +362,21 @@
             reader.onload = (event) => {
                 const img = new Image();
                 img.onload = async () => {
-                    currentImage = img;
-                    contentDiv.style.display = 'none';
-                    loadingDiv.style.display = 'block';
+                    uploadArea.style.display = 'none';
+                    statusBar.style.display = 'flex';
+                    statusBar.className = 'status-bar loading';
+                    statusText.textContent = 'Анализ фото...';
                     
-                    // Обработка изображения
-                    await processImage(img);
-                    
-                    loadingDiv.style.display = 'none';
-                    contentDiv.style.display = 'grid';
+                    try {
+                        await processImage(img);
+                        statusBar.style.display = 'none';
+                        contentDiv.style.display = 'grid';
+                    } catch (error) {
+                        console.error('Ошибка при обработке:', error);
+                        statusBar.className = 'status-bar error';
+                        statusText.textContent = '✗ Ошибка: лицо не обнаружено. Попробуйте другое фото.';
+                        uploadArea.style.display = 'block';
+                    }
                 };
                 img.src = event.target.result;
             };
@@ -348,63 +385,76 @@
         
         // Основная функция обработки изображения
         async function processImage(img) {
-            // Создаем canvas для обработки
+            // Создаем временный canvas для анализа
             const canvas = document.createElement('canvas');
             canvas.width = img.width;
             canvas.height = img.height;
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0);
             
-            // Запускаем детекцию лица
-            const results = await faceMesh.send({ image: canvas });
+            // Детекция лица
+            const detections = await faceapi
+                .detectAllFaces(canvas)
+                .withFaceLandmarks()
+                .withFaceExpressions();
             
-            // Если лицо найдено
-            if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
-                const landmarks = results.multiFaceLandmarks[0];
-                
-                // Получаем ключевые точки
-                const topOfHead = landmarks[10]; // Верхняя часть головы
-                const chin = landmarks[152];      // Подбородок
-                const leftEye = landmarks[33];    // Левый глаз
-                const rightEye = landmarks[263];  // Правый глаз
-                const leftCheek = landmarks[234]; // Левая щека
-                const rightCheek = landmarks[454]; // Правая щека
-                
-                // Вычисляем измерения в пикселях
-                const headHeight = (chin.y - topOfHead.y) * img.height;
-                const faceWidth = (rightCheek.x - leftCheek.x) * img.width;
-                const eyeLevel = ((leftEye.y + rightEye.y) / 2) * img.height;
-                
-                // Вычисляем процентные значения
-                const headHeightPercent = (headHeight / img.height) * 100;
-                const eyePositionPercent = (eyeLevel / img.height) * 100;
-                const faceWidthPercent = (faceWidth / img.width) * 100;
-                
-                // Выполняем проверки
-                const validation = validatePhoto(
-                    headHeightPercent,
-                    eyePositionPercent,
-                    faceWidthPercent
-                );
-                
-                // Отрисовываем результаты
-                drawDetectionCanvas(img, landmarks, topOfHead, chin, leftEye, rightEye);
-                
-                // Выводим результаты
-                displayResults(
-                    validation,
-                    headHeightPercent,
-                    eyePositionPercent,
-                    faceWidthPercent
-                );
-            } else {
-                alert('Лицо не обнаружено. Попробуйте другое фото.');
-                contentDiv.style.display = 'none';
+            if (!detections || detections.length === 0) {
+                throw new Error('Лицо не найдено');
             }
+            
+            const detection = detections[0];
+            const landmarks = detection.landmarks;
+            
+            // Получаем ключевые точки (68 ориентиров face-api)
+            const jaw = landmarks.getJawOutline();
+            const nose = landmarks.getNose();
+            const leftEye = landmarks.getLeftEye();
+            const rightEye = landmarks.getRightEye();
+            
+            // Определяем верхнюю точку головы
+            // Берем самую высокую точку лица (минимальный Y)
+            const allPoints = landmarks.positions;
+            const topOfHead = {
+                x: allPoints.reduce((p1, p2) => p1.x + p2.x) / allPoints.length,
+                y: Math.min(...allPoints.map(p => p.y))
+            };
+            
+            // Нижняя точка (подбородок)
+            const chin = jaw[jaw.length - 1];
+            
+            // Уровень глаз
+            const eyeLevel = (leftEye[1].y + rightEye[1].y) / 2;
+            
+            // Вычисляем измерения в пикселях
+            const headHeight = chin.y - topOfHead.y;
+            const faceWidth = Math.max(...allPoints.map(p => p.x)) - Math.min(...allPoints.map(p => p.x));
+            
+            // Вычисляем процентные значения
+            const headHeightPercent = (headHeight / img.height) * 100;
+            const eyePositionPercent = (eyeLevel / img.height) * 100;
+            const faceWidthPercent = (faceWidth / img.width) * 100;
+            
+            // Выполняем проверки
+            const validation = validatePhoto(
+                headHeightPercent,
+                eyePositionPercent,
+                faceWidthPercent
+            );
+            
+            // Отрисовываем результаты
+            drawDetectionCanvas(img, topOfHead, chin, eyeLevel);
+            
+            // Выводим результаты
+            displayResults(
+                validation,
+                headHeightPercent,
+                eyePositionPercent,
+                faceWidthPercent
+            );
         }
         
         // Отрисовка canvas с результатами
-        function drawDetectionCanvas(img, landmarks, topOfHead, chin, leftEye, rightEye) {
+        function drawDetectionCanvas(img, topOfHead, chin, eyeLevel) {
             const displayWidth = Math.min(600, img.width);
             const scale = displayWidth / img.width;
             
@@ -414,10 +464,10 @@
             const ctx = detectionCanvas.getContext('2d');
             ctx.drawImage(img, 0, 0, detectionCanvas.width, detectionCanvas.height);
             
-            // Преобразуем координаты landmarks в пиксели
-            const topY = topOfHead.y * img.height * scale;
-            const chinY = chin.y * img.height * scale;
-            const eyeLevelY = ((leftEye.y + rightEye.y) / 2) * img.height * scale;
+            // Преобразуем координаты в пиксели с учетом масштаба
+            const topY = topOfHead.y * scale;
+            const chinY = chin.y * scale;
+            const eyeLevelY = eyeLevel * scale;
             
             // Рисуем линии (как в ASTAR)
             ctx.lineWidth = 3;
@@ -452,16 +502,6 @@
             ctx.fillText('CHIN', 10, chinY - 8);
             
             ctx.setLineDash([]);
-            
-            // Отрисовываем точки лица
-            ctx.fillStyle = 'rgba(0, 255, 255, 0.5)';
-            landmarks.forEach(landmark => {
-                const x = landmark.x * img.width * scale;
-                const y = landmark.y * img.height * scale;
-                ctx.beginPath();
-                ctx.arc(x, y, 2, 0, 2 * Math.PI);
-                ctx.fill();
-            });
         }
         
         // Проверка соответствия требованиям
@@ -498,7 +538,6 @@
                 `${eyePositionPercent.toFixed(1)}% (требуется 56-69%)`;
             document.getElementById('faceWidthPercent').textContent = 
                 `${faceWidthPercent.toFixed(1)}% (требуется 50-69%)`;
-            document.getElementById('photoDate').textContent = 'Актуальное фото';
             
             const validationHtml = `
                 <div class="check-item">
@@ -552,9 +591,7 @@
         
         // Инициализация при загрузке страницы
         window.addEventListener('load', async () => {
-            loadingDiv.style.display = 'block';
-            await initializeMediaPipe();
-            loadingDiv.style.display = 'none';
+            await initializeFaceApi();
         });
     </script>
 </body>
