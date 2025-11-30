@@ -843,7 +843,7 @@ body {
                 const mpPersons = await mp.detect(offCanvas);
                 let mpHeadTopY = null;
                 if (mpPersons && mpPersons.length > 0) {
-                    // Removed mpDetection usage
+                    // Using face-api only
                         kp.name.indexOf('left_ear') !== -1 ||
                         kp.name.indexOf('right_ear') !== -1 ||
                         kp.name.indexOf('nose') !== -1 ||
@@ -948,12 +948,7 @@ body {
                 topOfHead = mpHeadTopY;
                 // chin from Mediapipe or face-api (use whichever is lower)
                 let mpChinPoint = null;
-                if (mpDetection.keypoints) {
-                    const chinPts = mpDetection.keypoints.filter(kp => kp.name && kp.name.includes('chin'));
-                    if (chinPts.length > 0) {
-                        mpChinPoint = Math.max(...chinPts.map(pt => pt.y));
-                    }
-                }
+                // MediaPipe data removed
                 if (detection) {
                     const jawline = detection.landmarks.getJawOutline();
                     const faChin = Math.max(...jawline.map(p => p.y));
@@ -966,10 +961,7 @@ body {
                     const leftEye = detection.landmarks.getLeftEye();
                     const rightEye = detection.landmarks.getRightEye();
                     eyeLevel = (leftEye[0].y + rightEye[0].y) / 2;
-                } else // MediaPipe data removed
-                    const mpEyes = mpDetection.keypoints.filter(kp => kp.name && kp.name.includes('eye'));
-                    if (mpEyes.length >= 2) {
-                        eyeLevel = (mpEyes[0].y + mpEyes[1].y) / 2;
+                }
                     }
                 }
             } else if (detection) {
@@ -1155,16 +1147,13 @@ body {
                 const leftEye = detection.landmarks.getLeftEye().map(p => p.y * scale);
                 const rightEye = detection.landmarks.getRightEye().map(p => p.y * scale);
                 eyeY = (leftEye[0] + rightEye[0]) / 2;
-            } else // MediaPipe data removed
-                const mpEyes = mpDetection.keypoints.filter(kp => kp.name && kp.name.includes('eye'));
-                if (mpEyes.length >= 2) {
-                    eyeY = (mpEyes[0].y + mpEyes[1].y) / 2 * scale;
+            }
                 }
             }
             // MediaPipe data removed
                 // Use whichever is lower (more towards the bottom), face-api chin or mediapipe chin
                 let mediapipeChin = null;
-                const chins = mpDetection.keypoints.filter(kp => kp.name && kp.name.includes('chin'));
+                // Removed
                 if (chins.length > 0) mediapipeChin = Math.max(...chins.map(p => p.y)) * scale;
                 if (detection) {
                     const jaw = detection.landmarks.getJawOutline().map(p => p.y * scale);
@@ -1330,9 +1319,8 @@ body {
                 topOfHead = mpHeadTopY;
                 // chin from mediapipe or face-api (use whichever is lower)
                 let mpChin = null;
-                if (mpDetection.keypoints) {
-                    const chins = mpDetection.keypoints.filter(kp => kp.name && kp.name.includes('chin'));
-                    if (chins.length > 0) mpChin = Math.max(...chins.map(pt => pt.y));
+                if (false) {
+                    // Removed
                 }
                 if (detection) {
                     const jaw = detection.landmarks.getJawOutline();
@@ -1342,7 +1330,7 @@ body {
                     chin = mpChin;
                 }
                 // Center X as midpoint between left & right ear (from mediapipe if present), else box
-                const ears = mpDetection.keypoints.filter(kp => kp.name && kp.name.includes('ear'));
+                // Removed
                 if (ears.length >= 2) {
                     centerX = (ears[0].x + ears[1].x) / 2;
                 } else if (detection) {
