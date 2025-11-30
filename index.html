@@ -233,14 +233,6 @@
             cursor: not-allowed;
         }
         
-        .error-message {
-            background: #ffebee;
-            color: #c62828;
-            padding: 15px;
-            border-radius: 6px;
-            margin-top: 10px;
-        }
-        
         @media (max-width: 768px) {
             .content {
                 grid-template-columns: 1fr;
@@ -257,7 +249,7 @@
         
         <div class="status-bar loading" id="statusBar">
             <div class="spinner"></div>
-            <span id="statusText">Загрузка моделей распознавания лиц... (это может занять время)</span>
+            <span id="statusText">Загрузка моделей распознавания лиц...</span>
         </div>
         
         <div class="upload-area" id="uploadArea" style="display: none;">
@@ -309,8 +301,8 @@
         </div>
     </div>
 
-    <!-- Загрузка face-api.js вместо MediaPipe для надежности -->
-    <script async src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <!-- Загрузка face-api.js из локальной папки -->
+    <script src="./js/face-api.min.js"></script>
 
     <script>
         const fileInput = document.getElementById('fileInput');
@@ -328,13 +320,14 @@
             try {
                 statusText.textContent = 'Загрузка моделей распознавания лиц...';
                 
-                const MODEL_URL = 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights/';
+                // Путь к локальным моделям
+                const MODEL_URL = './weights/';
                 
                 await Promise.all([
-                    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceDetectionNet.loadFromUri(MODEL_URL),
                     faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
                     faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL),
-                    faceapi.nets.faceDetectionNet.loadFromUri(MODEL_URL),
+                    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
                 ]);
                 
                 modelsLoaded = true;
@@ -349,7 +342,7 @@
             } catch (error) {
                 console.error('Ошибка при загрузке моделей:', error);
                 statusBar.className = 'status-bar error';
-                statusText.textContent = '✗ Ошибка загрузки моделей. Обновите страницу.';
+                statusText.textContent = '✗ Ошибка загрузки моделей. Проверьте, что файлы weights/ находятся в одной папке с index.html';
             }
         }
         
@@ -407,7 +400,6 @@
             
             // Получаем ключевые точки (68 ориентиров face-api)
             const jaw = landmarks.getJawOutline();
-            const nose = landmarks.getNose();
             const leftEye = landmarks.getLeftEye();
             const rightEye = landmarks.getRightEye();
             
