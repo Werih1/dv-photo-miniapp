@@ -976,7 +976,7 @@ body {
                         eyeLevel = (mpEyes[0].y + mpEyes[1].y) / 2;
                     }
                 }
-            } else if (detection && detection.landmarks) {
+            } else if (detection) {
                 const landmarks = detection.landmarks;
                 const positions = landmarks.positions;
                 // classic fallback - not recommended
@@ -1136,7 +1136,7 @@ body {
             }
 
             // Draw face-api classic 68 pts as magenta
-            if (detection && detection.landmarks) {
+            if (detection) {
                 ctx.fillStyle = '#FFC185';
                 const landmarks = detection.landmarks;
                 landmarks.positions.forEach(p => {
@@ -1355,7 +1355,7 @@ body {
                     centerX = img.width / 2;
                 }
                 centerY = (topOfHead + chin) / 2;
-            } else if (detection && detection.landmarks) {
+            } else if (detection) {
                 const landmarks = detection.landmarks;
                 topOfHead = Math.min(...landmarks.positions.map(p => p.y));
                 const jawline = landmarks.getJawOutline();
