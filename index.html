@@ -881,8 +881,8 @@ body {
                 // Validate
                 const validation = validateImage(img, detection, file, metadata, mpHeadTopY);
 
-                detectionResult = { img, detection, validation, metadata, file, mpKeypoints, mpHeadTopY, headContour };
-                displayResults(img, detection, validation, metadata, mpKeypoints, mpHeadTopY, headContour);
+                detectionResult = { img, detection, validation, metadata, file, mpHeadTopY };
+                displayResults(img, detection, validation, metadata, mpHeadTopY);
 
                 document.getElementById('loadingIndicator').classList.add('hidden');
                 document.getElementById('resultsGrid').classList.remove('hidden');
@@ -1097,14 +1097,14 @@ body {
             return avgBrightness > 200;
         }
 
-        function displayResults(img, detection, validation, metadata, mpKeypoints, mpHeadTopY, headContour) {
+        function displayResults(img, detection, validation, metadata, mpHeadTopY) {
             // Draw all overlays
-            drawDetectionCanvas(img, detection, mpKeypoints, mpHeadTopY, headContour);
+            drawDetectionCanvas(img, detection, mpHeadTopY);
             displayMetadata(metadata, validation.details);
             displayValidationResults(validation);
         }
 
-        function drawDetectionCanvas(img, detection, mpKeypoints, mpHeadTopY, headContour) {
+        function drawDetectionCanvas(img, detection, mpHeadTopY) {
             // All drawing in SAME canvas for proper overlays
             const canvas = document.getElementById('detectionCanvas');
             const displayWidth = Math.min(600, img.width);
