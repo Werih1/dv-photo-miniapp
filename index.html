@@ -737,7 +737,6 @@ body {
         async function loadMediaPipe() {
             if (mpInstance) return mpInstance;
             try {
-                // Попытка загрузить MediaPipe если доступна
                 if (window.poseDetection && window.poseDetection.createDetector) {
                     mpInstance = await window.poseDetection.createDetector(
                         window.poseDetection.SupportedModels.BlazePose,
@@ -747,15 +746,15 @@ body {
                             modelType: 'full'
                         }
                     );
-                    console.log('✅ MediaPipe loaded successfully');
+                    console.log('✅ MediaPipe loaded');
                     return mpInstance;
                 } else {
-                    console.log('ℹ️ MediaPipe not available, will use face-api only');
-                    return null;  // ✅ Возвращаем null вместо ошибки!
+                    console.log('ℹ️ MediaPipe unavailable - using face-api');
+                    return null;
                 }
             } catch (error) {
-                console.warn('⚠️ MediaPipe loading failed:', error.message);
-                return null;  // ✅ Возвращаем null при ошибке!
+                console.log('ℹ️ MediaPipe unavailable - using face-api');
+                return null;
             }
         }
 
@@ -851,28 +850,25 @@ body {
                 // Mediapipe (head/body) load and inference
                 document.getElementById('loadingText').textContent = t.detectingFace;
                 const mp = await loadMediaPipe();
-                const mpPersons = await mp.detect(offCanvas);
-                let mpKeypoints = [], headContour = [], mpHeadTopY = null;
-                let mpDetection = null;
-                if (mpPersons && mpPersons.length > 0) {
-                    mpDetection = mpPersons[0];
-                    mpKeypoints = mpDetection.keypoints || [];
-                    // Get head (face/ears/crown) keypoints
-                    headContour = mpKeypoints.filter(kp => kp.name && (
-                        kp.name.indexOf('left_ear') !== -1 ||
-                        kp.name.indexOf('right_ear') !== -1 ||
-                        kp.name.indexOf('nose') !== -1 ||
-                        kp.name.indexOf('left_eye') !== -1 ||
-                        kp.name.indexOf('right_eye') !== -1 ||
-                        kp.name.indexOf('mouth') !== -1 ||
-                        kp.name.indexOf('chin') !== -1 ||
-                        kp.name.indexOf('head') !== -1 ||
-                        kp.name.indexOf('face') !== -1 ||
-                        kp.name.indexOf('top_head') !== -1 ||
-                        kp.name.indexOf('forehead') !== -1
-                    ));
-                    // Find the highest Y point: the crown
-                    mpHeadTopY = Math.min(...headContour.map(pt => pt.y));
+                let mpHeadTopY = null;
+
+                // ✅ БЕЗОПАСНАЯ обработка MediaPipe
+                if (mp) {
+                    try {
+                        const mpPersons = await mp.estimatePoses(offCanvas, false);
+                        if (mpPersons && mpPersons.length > 0) {
+                            const poses = mpPersons[0].keypoints || [];
+                            const yCoords = poses.map(p => p.y).filter(y => y > 0);
+                            if (yCoords.length > 0) {
+                                mpHeadTopY = Math.min(...yCoords);
+                                console.log('✅ MediaPipe head top:', mpHeadTopY);
+                            }
+                        }
+                    } catch (e) {
+                        console.log('ℹ️ MediaPipe detection skipped');
+                    }
+                } else {
+                    console.log('ℹ️ Using face-api only');
                 }
 
                 // 2. Run face-api after
