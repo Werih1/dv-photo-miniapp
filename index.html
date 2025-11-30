@@ -736,27 +736,16 @@ body {
 
         async function loadMediaPipe() {
             if (mpInstance) return mpInstance;
-            try {
-                // Попытка использовать MediaPipe если загружена
-                if (window.poseDetection && window.poseDetection.createDetector) {
-                    mpInstance = await window.poseDetection.createDetector(
-                        window.poseDetection.SupportedModels.BlazePose,
-                        {
-                            runtime: 'tfjs',
-                            enableSmoothing: true,
-                            modelType: 'full'
-                        }
-                    );
-                    console.log('✅ MediaPipe BlazePose loaded');
-                    return mpInstance;
-                } else {
-                    console.warn('⚠️ MediaPipe not available, using face-api only');
-                    return null;
-                }
-            } catch (error) {
-                console.warn('⚠️ MediaPipe warning:', error.message);
-                return null;
-            }
+            const vision = window.Vision;
+            if (!vision) throw new Error('MediaPipe not loaded');
+            // BlazePose: best for head crown/ear/jaw detection
+            mpInstance = await vision.createDetector('BlazePose', {
+                delegate: 'wasm',
+                selfieMode: false,
+                modelType: 'full',
+                runningMode: 'IMAGE'
+            });
+            return mpInstance;
         }
 
         async function loadModels() {
@@ -853,23 +842,25 @@ body {
                 const mp = await loadMediaPipe();
                 let mpHeadTopY = null;
 
-                // Безопасная обработка MediaPipe (с fallback если не загружена)
+                // Безопасная обработка MediaPipe с проверкой null
                 if (mp) {
                     try {
                         const mpPersons = await mp.estimatePoses(offCanvas, false);
                         if (mpPersons && mpPersons.length > 0) {
                             const poses = mpPersons[0].keypoints || [];
-                            // Найдём верхнюю точку (макушку) через поиск самой верхней точки
-                            const allYs = poses.map(p => p.y).filter(y => y > 0);
-                            if (allYs.length > 0) {
-                                mpHeadTopY = Math.min(...allYs);
+                            // Найдём верхнюю точку (макушку)
+                            const yCoords = poses.map(p => p.y).filter(y => y > 0 && y !== undefined);
+                            if (yCoords.length > 0) {
+                                mpHeadTopY = Math.min(...yCoords);
                                 console.log('✅ MediaPipe head top found:', mpHeadTopY);
                             }
                         }
                     } catch (e) {
-                        console.warn('⚠️ MediaPipe detection skipped:', e.message);
+                        console.warn('⚠️ MediaPipe detection warning:', e.message);
                         // Продолжаем с face-api (fallback)
                     }
+                } else {
+                    console.log('ℹ️ MediaPipe not available, using face-api only');
                 }
 
                 // 2. Run face-api after
