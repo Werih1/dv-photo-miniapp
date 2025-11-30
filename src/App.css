@@ -1,0 +1,35 @@
+.app {
+  text-align: center;
+  padding: 20px;
+}
+
+.photo-area {
+  position: relative;
+  display: inline-block;
+  margin-top: 20px;
+}
+
+.photo-area img {
+  max-width: 300px;
+  border: 1px solid #ccc;
+}
+
+.eye-line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 0;
+  border-top: 2px dashed green;
+  cursor: row-resize;
+  z-index: 2;
+}
+
+.head-top-line {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 0;
+  border-top: 2px dashed blue;
+  cursor: row-resize;
+  z-index: 2;
+}
