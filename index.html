@@ -736,27 +736,16 @@ body {
 
         async function loadMediaPipe() {
             if (mpInstance) return mpInstance;
-            try {
-                // Попытка использовать MediaPipe если загружена
-                if (window.poseDetection && window.poseDetection.createDetector) {
-                    mpInstance = await window.poseDetection.createDetector(
-                        window.poseDetection.SupportedModels.BlazePose,
-                        {
-                            runtime: 'tfjs',
-                            enableSmoothing: true,
-                            modelType: 'full'
-                        }
-                    );
-                    console.log('✅ MediaPipe BlazePose loaded');
-                    return mpInstance;
-                } else {
-                    console.warn('⚠️ MediaPipe not available, using face-api only');
-                    return null;
-                }
-            } catch (error) {
-                console.warn('⚠️ MediaPipe warning:', error.message);
-                return null;
-            }
+            const vision = window.Vision;
+            if (!vision) throw new Error('MediaPipe not loaded');
+            // BlazePose: best for head crown/ear/jaw detection
+            mpInstance = await vision.createDetector('BlazePose', {
+                delegate: 'wasm',
+                selfieMode: false,
+                modelType: 'full',
+                runningMode: 'IMAGE'
+            });
+            return mpInstance;
         }
 
         async function loadModels() {
@@ -851,25 +840,28 @@ body {
                 // Mediapipe (head/body) load and inference
                 document.getElementById('loadingText').textContent = t.detectingFace;
                 const mp = await loadMediaPipe();
-                let mpHeadTopY = null;
-
-                // Безопасная обработка MediaPipe (с fallback если не загружена)
-                if (mp) {
-                    try {
-                        const mpPersons = await mp.estimatePoses(offCanvas, false);
-                        if (mpPersons && mpPersons.length > 0) {
-                            const poses = mpPersons[0].keypoints || [];
-                            // Найдём верхнюю точку (макушку) через поиск самой верхней точки
-                            const allYs = poses.map(p => p.y).filter(y => y > 0);
-                            if (allYs.length > 0) {
-                                mpHeadTopY = Math.min(...allYs);
-                                console.log('✅ MediaPipe head top found:', mpHeadTopY);
-                            }
-                        }
-                    } catch (e) {
-                        console.warn('⚠️ MediaPipe detection skipped:', e.message);
-                        // Продолжаем с face-api (fallback)
-                    }
+                const mpPersons = await mp.detect(offCanvas);
+                let mpKeypoints = [], headContour = [], mpHeadTopY = null;
+                let mpDetection = null;
+                if (mpPersons && mpPersons.length > 0) {
+                    mpDetection = mpPersons[0];
+                    mpKeypoints = mpDetection.keypoints || [];
+                    // Get head (face/ears/crown) keypoints
+                    headContour = mpKeypoints.filter(kp => kp.name && (
+                        kp.name.indexOf('left_ear') !== -1 ||
+                        kp.name.indexOf('right_ear') !== -1 ||
+                        kp.name.indexOf('nose') !== -1 ||
+                        kp.name.indexOf('left_eye') !== -1 ||
+                        kp.name.indexOf('right_eye') !== -1 ||
+                        kp.name.indexOf('mouth') !== -1 ||
+                        kp.name.indexOf('chin') !== -1 ||
+                        kp.name.indexOf('head') !== -1 ||
+                        kp.name.indexOf('face') !== -1 ||
+                        kp.name.indexOf('top_head') !== -1 ||
+                        kp.name.indexOf('forehead') !== -1
+                    ));
+                    // Find the highest Y point: the crown
+                    mpHeadTopY = Math.min(...headContour.map(pt => pt.y));
                 }
 
                 // 2. Run face-api after
@@ -879,15 +871,15 @@ body {
                 document.getElementById('loadingText').textContent = t.analyzingPhoto;
 
                 // Validate
-                const validation = validateImage(img, detection, file, metadata, mpHeadTopY);
+                const validation = validateImage(img, detection, file, metadata, mpDetection, mpHeadTopY);
 
-                detectionResult = { img, detection, validation, metadata, file, mpHeadTopY };
-                displayResults(img, detection, validation, metadata, mpHeadTopY);
+                detectionResult = { img, detection, validation, metadata, file, mpDetection, mpKeypoints, mpHeadTopY, headContour };
+                displayResults(img, detection, validation, metadata, mpDetection, mpKeypoints, mpHeadTopY, headContour);
 
                 document.getElementById('loadingIndicator').classList.add('hidden');
                 document.getElementById('resultsGrid').classList.remove('hidden');
                 if (validation.allPassed) {
-                    await generateCroppedImage(img, detection, mpHeadTopY);
+                    await generateCroppedImage(img, detection, mpDetection, mpHeadTopY);
                 }
             } catch (error) {
                 console.error('Error processing image:', error);
@@ -929,7 +921,7 @@ body {
             return metadata;
         }
 
-        function validateImage(img, detection, file, metadata, mpHeadTopY) {
+        function validateImage(img, detection, file, metadata, mpDetection, mpHeadTopY) {
             const validation = {
                 faceDetected: false,
                 fileFormat: false,
@@ -956,11 +948,11 @@ body {
 
             // For all key metrics, prefer MediaPipe for full head bounds if present
             let topOfHead = undefined, chin = undefined, eyeLevel = undefined;
-            if (false) {
+            if (mpDetection && mpHeadTopY != null) {
                 topOfHead = mpHeadTopY;
                 // chin from Mediapipe or face-api (use whichever is lower)
                 let mpChinPoint = null;
-                if (false) {
+                if (mpDetection.keypoints) {
                     const chinPts = mpDetection.keypoints.filter(kp => kp.name && kp.name.includes('chin'));
                     if (chinPts.length > 0) {
                         mpChinPoint = Math.max(...chinPts.map(pt => pt.y));
@@ -978,13 +970,13 @@ body {
                     const leftEye = detection.landmarks.getLeftEye();
                     const rightEye = detection.landmarks.getRightEye();
                     eyeLevel = (leftEye[0].y + rightEye[0].y) / 2;
-                } else if (false) {
+                } else if (mpDetection && mpDetection.keypoints) {
                     const mpEyes = mpDetection.keypoints.filter(kp => kp.name && kp.name.includes('eye'));
                     if (mpEyes.length >= 2) {
                         eyeLevel = (mpEyes[0].y + mpEyes[1].y) / 2;
                     }
                 }
-            } else if (detection) {
+            } else if (detection && detection.landmarks) {
                 const landmarks = detection.landmarks;
                 const positions = landmarks.positions;
                 // classic fallback - not recommended
@@ -1097,14 +1089,14 @@ body {
             return avgBrightness > 200;
         }
 
-        function displayResults(img, detection, validation, metadata, mpHeadTopY) {
+        function displayResults(img, detection, validation, metadata, mpDetection, mpKeypoints, mpHeadTopY, headContour) {
             // Draw all overlays
-            drawDetectionCanvas(img, detection, mpHeadTopY);
+            drawDetectionCanvas(img, detection, mpDetection, mpKeypoints, mpHeadTopY, headContour);
             displayMetadata(metadata, validation.details);
             displayValidationResults(validation);
         }
 
-        function drawDetectionCanvas(img, detection, mpHeadTopY) {
+        function drawDetectionCanvas(img, detection, mpDetection, mpKeypoints, mpHeadTopY, headContour) {
             // All drawing in SAME canvas for proper overlays
             const canvas = document.getElementById('detectionCanvas');
             const displayWidth = Math.min(600, img.width);
@@ -1144,7 +1136,7 @@ body {
             }
 
             // Draw face-api classic 68 pts as magenta
-            if (detection) {
+            if (detection && detection.landmarks) {
                 ctx.fillStyle = '#FFC185';
                 const landmarks = detection.landmarks;
                 landmarks.positions.forEach(p => {
@@ -1167,7 +1159,7 @@ body {
                 const leftEye = detection.landmarks.getLeftEye().map(p => p.y * scale);
                 const rightEye = detection.landmarks.getRightEye().map(p => p.y * scale);
                 eyeY = (leftEye[0] + rightEye[0]) / 2;
-            } else if (false) {
+            } else if (mpDetection && mpDetection.keypoints) {
                 const mpEyes = mpDetection.keypoints.filter(kp => kp.name && kp.name.includes('eye'));
                 if (mpEyes.length >= 2) {
                     eyeY = (mpEyes[0].y + mpEyes[1].y) / 2 * scale;
@@ -1335,14 +1327,14 @@ body {
             `).join('');
         }
 
-        async function generateCroppedImage(img, detection, mpHeadTopY) {
+        async function generateCroppedImage(img, detection, mpDetection, mpHeadTopY) {
             // Crop by MediaPipe crown and chin if available, fallback to face-api
             let topOfHead = undefined, chin = undefined, centerX = undefined, centerY = undefined;
-            if (false) {
+            if (mpDetection && mpHeadTopY != null) {
                 topOfHead = mpHeadTopY;
                 // chin from mediapipe or face-api (use whichever is lower)
                 let mpChin = null;
-                if (false) {
+                if (mpDetection.keypoints) {
                     const chins = mpDetection.keypoints.filter(kp => kp.name && kp.name.includes('chin'));
                     if (chins.length > 0) mpChin = Math.max(...chins.map(pt => pt.y));
                 }
@@ -1363,7 +1355,7 @@ body {
                     centerX = img.width / 2;
                 }
                 centerY = (topOfHead + chin) / 2;
-            } else if (detection) {
+            } else if (detection && detection.landmarks) {
                 const landmarks = detection.landmarks;
                 topOfHead = Math.min(...landmarks.positions.map(p => p.y));
                 const jawline = landmarks.getJawOutline();
