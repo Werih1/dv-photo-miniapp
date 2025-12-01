@@ -6,7 +6,7 @@
 const CONFIG = {
     CROP_SIZE: 600,
     MIN_CONFIDENCE: 0.5,
-    MAX_FILE_SIZE: 10 * 1024 * 1024, // 10MB
+    MAX_FILE_SIZE: 10 * 1024 * 1024
 };
 
 let currentImage = null;
@@ -33,20 +33,20 @@ const elements = {
     loadingSpinner: document.getElementById('loadingSpinner'),
     statusMessage: document.getElementById('statusMessage'),
     photoInfo: document.getElementById('photoInfo'),
-    photoSize: document.getElementById('photoSize'),
+    photoSize: document.getElementById('photoSize')
 };
 
 // ============================================
 // Event Listeners
 // ============================================
 
-elements.uploadBtn.addEventListener('click', () => {
+elements.uploadBtn.addEventListener('click', function() {
     elements.photoInput.click();
 });
 
 elements.photoInput.addEventListener('change', handlePhotoSelect);
 
-elements.uploadArea.addEventListener('click', () => {
+elements.uploadArea.addEventListener('click', function() {
     elements.photoInput.click();
 });
 
@@ -83,14 +83,13 @@ function handleDrop(event) {
 }
 
 function processPhoto(file) {
-    // Validation
     if (!file.type.startsWith('image/')) {
-        showError('⚠️ Пожалуйста, выберите изображение');
+        showError('Warning: Please select an image');
         return;
     }
 
     if (file.size > CONFIG.MAX_FILE_SIZE) {
-        showError('⚠️ Файл слишком большой (максимум 10 MB)');
+        showError('Warning: File is too large (max 10 MB)');
         return;
     }
 
@@ -98,13 +97,13 @@ function processPhoto(file) {
     clearError();
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = function(e) {
         const img = new Image();
-        img.onload = () => {
+        img.onload = function() {
             currentImage = img;
             displayOriginalPhoto(img);
             showLoading(false);
-            elements.statusMessage.textContent = '✅ Фото загружено. Нажмите "Анализировать"';
+            elements.statusMessage.textContent = 'Photo loaded. Click Analyze';
         };
         img.src = e.target.result;
     };
@@ -115,20 +114,16 @@ function displayOriginalPhoto(img) {
     const canvas = elements.originalCanvas;
     const ctx = canvas.getContext('2d');
 
-    // Установка размеров
     canvas.width = img.width;
     canvas.height = img.height;
 
-    // Рисование изображения
     ctx.drawImage(img, 0, 0);
 
-    // Показ контейнера
     elements.originalPhotoContainer.classList.remove('hidden');
     elements.analyzeBtn.classList.remove('hidden');
     elements.uploadBtn.classList.add('hidden');
 
-    // Информация о фото
-    elements.photoSize.textContent = `${img.width}×${img.height}px`;
+    elements.photoSize.textContent = img.width + 'x' + img.height + 'px';
     elements.photoInfo.classList.remove('hidden');
 }
 
@@ -138,54 +133,50 @@ function displayOriginalPhoto(img) {
 
 async function analyzePhoto() {
     if (!currentImage) {
-        showError('⚠️ Фото не загружено');
+        showError('Photo not loaded');
         return;
     }
 
     showLoading(true);
-    elements.statusMessage.textContent = '🔍 Анализ фото...';
+    elements.statusMessage.textContent = 'Analyzing photo...';
 
     try {
-        // Ожидаем загрузки моделей face-api
         await waitForFaceApi();
 
-        // Обнаружение лица
         const detections = await faceapi
             .detectSingleFace(currentImage)
             .withFaceLandmarks()
             .withFaceDescriptor();
 
         if (!detections) {
-            showError('❌ Лицо не обнаружено. Пожалуйста, загрузите другое фото.');
+            showError('Face not detected. Try another photo.');
             showLoading(false);
             return;
         }
 
         currentDetections = detections;
 
-        // Рисование результатов
         drawResultsWithLines();
         drawCroppedPhoto();
 
-        // Показ результатов
         elements.resultPhotoContainer.classList.remove('hidden');
         elements.croppedPhotoContainer.classList.remove('hidden');
         elements.downloadBtn.classList.remove('hidden');
         elements.newPhotoBtn.classList.remove('hidden');
 
-        elements.statusMessage.textContent = '✅ Анализ завершён!';
+        elements.statusMessage.textContent = 'Analysis complete!';
 
         showLoading(false);
     } catch (error) {
-        console.error('Ошибка анализа:', error);
-        showError('⚠️ Ошибка при анализе фото: ' + error.message);
+        console.error('Analysis error:', error);
+        showError('Error during analysis: ' + error.message);
         showLoading(false);
     }
 }
 
 function waitForFaceApi() {
-    return new Promise((resolve) => {
-        const checkFaceApi = () => {
+    return new Promise(function(resolve) {
+        const checkFaceApi = function() {
             if (window.faceapi && window.faceapi.detectSingleFace) {
                 resolve();
             } else {
@@ -204,7 +195,6 @@ function drawResultsWithLines() {
     const canvas = elements.resultCanvas;
     const ctx = canvas.getContext('2d');
 
-    // Копирование исходного изображения
     canvas.width = currentImage.width;
     canvas.height = currentImage.height;
     ctx.drawImage(currentImage, 0, 0);
@@ -214,36 +204,28 @@ function drawResultsWithLines() {
     const box = currentDetections.detection.box;
     const landmarks = currentDetections.landmarks.positions;
 
-    // Вычисление трёх ключевых точек
     const topHead = {
         x: box.x + box.width / 2,
-        y: box.y - 10, // Немного выше лица
+        y: box.y - 10
     };
 
     const eyeCenter = {
-        x: (landmarks[36].x + landmarks[45].x) / 2, // Между левым и правым глазом
-        y: (landmarks[36].y + landmarks[45].y) / 2,
+        x: (landmarks[36].x + landmarks[45].x) / 2,
+        y: (landmarks[36].y + landmarks[45].y) / 2
     };
 
     const chinBottom = {
         x: box.x + box.width / 2,
-        y: box.y + box.height + 5, // Чуть ниже лица
+        y: box.y + box.height + 5
     };
 
-    // Рисование горизонтальных линий
     const lineWidth = 3;
     const lineLength = canvas.width * 0.3;
 
-    // Жёлтая линия (макушка)
     drawHorizontalLine(ctx, topHead.x, topHead.y, lineLength, '#FFD700', lineWidth);
-
-    // Зелёная линия (глаза)
     drawHorizontalLine(ctx, eyeCenter.x, eyeCenter.y, lineLength, '#00FF00', lineWidth);
-
-    // Красная линия (подбородок)
     drawHorizontalLine(ctx, chinBottom.x, chinBottom.y, lineLength, '#FF0000', lineWidth);
 
-    // Рисование точек
     drawPoint(ctx, topHead.x, topHead.y, '#FFD700');
     drawPoint(ctx, eyeCenter.x, eyeCenter.y, '#00FF00');
     drawPoint(ctx, chinBottom.x, chinBottom.y, '#FF0000');
@@ -281,13 +263,11 @@ function drawCroppedPhoto() {
 
     const box = currentDetections.detection.box;
 
-    // Вычисление центра лица
     const faceCenter = {
         x: box.x + box.width / 2,
-        y: box.y + box.height / 2,
+        y: box.y + box.height / 2
     };
 
-    // Вычисление координат кропа
     const cropX = Math.max(0, faceCenter.x - CONFIG.CROP_SIZE / 2);
     const cropY = Math.max(0, faceCenter.y - CONFIG.CROP_SIZE / 2);
 
@@ -297,11 +277,9 @@ function drawCroppedPhoto() {
     const finalCropX = Math.min(cropX, maxCropX);
     const finalCropY = Math.min(cropY, maxCropY);
 
-    // Установка размеров
     croppedCanvas.width = CONFIG.CROP_SIZE;
     croppedCanvas.height = CONFIG.CROP_SIZE;
 
-    // Рисование кропа БЕЗ линий
     ctx.drawImage(
         currentImage,
         finalCropX,
@@ -317,11 +295,11 @@ function drawCroppedPhoto() {
 
 function downloadCroppedPhoto() {
     const canvas = elements.croppedCanvas;
-    canvas.toBlob((blob) => {
+    canvas.toBlob(function(blob) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `greencard-photo-${Date.now()}.jpg`;
+        a.download = 'greencard-photo-' + Date.now() + '.jpg';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -361,7 +339,7 @@ function resetApp() {
     elements.downloadBtn.classList.add('hidden');
     elements.newPhotoBtn.classList.add('hidden');
     elements.uploadBtn.classList.remove('hidden');
-    elements.statusMessage.textContent = 'Загрузите фото для начала';
+    elements.statusMessage.textContent = 'Load photo to start';
     elements.photoInfo.classList.add('hidden');
     clearError();
 }
@@ -370,7 +348,7 @@ function resetApp() {
 // Initialization
 // ============================================
 
-window.addEventListener('load', () => {
-    console.log('🚀 Green Card Photo App загружено');
-    console.log('📦 face-api.js загружается из CDN...');
+window.addEventListener('load', function() {
+    console.log('App loaded');
+    console.log('Loading face-api from CDN...');
 });
