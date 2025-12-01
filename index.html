@@ -16,7 +16,7 @@
         <main class="main-content">
             <div class="panel upload-panel">
                 <h2>Step 1: Upload Photo</h2>
-                
+
                 <div class="upload-area" id="uploadArea">
                     <input type="file" id="photoInput" accept="image/*" hidden>
                     <div class="upload-placeholder">
@@ -28,7 +28,7 @@
 
                 <div id="originalPhotoContainer" class="photo-container hidden">
                     <h3>Original Photo</h3>
-                    anvas id="originalCanvas"></canvas>
+                    <canvas id="originalCanvas"></canvas>
                     <div class="info-box">
                         <p><strong>Status:</strong> <span id="statusMessage">Loading...</span></p>
                         <p id="photoInfo" class="hidden">Size: <span id="photoSize"></span></p>
@@ -46,10 +46,10 @@
 
             <div class="panel result-panel">
                 <h2>Step 2: Processing Result</h2>
-                
+
                 <div id="resultPhotoContainer" class="photo-container hidden">
                     <h3>Photo with Landmarks</h3>
-                    anvas id="resultCanvas"></canvas>
+                    <canvas id="resultCanvas"></canvas>
                     <div class="landmarks-info">
                         <p>🟡 <strong>Top (head crown)</strong></p>
                         <p>🟢 <strong>Eyes (center)</strong></p>
@@ -59,7 +59,7 @@
 
                 <div id="croppedPhotoContainer" class="photo-container hidden">
                     <h3>Cropped 600×600px (to download)</h3>
-                    anvas id="croppedCanvas"></canvas>
+                    <canvas id="croppedCanvas"></canvas>
                     <div class="crop-info">
                         <p>✅ Ready to download</p>
                     </div>
