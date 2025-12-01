@@ -47,8 +47,10 @@ async function loadModels() {
         elements.statusMessage.textContent = 'Loading AI models...';
         showLoading(true);
 
+        console.log('Starting to load face-api models...');
+
         await Promise.all([
-            faceapi.nets.tinyFaceDetector.loadFromUri(CONFIG.MODELS_URL),
+            faceapi.nets.ssdMobilenetv1.loadFromUri(CONFIG.MODELS_URL),
             faceapi.nets.faceLandmark68Net.loadFromUri(CONFIG.MODELS_URL),
             faceapi.nets.faceDescriptorNet.loadFromUri(CONFIG.MODELS_URL)
         ]);
@@ -56,7 +58,7 @@ async function loadModels() {
         modelsLoaded = true;
         elements.statusMessage.textContent = 'Ready! Upload a photo.';
         showLoading(false);
-        console.log('Models loaded successfully');
+        console.log('All models loaded successfully');
     } catch (error) {
         console.error('Error loading models:', error);
         showError('Failed to load AI models: ' + error.message);
@@ -174,10 +176,14 @@ async function analyzePhoto() {
     elements.statusMessage.textContent = 'Analyzing photo...';
 
     try {
+        console.log('Starting face detection...');
+
         const detections = await faceapi
-            .detectSingleFace(currentImage, new faceapi.TinyFaceDetectorOptions())
+            .detectSingleFace(currentImage)
             .withFaceLandmarks()
             .withFaceDescriptor();
+
+        console.log('Detection result:', detections);
 
         if (!detections) {
             showError('Face not detected. Try another photo.');
@@ -378,7 +384,6 @@ window.addEventListener('load', function() {
     }
 });
 
-// Also load models on DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function() {
     if (window.faceapi && !modelsLoaded) {
         loadModels();
