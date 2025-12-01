@@ -1,22 +1,16 @@
 // ============================================
 // Green Card Photo Verification App
-// Face Detection + Crop + Download
+// TensorFlow.js + Face Mesh
 // ============================================
 
 const CONFIG = {
     CROP_SIZE: 600,
-    MIN_CONFIDENCE: 0.5,
-    MAX_FILE_SIZE: 10 * 1024 * 1024,
-    MODELS_URL: 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/'
+    MAX_FILE_SIZE: 10 * 1024 * 1024
 };
 
 let currentImage = null;
-let currentDetections = null;
+let currentPredictions = null;
 let modelsLoaded = false;
-
-// ============================================
-// DOM Elements
-// ============================================
 
 const elements = {
     photoInput: document.getElementById('photoInput'),
@@ -39,30 +33,21 @@ const elements = {
 };
 
 // ============================================
-// Load Models on Startup
+// Load Models
 // ============================================
 
 async function loadModels() {
     try {
         elements.statusMessage.textContent = 'Loading AI models...';
         showLoading(true);
-
-        console.log('Starting to load face-api models...');
-        console.log('Models URL:', CONFIG.MODELS_URL);
-
-        await faceapi.nets.ssdMobilenetv1.loadFromUri(CONFIG.MODELS_URL);
-        console.log('ssdMobilenetv1 loaded');
-
-        await faceapi.nets.faceLandmark68Net.loadFromUri(CONFIG.MODELS_URL);
-        console.log('faceLandmark68Net loaded');
-
-        await faceapi.nets.faceDescriptorNet.loadFromUri(CONFIG.MODELS_URL);
-        console.log('faceDescriptorNet loaded');
-
+        
+        console.log('Loading Face Mesh model...');
+        await facemesh.load();
+        
         modelsLoaded = true;
         elements.statusMessage.textContent = 'Ready! Upload a photo.';
         showLoading(false);
-        console.log('All models loaded successfully');
+        console.log('Models loaded successfully');
     } catch (error) {
         console.error('Error loading models:', error);
         showError('Failed to load AI models: ' + error.message);
@@ -92,7 +77,7 @@ elements.downloadBtn.addEventListener('click', downloadCroppedPhoto);
 elements.newPhotoBtn.addEventListener('click', resetApp);
 
 // ============================================
-// Photo Upload & Selection
+// Photo Upload
 // ============================================
 
 function handlePhotoSelect(event) {
@@ -118,12 +103,12 @@ function handleDrop(event) {
 
 function processPhoto(file) {
     if (!file.type.startsWith('image/')) {
-        showError('Warning: Please select an image');
+        showError('Please select an image');
         return;
     }
 
     if (file.size > CONFIG.MAX_FILE_SIZE) {
-        showError('Warning: File is too large (max 10 MB)');
+        showError('File too large (max 10 MB)');
         return;
     }
 
@@ -150,7 +135,6 @@ function displayOriginalPhoto(img) {
 
     canvas.width = img.width;
     canvas.height = img.height;
-
     ctx.drawImage(img, 0, 0);
 
     elements.originalPhotoContainer.classList.remove('hidden');
@@ -172,7 +156,7 @@ async function analyzePhoto() {
     }
 
     if (!modelsLoaded) {
-        showError('Models still loading. Please wait...');
+        showError('Models loading. Please wait...');
         return;
     }
 
@@ -181,21 +165,18 @@ async function analyzePhoto() {
 
     try {
         console.log('Starting face detection...');
+        
+        const predictions = await facemesh.estimateFaces(currentImage);
+        
+        console.log('Predictions:', predictions);
 
-        const detections = await faceapi
-            .detectSingleFace(currentImage)
-            .withFaceLandmarks()
-            .withFaceDescriptor();
-
-        console.log('Detection result:', detections);
-
-        if (!detections) {
+        if (!predictions || predictions.length === 0) {
             showError('Face not detected. Try another photo.');
             showLoading(false);
             return;
         }
 
-        currentDetections = detections;
+        currentPredictions = predictions[0];
 
         drawResultsWithLines();
         drawCroppedPhoto();
@@ -216,7 +197,7 @@ async function analyzePhoto() {
 }
 
 // ============================================
-// Drawing Functions
+// Drawing
 // ============================================
 
 function drawResultsWithLines() {
@@ -227,24 +208,25 @@ function drawResultsWithLines() {
     canvas.height = currentImage.height;
     ctx.drawImage(currentImage, 0, 0);
 
-    if (!currentDetections) return;
+    if (!currentPredictions) return;
 
-    const box = currentDetections.detection.box;
-    const landmarks = currentDetections.landmarks.positions;
+    const landmarks = currentPredictions.scaledMesh;
+
+    if (landmarks.length < 468) return;
 
     const topHead = {
-        x: box.x + box.width / 2,
-        y: box.y - 10
+        x: landmarks[10][0],
+        y: landmarks[10][1]
     };
 
     const eyeCenter = {
-        x: (landmarks[36].x + landmarks[45].x) / 2,
-        y: (landmarks[36].y + landmarks[45].y) / 2
+        x: (landmarks[33][0] + landmarks[263][0]) / 2,
+        y: (landmarks[33][1] + landmarks[263][1]) / 2
     };
 
     const chinBottom = {
-        x: box.x + box.width / 2,
-        y: box.y + box.height + 5
+        x: landmarks[152][0],
+        y: landmarks[152][1]
     };
 
     const lineWidth = 3;
@@ -287,13 +269,20 @@ function drawCroppedPhoto() {
     const croppedCanvas = elements.croppedCanvas;
     const ctx = croppedCanvas.getContext('2d');
 
-    if (!currentDetections) return;
+    if (!currentPredictions) return;
 
-    const box = currentDetections.detection.box;
+    const landmarks = currentPredictions.scaledMesh;
+    
+    let minX = Math.min(...landmarks.map(l => l[0]));
+    let maxX = Math.max(...landmarks.map(l => l[0]));
+    let minY = Math.min(...landmarks.map(l => l[1]));
+    let maxY = Math.max(...landmarks.map(l => l[1]));
 
+    const faceWidth = maxX - minX;
+    const faceHeight = maxY - minY;
     const faceCenter = {
-        x: box.x + box.width / 2,
-        y: box.y + box.height / 2
+        x: minX + faceWidth / 2,
+        y: minY + faceHeight / 2
     };
 
     const cropX = Math.max(0, faceCenter.x - CONFIG.CROP_SIZE / 2);
@@ -358,7 +347,7 @@ function showLoading(show) {
 
 function resetApp() {
     currentImage = null;
-    currentDetections = null;
+    currentPredictions = null;
     elements.photoInput.value = '';
     elements.originalPhotoContainer.classList.add('hidden');
     elements.resultPhotoContainer.classList.add('hidden');
@@ -378,18 +367,10 @@ function resetApp() {
 
 window.addEventListener('load', function() {
     console.log('App loaded');
-    console.log('Loading face-api models from CDN...');
-
-    if (window.faceapi) {
+    if (typeof facemesh !== 'undefined') {
         loadModels();
     } else {
-        console.error('face-api not loaded');
-        showError('Failed to load face-api library');
-    }
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-    if (window.faceapi && !modelsLoaded) {
-        loadModels();
+        console.error('Face Mesh not loaded');
+        showError('Failed to load Face Mesh library');
     }
 });
