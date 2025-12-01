@@ -1,84 +1,91 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Green Card Photo Check</title>
+    <title>Green Card Photo Verification</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>🇺🇸 Green Card Photo Check</h1>
-            <p>Photo verification and processing</p>
+        <header class="header">
+            <h1>🎫 Green Card Photo Verification</h1>
+            <p class="subtitle">USA Lottery Photo Check</p>
         </header>
 
-        <main class="main-content">
-            <div class="panel upload-panel">
-                <h2>Step 1: Upload Photo</h2>
+        <!-- Error Message -->
+        <div id="errorMessage" class="error-message"></div>
 
-                <div class="upload-area" id="uploadArea">
-                    <input type="file" id="photoInput" accept="image/*" hidden>
-                    <div class="upload-placeholder">
-                        <span class="upload-icon">📷</span>
-                        <p>Click or drag photo here</p>
-                        <small>JPG, PNG up to 10 MB</small>
-                    </div>
-                </div>
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="loading-spinner hidden">
+            <div class="spinner"></div>
+            <p>Processing...</p>
+        </div>
 
-                <div id="originalPhotoContainer" class="photo-container hidden">
-                    <h3>Original Photo</h3>
-                    <canvas id="originalCanvas"></canvas>
-                    <div class="info-box">
-                        <p><strong>Status:</strong> <span id="statusMessage">Loading...</span></p>
-                        <p id="photoInfo" class="hidden">Size: <span id="photoSize"></span></p>
-                    </div>
-                </div>
-
-                <div class="button-group">
-                    <button class="btn btn-primary" id="uploadBtn">Upload Photo</button>
-                    <button class="btn btn-secondary hidden" id="analyzeBtn">Analyze</button>
-                </div>
-
-                <div id="errorMessage" class="error-message hidden"></div>
-                <div id="loadingSpinner" class="spinner hidden"></div>
+        <!-- Upload Section -->
+        <div class="upload-section">
+            <div id="uploadArea" class="upload-area">
+                <div class="upload-icon">📸</div>
+                <p class="upload-text">Click or drag photo here</p>
+                <p class="upload-hint">JPG, PNG, WebP • Max 10 MB</p>
             </div>
+            <input type="file" id="photoInput" accept="image/*" class="hidden">
+            <button id="uploadBtn" class="btn btn-primary">📤 Upload Photo</button>
+        </div>
 
-            <div class="panel result-panel">
-                <h2>Step 2: Processing Result</h2>
+        <!-- Status Message -->
+        <div id="statusMessage" class="status-message">Ready to verify photos</div>
 
-                <div id="resultPhotoContainer" class="photo-container hidden">
-                    <h3>Photo with Landmarks</h3>
-                    <canvas id="resultCanvas"></canvas>
-                    <div class="landmarks-info">
-                        <p>🟡 <strong>Top (head crown)</strong></p>
-                        <p>🟢 <strong>Eyes (center)</strong></p>
-                        <p>🔴 <strong>Chin (bottom)</strong></p>
-                    </div>
-                </div>
+        <!-- Photo Info -->
+        <div id="photoInfo" class="photo-info hidden">
+            <p>Photo size: <span id="photoSize">-</span></p>
+        </div>
 
-                <div id="croppedPhotoContainer" class="photo-container hidden">
-                    <h3>Cropped 600×600px (to download)</h3>
-                    <canvas id="croppedCanvas"></canvas>
-                    <div class="crop-info">
-                        <p>✅ Ready to download</p>
-                    </div>
-                </div>
+        <!-- Original Photo Display -->
+        <div id="originalPhotoContainer" class="photo-container hidden">
+            <h3>📷 Original Photo</h3>
+            <canvas id="originalCanvas" class="canvas"></canvas>
+            <button id="analyzeBtn" class="btn btn-primary hidden">🔍 Analyze Photo</button>
+        </div>
 
-                <div class="button-group">
-                    <button class="btn btn-success hidden" id="downloadBtn">⬇️ Download Photo</button>
-                    <button class="btn btn-secondary hidden" id="newPhotoBtn">📷 Upload New Photo</button>
-                </div>
+        <!-- Result Photo with Lines -->
+        <div id="resultPhotoContainer" class="photo-container hidden">
+            <h3>✅ Analysis Result (with guide lines)</h3>
+            <div class="legend">
+                <span class="legend-item">
+                    <span class="legend-color" style="background: #FFD700;"></span>
+                    🟡 Top of Head
+                </span>
+                <span class="legend-item">
+                    <span class="legend-color" style="background: #00FF00;"></span>
+                    🟢 Eye Center
+                </span>
+                <span class="legend-item">
+                    <span class="legend-color" style="background: #FF0000;"></span>
+                    🔴 Chin Bottom
+                </span>
             </div>
-        </main>
+            <canvas id="resultCanvas" class="canvas"></canvas>
+        </div>
 
-        <footer>
-            <p>Green Card USA Photo Check | Telegram Mini App</p>
-        </footer>
+        <!-- Cropped Photo (600x600, clean) -->
+        <div id="croppedPhotoContainer" class="photo-container hidden">
+            <h3>💾 Final 600×600 Photo (Clean)</h3>
+            <p class="crop-hint">This is your downloadable photo - no guide lines</p>
+            <canvas id="croppedCanvas" class="canvas-cropped"></canvas>
+            <button id="downloadBtn" class="btn btn-success hidden">⬇️ Download Photo</button>
+        </div>
+
+        <!-- New Photo Button -->
+        <div class="action-buttons hidden" id="newPhotoContainer">
+            <button id="newPhotoBtn" class="btn btn-secondary">🔄 Upload New Photo</button>
+        </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.0.0"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/facemesh@0.0.7"></script>
+    <!-- Face-api.js from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/dist/face-api.min.js"></script>
+    
+    <!-- Your App -->
     <script src="app.js"></script>
 </body>
 </html>
