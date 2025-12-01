@@ -7,7 +7,7 @@ const CONFIG = {
     CROP_SIZE: 600,
     MIN_CONFIDENCE: 0.5,
     MAX_FILE_SIZE: 10 * 1024 * 1024,
-    MODELS_URL: 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights/'
+    MODELS_URL: 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/'
 };
 
 let currentImage = null;
@@ -48,12 +48,16 @@ async function loadModels() {
         showLoading(true);
 
         console.log('Starting to load face-api models...');
+        console.log('Models URL:', CONFIG.MODELS_URL);
 
-        await Promise.all([
-            faceapi.nets.ssdMobilenetv1.loadFromUri(CONFIG.MODELS_URL),
-            faceapi.nets.faceLandmark68Net.loadFromUri(CONFIG.MODELS_URL),
-            faceapi.nets.faceDescriptorNet.loadFromUri(CONFIG.MODELS_URL)
-        ]);
+        await faceapi.nets.ssdMobilenetv1.loadFromUri(CONFIG.MODELS_URL);
+        console.log('ssdMobilenetv1 loaded');
+
+        await faceapi.nets.faceLandmark68Net.loadFromUri(CONFIG.MODELS_URL);
+        console.log('faceLandmark68Net loaded');
+
+        await faceapi.nets.faceDescriptorNet.loadFromUri(CONFIG.MODELS_URL);
+        console.log('faceDescriptorNet loaded');
 
         modelsLoaded = true;
         elements.statusMessage.textContent = 'Ready! Upload a photo.';
