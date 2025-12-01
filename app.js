@@ -128,7 +128,7 @@ function displayOriginalPhoto(img) {
     elements.uploadBtn.classList.add('hidden');
 
     // Информация о фото
-    elements.photoSize.textContent = \`\${img.width}×\${img.height}px\`;
+    elements.photoSize.textContent = `${img.width}×${img.height}px`;
     elements.photoInfo.classList.remove('hidden');
 }
 
@@ -321,7 +321,7 @@ function downloadCroppedPhoto() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = \`greencard-photo-\${Date.now()}.jpg\`;
+        a.download = `greencard-photo-${Date.now()}.jpg`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
