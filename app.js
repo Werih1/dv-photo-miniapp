@@ -6,11 +6,13 @@
 const CONFIG = {
     CROP_SIZE: 600,
     MIN_CONFIDENCE: 0.5,
-    MAX_FILE_SIZE: 10 * 1024 * 1024
+    MAX_FILE_SIZE: 10 * 1024 * 1024,
+    MODELS_URL: 'https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/weights/'
 };
 
 let currentImage = null;
 let currentDetections = null;
+let modelsLoaded = false;
 
 // ============================================
 // DOM Elements
@@ -35,6 +37,32 @@ const elements = {
     photoInfo: document.getElementById('photoInfo'),
     photoSize: document.getElementById('photoSize')
 };
+
+// ============================================
+// Load Models on Startup
+// ============================================
+
+async function loadModels() {
+    try {
+        elements.statusMessage.textContent = 'Loading AI models...';
+        showLoading(true);
+
+        await Promise.all([
+            faceapi.nets.tinyFaceDetector.loadFromUri(CONFIG.MODELS_URL),
+            faceapi.nets.faceLandmark68Net.loadFromUri(CONFIG.MODELS_URL),
+            faceapi.nets.faceDescriptorNet.loadFromUri(CONFIG.MODELS_URL)
+        ]);
+
+        modelsLoaded = true;
+        elements.statusMessage.textContent = 'Ready! Upload a photo.';
+        showLoading(false);
+        console.log('Models loaded successfully');
+    } catch (error) {
+        console.error('Error loading models:', error);
+        showError('Failed to load AI models: ' + error.message);
+        showLoading(false);
+    }
+}
 
 // ============================================
 // Event Listeners
@@ -137,14 +165,17 @@ async function analyzePhoto() {
         return;
     }
 
+    if (!modelsLoaded) {
+        showError('Models still loading. Please wait...');
+        return;
+    }
+
     showLoading(true);
     elements.statusMessage.textContent = 'Analyzing photo...';
 
     try {
-        await waitForFaceApi();
-
         const detections = await faceapi
-            .detectSingleFace(currentImage)
+            .detectSingleFace(currentImage, new faceapi.TinyFaceDetectorOptions())
             .withFaceLandmarks()
             .withFaceDescriptor();
 
@@ -172,19 +203,6 @@ async function analyzePhoto() {
         showError('Error during analysis: ' + error.message);
         showLoading(false);
     }
-}
-
-function waitForFaceApi() {
-    return new Promise(function(resolve) {
-        const checkFaceApi = function() {
-            if (window.faceapi && window.faceapi.detectSingleFace) {
-                resolve();
-            } else {
-                setTimeout(checkFaceApi, 100);
-            }
-        };
-        checkFaceApi();
-    });
 }
 
 // ============================================
@@ -350,5 +368,19 @@ function resetApp() {
 
 window.addEventListener('load', function() {
     console.log('App loaded');
-    console.log('Loading face-api from CDN...');
+    console.log('Loading face-api models from CDN...');
+
+    if (window.faceapi) {
+        loadModels();
+    } else {
+        console.error('face-api not loaded');
+        showError('Failed to load face-api library');
+    }
+});
+
+// Also load models on DOMContentLoaded
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.faceapi && !modelsLoaded) {
+        loadModels();
+    }
 });
