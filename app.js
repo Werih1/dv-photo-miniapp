@@ -1,8 +1,3 @@
-// ============================================
-// Green Card Photo Verification App
-// TensorFlow.js + Face Mesh
-// ============================================
-
 const CONFIG = {
     CROP_SIZE: 600,
     MAX_FILE_SIZE: 10 * 1024 * 1024
@@ -11,96 +6,70 @@ const CONFIG = {
 let currentImage = null;
 let currentPredictions = null;
 let modelsLoaded = false;
+let facemeshModel = null;
 
-const elements = {
-    photoInput: document.getElementById('photoInput'),
-    uploadBtn: document.getElementById('uploadBtn'),
-    analyzeBtn: document.getElementById('analyzeBtn'),
-    downloadBtn: document.getElementById('downloadBtn'),
-    newPhotoBtn: document.getElementById('newPhotoBtn'),
-    uploadArea: document.getElementById('uploadArea'),
-    originalCanvas: document.getElementById('originalCanvas'),
-    resultCanvas: document.getElementById('resultCanvas'),
-    croppedCanvas: document.getElementById('croppedCanvas'),
-    originalPhotoContainer: document.getElementById('originalPhotoContainer'),
-    resultPhotoContainer: document.getElementById('resultPhotoContainer'),
-    croppedPhotoContainer: document.getElementById('croppedPhotoContainer'),
-    errorMessage: document.getElementById('errorMessage'),
-    loadingSpinner: document.getElementById('loadingSpinner'),
-    statusMessage: document.getElementById('statusMessage'),
-    photoInfo: document.getElementById('photoInfo'),
-    photoSize: document.getElementById('photoSize')
-};
+// Wait for DOM to load
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded');
+    setupEventListeners();
+    loadModels();
+});
 
-// ============================================
-// Load Models
-// ============================================
+// Setup all event listeners
+function setupEventListeners() {
+    const uploadBtn = document.getElementById('uploadBtn');
+    const photoInput = document.getElementById('photoInput');
+    const uploadArea = document.getElementById('uploadArea');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const newPhotoBtn = document.getElementById('newPhotoBtn');
 
+    if (uploadBtn) uploadBtn.addEventListener('click', () => photoInput.click());
+    if (photoInput) photoInput.addEventListener('change', handlePhotoSelect);
+    if (uploadArea) {
+        uploadArea.addEventListener('click', () => photoInput.click());
+        uploadArea.addEventListener('dragover', e => e.preventDefault());
+        uploadArea.addEventListener('drop', handleDrop);
+    }
+    if (analyzeBtn) analyzeBtn.addEventListener('click', analyzePhoto);
+    if (downloadBtn) downloadBtn.addEventListener('click', downloadCroppedPhoto);
+    if (newPhotoBtn) newPhotoBtn.addEventListener('click', resetApp);
+}
+
+// Load models
 async function loadModels() {
     try {
-        elements.statusMessage.textContent = 'Loading AI models...';
+        updateStatus('Loading AI models...');
         showLoading(true);
         
-        console.log('Loading Face Mesh model...');
-        await facemesh.load();
+        console.log('Loading Face Mesh...');
+        facemeshModel = await facemesh.load();
         
         modelsLoaded = true;
-        elements.statusMessage.textContent = 'Ready! Upload a photo.';
+        updateStatus('Ready! Upload a photo.');
         showLoading(false);
         console.log('Models loaded successfully');
     } catch (error) {
         console.error('Error loading models:', error);
-        showError('Failed to load AI models: ' + error.message);
+        showError('Failed to load AI models');
         showLoading(false);
     }
 }
 
-// ============================================
-// Event Listeners
-// ============================================
-
-elements.uploadBtn.addEventListener('click', function() {
-    elements.photoInput.click();
-});
-
-elements.photoInput.addEventListener('change', handlePhotoSelect);
-
-elements.uploadArea.addEventListener('click', function() {
-    elements.photoInput.click();
-});
-
-elements.uploadArea.addEventListener('dragover', handleDragOver);
-elements.uploadArea.addEventListener('drop', handleDrop);
-
-elements.analyzeBtn.addEventListener('click', analyzePhoto);
-elements.downloadBtn.addEventListener('click', downloadCroppedPhoto);
-elements.newPhotoBtn.addEventListener('click', resetApp);
-
-// ============================================
-// Photo Upload
-// ============================================
-
+// Photo select
 function handlePhotoSelect(event) {
     const file = event.target.files[0];
-    if (file) {
-        processPhoto(file);
-    }
+    if (file) processPhoto(file);
 }
 
-function handleDragOver(event) {
-    event.preventDefault();
-    elements.uploadArea.style.background = '#e8eef9';
-}
-
+// Photo drop
 function handleDrop(event) {
     event.preventDefault();
-    elements.uploadArea.style.background = '#f0f4ff';
     const file = event.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-        processPhoto(file);
-    }
+    if (file && file.type.startsWith('image/')) processPhoto(file);
 }
 
+// Process photo
 function processPhoto(file) {
     if (!file.type.startsWith('image/')) {
         showError('Please select an image');
@@ -108,7 +77,7 @@ function processPhoto(file) {
     }
 
     if (file.size > CONFIG.MAX_FILE_SIZE) {
-        showError('File too large (max 10 MB)');
+        showError('File too large');
         return;
     }
 
@@ -122,33 +91,35 @@ function processPhoto(file) {
             currentImage = img;
             displayOriginalPhoto(img);
             showLoading(false);
-            elements.statusMessage.textContent = 'Photo loaded. Click Analyze';
+            updateStatus('Photo loaded. Click Analyze');
         };
         img.src = e.target.result;
     };
     reader.readAsDataURL(file);
 }
 
+// Display original photo
 function displayOriginalPhoto(img) {
-    const canvas = elements.originalCanvas;
-    const ctx = canvas.getContext('2d');
+    const canvas = document.getElementById('originalCanvas');
+    if (!canvas) {
+        console.error('Canvas not found');
+        return;
+    }
 
+    const ctx = canvas.getContext('2d');
     canvas.width = img.width;
     canvas.height = img.height;
     ctx.drawImage(img, 0, 0);
 
-    elements.originalPhotoContainer.classList.remove('hidden');
-    elements.analyzeBtn.classList.remove('hidden');
-    elements.uploadBtn.classList.add('hidden');
+    document.getElementById('originalPhotoContainer').classList.remove('hidden');
+    document.getElementById('analyzeBtn').classList.remove('hidden');
+    document.getElementById('uploadBtn').classList.add('hidden');
 
-    elements.photoSize.textContent = img.width + 'x' + img.height + 'px';
-    elements.photoInfo.classList.remove('hidden');
+    document.getElementById('photoSize').textContent = img.width + 'x' + img.height + 'px';
+    document.getElementById('photoInfo').classList.remove('hidden');
 }
 
-// ============================================
-// Face Detection & Analysis
-// ============================================
-
+// Analyze photo
 async function analyzePhoto() {
     if (!currentImage) {
         showError('Photo not loaded');
@@ -156,22 +127,21 @@ async function analyzePhoto() {
     }
 
     if (!modelsLoaded) {
-        showError('Models loading. Please wait...');
+        showError('Models still loading');
         return;
     }
 
     showLoading(true);
-    elements.statusMessage.textContent = 'Analyzing photo...';
+    updateStatus('Analyzing photo...');
 
     try {
         console.log('Starting face detection...');
-        
-        const predictions = await facemesh.estimateFaces(currentImage);
+        const predictions = await facemeshModel.estimateFaces(currentImage);
         
         console.log('Predictions:', predictions);
 
         if (!predictions || predictions.length === 0) {
-            showError('Face not detected. Try another photo.');
+            showError('Face not detected');
             showLoading(false);
             return;
         }
@@ -181,27 +151,23 @@ async function analyzePhoto() {
         drawResultsWithLines();
         drawCroppedPhoto();
 
-        elements.resultPhotoContainer.classList.remove('hidden');
-        elements.croppedPhotoContainer.classList.remove('hidden');
-        elements.downloadBtn.classList.remove('hidden');
-        elements.newPhotoBtn.classList.remove('hidden');
+        document.getElementById('resultPhotoContainer').classList.remove('hidden');
+        document.getElementById('croppedPhotoContainer').classList.remove('hidden');
+        document.getElementById('downloadBtn').classList.remove('hidden');
+        document.getElementById('newPhotoBtn').classList.remove('hidden');
 
-        elements.statusMessage.textContent = 'Analysis complete!';
-
+        updateStatus('Analysis complete!');
         showLoading(false);
     } catch (error) {
         console.error('Analysis error:', error);
-        showError('Error during analysis: ' + error.message);
+        showError('Analysis failed: ' + error.message);
         showLoading(false);
     }
 }
 
-// ============================================
-// Drawing
-// ============================================
-
+// Draw results with lines
 function drawResultsWithLines() {
-    const canvas = elements.resultCanvas;
+    const canvas = document.getElementById('resultCanvas');
     const ctx = canvas.getContext('2d');
 
     canvas.width = currentImage.width;
@@ -211,30 +177,20 @@ function drawResultsWithLines() {
     if (!currentPredictions) return;
 
     const landmarks = currentPredictions.scaledMesh;
+    if (!landmarks || landmarks.length < 468) return;
 
-    if (landmarks.length < 468) return;
-
-    const topHead = {
-        x: landmarks[10][0],
-        y: landmarks[10][1]
-    };
-
+    const topHead = { x: landmarks[10][0], y: landmarks[10][1] };
     const eyeCenter = {
         x: (landmarks[33][0] + landmarks[263][0]) / 2,
         y: (landmarks[33][1] + landmarks[263][1]) / 2
     };
+    const chinBottom = { x: landmarks[152][0], y: landmarks[152][1] };
 
-    const chinBottom = {
-        x: landmarks[152][0],
-        y: landmarks[152][1]
-    };
-
-    const lineWidth = 3;
     const lineLength = canvas.width * 0.3;
 
-    drawHorizontalLine(ctx, topHead.x, topHead.y, lineLength, '#FFD700', lineWidth);
-    drawHorizontalLine(ctx, eyeCenter.x, eyeCenter.y, lineLength, '#00FF00', lineWidth);
-    drawHorizontalLine(ctx, chinBottom.x, chinBottom.y, lineLength, '#FF0000', lineWidth);
+    drawHorizontalLine(ctx, topHead.x, topHead.y, lineLength, '#FFD700', 3);
+    drawHorizontalLine(ctx, eyeCenter.x, eyeCenter.y, lineLength, '#00FF00', 3);
+    drawHorizontalLine(ctx, chinBottom.x, chinBottom.y, lineLength, '#FF0000', 3);
 
     drawPoint(ctx, topHead.x, topHead.y, '#FFD700');
     drawPoint(ctx, eyeCenter.x, eyeCenter.y, '#00FF00');
@@ -261,12 +217,9 @@ function drawPoint(ctx, x, y, color) {
     ctx.stroke();
 }
 
-// ============================================
-// Crop & Download
-// ============================================
-
+// Draw cropped photo
 function drawCroppedPhoto() {
-    const croppedCanvas = elements.croppedCanvas;
+    const croppedCanvas = document.getElementById('croppedCanvas');
     const ctx = croppedCanvas.getContext('2d');
 
     if (!currentPredictions) return;
@@ -278,40 +231,30 @@ function drawCroppedPhoto() {
     let minY = Math.min(...landmarks.map(l => l[1]));
     let maxY = Math.max(...landmarks.map(l => l[1]));
 
-    const faceWidth = maxX - minX;
-    const faceHeight = maxY - minY;
     const faceCenter = {
-        x: minX + faceWidth / 2,
-        y: minY + faceHeight / 2
+        x: minX + (maxX - minX) / 2,
+        y: minY + (maxY - minY) / 2
     };
 
-    const cropX = Math.max(0, faceCenter.x - CONFIG.CROP_SIZE / 2);
-    const cropY = Math.max(0, faceCenter.y - CONFIG.CROP_SIZE / 2);
+    let cropX = faceCenter.x - CONFIG.CROP_SIZE / 2;
+    let cropY = faceCenter.y - CONFIG.CROP_SIZE / 2;
 
-    const maxCropX = Math.max(0, currentImage.width - CONFIG.CROP_SIZE);
-    const maxCropY = Math.max(0, currentImage.height - CONFIG.CROP_SIZE);
-
-    const finalCropX = Math.min(cropX, maxCropX);
-    const finalCropY = Math.min(cropY, maxCropY);
+    cropX = Math.max(0, Math.min(cropX, currentImage.width - CONFIG.CROP_SIZE));
+    cropY = Math.max(0, Math.min(cropY, currentImage.height - CONFIG.CROP_SIZE));
 
     croppedCanvas.width = CONFIG.CROP_SIZE;
     croppedCanvas.height = CONFIG.CROP_SIZE;
 
     ctx.drawImage(
         currentImage,
-        finalCropX,
-        finalCropY,
-        CONFIG.CROP_SIZE,
-        CONFIG.CROP_SIZE,
-        0,
-        0,
-        CONFIG.CROP_SIZE,
-        CONFIG.CROP_SIZE
+        cropX, cropY, CONFIG.CROP_SIZE, CONFIG.CROP_SIZE,
+        0, 0, CONFIG.CROP_SIZE, CONFIG.CROP_SIZE
     );
 }
 
+// Download photo
 function downloadCroppedPhoto() {
-    const canvas = elements.croppedCanvas;
+    const canvas = document.getElementById('croppedCanvas');
     canvas.toBlob(function(blob) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -324,53 +267,52 @@ function downloadCroppedPhoto() {
     }, 'image/jpeg', 0.95);
 }
 
-// ============================================
 // UI Helpers
-// ============================================
+function updateStatus(text) {
+    const statusEl = document.getElementById('statusMessage');
+    if (statusEl) statusEl.textContent = text;
+}
 
 function showError(message) {
-    elements.errorMessage.textContent = message;
-    elements.errorMessage.classList.add('show');
+    const errorEl = document.getElementById('errorMessage');
+    if (errorEl) {
+        errorEl.textContent = message;
+        errorEl.classList.add('show');
+    }
 }
 
 function clearError() {
-    elements.errorMessage.classList.remove('show');
+    const errorEl = document.getElementById('errorMessage');
+    if (errorEl) errorEl.classList.remove('show');
 }
 
 function showLoading(show) {
-    if (show) {
-        elements.loadingSpinner.classList.remove('hidden');
-    } else {
-        elements.loadingSpinner.classList.add('hidden');
+    const spinner = document.getElementById('loadingSpinner');
+    if (spinner) {
+        if (show) {
+            spinner.classList.remove('hidden');
+        } else {
+            spinner.classList.add('hidden');
+        }
     }
 }
 
 function resetApp() {
     currentImage = null;
     currentPredictions = null;
-    elements.photoInput.value = '';
-    elements.originalPhotoContainer.classList.add('hidden');
-    elements.resultPhotoContainer.classList.add('hidden');
-    elements.croppedPhotoContainer.classList.add('hidden');
-    elements.analyzeBtn.classList.add('hidden');
-    elements.downloadBtn.classList.add('hidden');
-    elements.newPhotoBtn.classList.add('hidden');
-    elements.uploadBtn.classList.remove('hidden');
-    elements.statusMessage.textContent = 'Load photo to start';
-    elements.photoInfo.classList.add('hidden');
+    
+    document.getElementById('photoInput').value = '';
+    document.getElementById('originalPhotoContainer').classList.add('hidden');
+    document.getElementById('resultPhotoContainer').classList.add('hidden');
+    document.getElementById('croppedPhotoContainer').classList.add('hidden');
+    document.getElementById('analyzeBtn').classList.add('hidden');
+    document.getElementById('downloadBtn').classList.add('hidden');
+    document.getElementById('newPhotoBtn').classList.add('hidden');
+    document.getElementById('uploadBtn').classList.remove('hidden');
+    
+    updateStatus('Load photo to start');
+    document.getElementById('photoInfo').classList.add('hidden');
     clearError();
 }
 
-// ============================================
-// Initialization
-// ============================================
-
-window.addEventListener('load', function() {
-    console.log('App loaded');
-    if (typeof facemesh !== 'undefined') {
-        loadModels();
-    } else {
-        console.error('Face Mesh not loaded');
-        showError('Failed to load Face Mesh library');
-    }
-});
+console.log('App script loaded');
