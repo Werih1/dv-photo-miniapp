@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Green Card Photo Verification - Face Detection & Crop">
+    <title>Green Card Фото Проверка</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🇺🇸 Green Card Photo Check</h1>
+            <p>Проверка и обработка фотографии</p>
+        </header>
+
+        <main class="main-content">
+            <!-- Левая панель: загрузка и исходное фото -->
+            <div class="panel upload-panel">
+                <h2>Шаг 1: Загрузить фото</h2>
+
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="photoInput" accept="image/*" hidden>
+                    <div class="upload-placeholder">
+                        <span class="upload-icon">📷</span>
+                        <p>Нажмите или перетащите фото сюда</p>
+                        <small>JPG, PNG до 10 MB</small>
+                    </div>
+                </div>
+
+                <div id="originalPhotoContainer" class="photo-container hidden">
+                    <h3>Исходное фото</h3>
+                    <canvas id="originalCanvas"></canvas>
+                    <div class="info-box">
+                        <p><strong>Статус:</strong> <span id="statusMessage">Анализ...</span></p>
+                        <p id="photoInfo" class="hidden">Размер: <span id="photoSize"></span></p>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" id="uploadBtn">Загрузить фото</button>
+                    <button class="btn btn-secondary hidden" id="analyzeBtn">Анализировать</button>
+                </div>
+
+                <div id="errorMessage" class="error-message hidden"></div>
+                <div id="loadingSpinner" class="spinner hidden"></div>
+            </div>
+
+            <!-- Правая панель: обработанное фото с линиями -->
+            <div class="panel result-panel">
+                <h2>Шаг 2: Результат обработки</h2>
+
+                <div id="resultPhotoContainer" class="photo-container hidden">
+                    <h3>Фото с ориентирами</h3>
+                    <canvas id="resultCanvas"></canvas>
+                    <div class="landmarks-info">
+                        <p>🟡 <strong>Макушка (верх головы)</strong></p>
+                        <p>🟢 <strong>Глаза (центр)</strong></p>
+                        <p>🔴 <strong>Подбородок (низ)</strong></p>
+                    </div>
+                </div>
+
+                <div id="croppedPhotoContainer" class="photo-container hidden">
+                    <h3>Кроп 600×600px (для отправки)</h3>
+                    <canvas id="croppedCanvas"></canvas>
+                    <div class="crop-info">
+                        <p>✅ Готово к скачиванию</p>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-success hidden" id="downloadBtn">⬇️ Скачать фото</button>
+                    <button class="btn btn-secondary hidden" id="newPhotoBtn">📷 Загрузить новое фото</button>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Разработано для проверки фото Green Card США | Telegram Mini App</p>
+        </footer>
+    </div>
+
+    <!-- face-api.js из CDN (все модели встроены) -->
+    <script async src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+
+    <!-- Основное приложение -->
+    <script src="app.js"></script>
+</body>
+</html>
