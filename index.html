@@ -5,8 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Green Card Photo Validator</title>
     
-    <!-- OpenCV.js из CDN -->
-    <script async src="https://docs.opencv.org/4.5.0/opencv.js"></script>
+    <!-- MediaPipe FaceMesh - работает в браузере без каскадов! -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
     
     <style>
         * {
@@ -179,16 +181,6 @@
             transition: all 0.3s;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-
         .btn-secondary {
             background: #f0f0f0;
             color: #333;
@@ -247,7 +239,7 @@
 
         <div class="status loading" id="status">
             <span class="spinner"></span>
-            <span id="statusText">Загрузка OpenCV...</span>
+            <span id="statusText">Загрузка...</span>
         </div>
 
         <div class="upload-area" id="uploadArea">
@@ -308,30 +300,30 @@
     </div>
 
     <script>
-        let faceCascade, eyeCascade;
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         const status = document.getElementById('status');
         const statusText = document.getElementById('statusText');
 
-        // Инициализация
-        function onOpenCvReady() {
-            console.log('OpenCV.js готов');
-            
-            // Загружаем каскады Хаара
-            faceCascade = new cv.CascadeClassifier();
-            eyeCascade = new cv.CascadeClassifier();
+        // Инициализация FaceMesh
+        const faceMesh = new FaceMesh({
+            locateFile: (file) => {
+                return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+            }
+        });
 
-            // Загружаем из хардкода или URL
-            let faceCascadeUrl = 'haarcascade_frontalface_alt.xml';
-            let eyeCascadeUrl = 'haarcascade_eye.xml';
+        faceMesh.setOptions({
+            maxNumFaces: 1,
+            refineLandmarks: true,
+            minDetectionConfidence: 0.7,
+            minTrackingConfidence: 0.7,
+        });
 
-            faceCascade.load(faceCascadeUrl);
-            eyeCascade.load(eyeCascadeUrl);
+        faceMesh.onResults(onResults);
 
-            status.classList.remove('active');
-            console.log('Каскады загружены');
-        }
+        console.log('✓ FaceMesh готов');
+        status.classList.remove('active');
+        statusText.textContent = 'Готово';
 
         // Обработчики
         document.getElementById('uploadArea').addEventListener('click', () => {
@@ -372,112 +364,106 @@
             const reader = new FileReader();
             reader.onload = (event) => {
                 const img = new Image();
-                img.onload = () => {
+                img.onload = async () => {
                     canvas.width = img.width;
                     canvas.height = img.height;
                     ctx.drawImage(img, 0, 0);
 
-                    analyzePhoto(img);
+                    try {
+                        await faceMesh.send({ image: canvas });
+                    } catch (err) {
+                        console.error(err);
+                        showError('❌ Ошибка анализа: ' + err.message);
+                    }
                 };
                 img.src = event.target.result;
             };
             reader.readAsDataURL(file);
         }
 
-        function analyzePhoto(img) {
-            try {
-                let src = cv.imread(canvas);
-                let gray = new cv.Mat();
-                cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+        function onResults(results) {
+            if (!results.multiFaceLandmarks || !results.multiFaceLandmarks.length) {
+                showError('❌ Лицо не найдено');
+                document.getElementById('canvasWrapper').classList.remove('active');
+                document.getElementById('results').classList.remove('active');
+                return;
+            }
 
-                // Детекция лица
-                let faces = new cv.RectVector();
-                faceCascade.detectMultiScale(gray, faces, 1.1, 4, 0, new cv.Size(50, 50), new cv.Size(0, 0));
+            const landmarks = results.multiFaceLandmarks[0];
 
-                if (faces.size() === 0) {
-                    showError('❌ Лицо не найдено');
-                    gray.delete();
-                    src.delete();
-                    faces.delete();
-                    return;
-                }
+            // Переводим нормализованные координаты (0..1) в пиксели
+            const points = landmarks.map(p => ({
+                x: p.x * canvas.width,
+                y: p.y * canvas.height,
+            }));
 
-                let face = faces.get(0);
-                let faceRoi = gray.roi(face);
+            // Расчеты
+            const topOfHead = Math.min(...points.map(p => p.y));
+            const chin = Math.max(...points.map(p => p.y));
 
-                // Детекция глаз
-                let eyes = new cv.RectVector();
-                eyeCascade.detectMultiScale(faceRoi, eyes, 1.05, 4, 0, new cv.Size(15, 15), new cv.Size(0, 0));
+            // Глаза (индексы из FaceMesh: 33, 133 - левый; 362, 263 - правый)
+            const eyeIndices = [33, 133, 362, 263];
+            const eyeLevel = eyeIndices
+                .map(i => points[i].y)
+                .reduce((a, b) => a + b, 0) / eyeIndices.length;
 
-                let hasEyes = eyes.size() >= 2;
+            const headHeight = chin - topOfHead;
+            const headPercent = ((headHeight / canvas.height) * 100).toFixed(1);
 
-                // Расчеты
-                let topOfHead = face.y - (face.height * 0.08); // 8% запас
-                let chin = face.y + face.height;
-                let eyeLevel = face.y + (face.height * 0.35);
-
-                let headHeight = chin - topOfHead;
-                let headPercent = ((headHeight / img.height) * 100).toFixed(1);
-
-                // Рисуем линии
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Рисуем линии
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const img = new Image();
+            img.onload = () => {
                 ctx.drawImage(img, 0, 0);
+                drawLines(topOfHead, eyeLevel, chin);
+            };
+            img.src = canvas.toDataURL();
 
+            function drawLines(top, eyes, bottom) {
                 ctx.lineWidth = 3;
                 ctx.setLineDash([8, 8]);
 
                 // TOP
                 ctx.strokeStyle = '#ffeb3b';
                 ctx.beginPath();
-                ctx.moveTo(0, topOfHead);
-                ctx.lineTo(canvas.width, topOfHead);
+                ctx.moveTo(0, top);
+                ctx.lineTo(canvas.width, top);
                 ctx.stroke();
 
                 // EYES
                 ctx.strokeStyle = '#00e676';
                 ctx.beginPath();
-                ctx.moveTo(0, eyeLevel);
-                ctx.lineTo(canvas.width, eyeLevel);
+                ctx.moveTo(0, eyes);
+                ctx.lineTo(canvas.width, eyes);
                 ctx.stroke();
 
                 // CHIN
                 ctx.strokeStyle = '#ff5252';
                 ctx.beginPath();
-                ctx.moveTo(0, chin);
-                ctx.lineTo(canvas.width, chin);
+                ctx.moveTo(0, bottom);
+                ctx.lineTo(canvas.width, bottom);
                 ctx.stroke();
 
                 ctx.setLineDash([]);
+            }
 
-                // Показываем результаты
-                document.getElementById('topValue').textContent = topOfHead.toFixed(0);
-                document.getElementById('eyeValue').textContent = eyeLevel.toFixed(0);
-                document.getElementById('chinValue').textContent = chin.toFixed(0);
-                document.getElementById('heightValue').textContent = headHeight.toFixed(0) + ' px';
-                document.getElementById('percentValue').textContent = headPercent + '%';
+            // Показываем результаты
+            document.getElementById('topValue').textContent = topOfHead.toFixed(0);
+            document.getElementById('eyeValue').textContent = eyeLevel.toFixed(0);
+            document.getElementById('chinValue').textContent = chin.toFixed(0);
+            document.getElementById('heightValue').textContent = headHeight.toFixed(0) + ' px';
+            document.getElementById('percentValue').textContent = headPercent + '%';
 
-                document.getElementById('canvasWrapper').classList.add('active');
-                document.getElementById('results').classList.add('active');
-                document.getElementById('resetBtn').style.display = 'block';
+            document.getElementById('canvasWrapper').classList.add('active');
+            document.getElementById('results').classList.add('active');
+            document.getElementById('resetBtn').style.display = 'block';
 
-                // Статус
-                const isGood = headPercent >= 50 && headPercent <= 69 && hasEyes;
-                if (isGood) {
-                    showSuccess(`✅ Фото подходит! Размер: ${headPercent}%`);
-                } else {
-                    showError(`⚠️ Проверьте параметры. Размер: ${headPercent}%`);
-                }
-
-                // Очищаем
-                src.delete();
-                gray.delete();
-                faceRoi.delete();
-                faces.delete();
-                eyes.delete();
-
-            } catch (err) {
-                console.error(err);
-                showError('❌ Ошибка анализа: ' + err.message);
+            // Статус
+            const isGood = headPercent >= 50 && headPercent <= 69;
+            if (isGood) {
+                showSuccess(`✅ Фото подходит! Размер: ${headPercent}%`);
+            } else {
+                showError(`⚠️ Проверьте параметры. Размер: ${headPercent}%`);
             }
         }
 
@@ -497,19 +483,6 @@
             document.getElementById('results').classList.remove('active');
             document.getElementById('resetBtn').style.display = 'none';
             status.classList.remove('active');
-        }
-
-        // Инициализация когда OpenCV готов
-        if (typeof cv !== 'undefined') {
-            onOpenCvReady();
-        } else {
-            // Ждём загрузки OpenCV
-            const checkInterval = setInterval(() => {
-                if (typeof cv !== 'undefined') {
-                    clearInterval(checkInterval);
-                    onOpenCvReady();
-                }
-            }, 100);
         }
 
         // Telegram Web App API
