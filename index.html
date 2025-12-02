@@ -2,90 +2,522 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Green Card Photo Verification</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Green Card Photo Validator</title>
+    
+    <!-- OpenCV.js из CDN -->
+    <script async src="https://docs.opencv.org/4.5.0/opencv.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 20px;
+        }
+
+        .upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .upload-area input {
+            display: none;
+        }
+
+        .upload-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .upload-hint {
+            color: #999;
+            font-size: 11px;
+        }
+
+        .canvas-wrapper {
+            display: none;
+            margin-bottom: 20px;
+            background: #f5f5f5;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .canvas-wrapper.active {
+            display: block;
+        }
+
+        canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .results {
+            display: none;
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .results.active {
+            display: block;
+        }
+
+        .result-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: #666;
+            font-weight: 600;
+        }
+
+        .result-value {
+            color: #333;
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+            font-weight: 600;
+        }
+
+        .status.active {
+            display: block;
+        }
+
+        .status.success {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .status.loading {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .legend {
+            display: flex;
+            gap: 10px;
+            font-size: 12px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(0,0,0,0.1);
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <header class="header">
-            <h1>🎫 Green Card Photo Verification</h1>
-            <p class="subtitle">USA Lottery Photo Check</p>
-        </header>
+        <h1>📸 Green Card Validator</h1>
+        <p class="subtitle">Проверка фото для DV Lottery</p>
 
-        <!-- Error Message -->
-        <div id="errorMessage" class="error-message"></div>
-
-        <!-- Loading Spinner -->
-        <div id="loadingSpinner" class="loading-spinner hidden">
-            <div class="spinner"></div>
-            <p>Processing...</p>
+        <div class="status loading" id="status">
+            <span class="spinner"></span>
+            <span id="statusText">Загрузка OpenCV...</span>
         </div>
 
-        <!-- Upload Section -->
-        <div class="upload-section">
-            <div id="uploadArea" class="upload-area">
-                <div class="upload-icon">📸</div>
-                <p class="upload-text">Click or drag photo here</p>
-                <p class="upload-hint">JPG, PNG, WebP • Max 10 MB</p>
-            </div>
-            <input type="file" id="photoInput" accept="image/*" class="hidden">
-            <button id="uploadBtn" class="btn btn-primary">📤 Upload Photo</button>
+        <div class="upload-area" id="uploadArea">
+            <label>
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">Загрузите фото</div>
+                <div class="upload-hint">JPG, PNG до 10MB</div>
+            </label>
+            <input type="file" id="fileInput" accept="image/*">
         </div>
 
-        <!-- Status Message -->
-        <div id="statusMessage" class="status-message">Ready to verify photos</div>
-
-        <!-- Photo Info -->
-        <div id="photoInfo" class="photo-info hidden">
-            <p>Photo size: <span id="photoSize">-</span></p>
-        </div>
-
-        <!-- Original Photo Display -->
-        <div id="originalPhotoContainer" class="photo-container hidden">
-            <h3>📷 Original Photo</h3>
-            <canvas id="originalCanvas" class="canvas"></canvas>
-            <button id="analyzeBtn" class="btn btn-primary hidden">🔍 Analyze Photo</button>
-        </div>
-
-        <!-- Result Photo with Lines -->
-        <div id="resultPhotoContainer" class="photo-container hidden">
-            <h3>✅ Analysis Result (with guide lines)</h3>
+        <div class="canvas-wrapper" id="canvasWrapper">
+            <canvas id="canvas"></canvas>
             <div class="legend">
-                <span class="legend-item">
-                    <span class="legend-color" style="background: #FFD700;"></span>
-                    🟡 Top of Head
-                </span>
-                <span class="legend-item">
-                    <span class="legend-color" style="background: #00FF00;"></span>
-                    🟢 Eye Center
-                </span>
-                <span class="legend-item">
-                    <span class="legend-color" style="background: #FF0000;"></span>
-                    🔴 Chin Bottom
-                </span>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ffeb3b;"></div>
+                    <span>Макушка</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #00e676;"></div>
+                    <span>Глаза</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ff5252;"></div>
+                    <span>Подбородок</span>
+                </div>
             </div>
-            <canvas id="resultCanvas" class="canvas"></canvas>
         </div>
 
-        <!-- Cropped Photo (600x600, clean) -->
-        <div id="croppedPhotoContainer" class="photo-container hidden">
-            <h3>💾 Final 600×600 Photo (Clean)</h3>
-            <p class="crop-hint">This is your downloadable photo - no guide lines</p>
-            <canvas id="croppedCanvas" class="canvas-cropped"></canvas>
-            <button id="downloadBtn" class="btn btn-success hidden">⬇️ Download Photo</button>
+        <div class="results" id="results">
+            <div class="result-row">
+                <span class="result-label">Верхушка (Y):</span>
+                <span class="result-value" id="topValue">-</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Глаза (Y):</span>
+                <span class="result-value" id="eyeValue">-</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Подбородок (Y):</span>
+                <span class="result-value" id="chinValue">-</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Высота головы:</span>
+                <span class="result-value" id="heightValue">-</span>
+            </div>
+            <div class="result-row">
+                <span class="result-label">Доля в кадре:</span>
+                <span class="result-value" id="percentValue">-</span>
+            </div>
         </div>
 
-        <!-- New Photo Button -->
-        <div class="action-buttons hidden" id="newPhotoContainer">
-            <button id="newPhotoBtn" class="btn btn-secondary">🔄 Upload New Photo</button>
+        <div class="button-group">
+            <button class="btn-secondary" id="resetBtn" onclick="reset()" style="display: none;">
+                ↻ Другое фото
+            </button>
         </div>
     </div>
 
-    <!-- Face-api.js from CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/dist/face-api.min.js"></script>
-    
-    <!-- Your App -->
-    <script src="app.js"></script>
+    <script>
+        let faceCascade, eyeCascade;
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const status = document.getElementById('status');
+        const statusText = document.getElementById('statusText');
+
+        // Инициализация
+        function onOpenCvReady() {
+            console.log('OpenCV.js готов');
+            
+            // Загружаем каскады Хаара
+            faceCascade = new cv.CascadeClassifier();
+            eyeCascade = new cv.CascadeClassifier();
+
+            // Загружаем из хардкода или URL
+            let faceCascadeUrl = 'haarcascade_frontalface_alt.xml';
+            let eyeCascadeUrl = 'haarcascade_eye.xml';
+
+            faceCascade.load(faceCascadeUrl);
+            eyeCascade.load(eyeCascadeUrl);
+
+            status.classList.remove('active');
+            console.log('Каскады загружены');
+        }
+
+        // Обработчики
+        document.getElementById('uploadArea').addEventListener('click', () => {
+            document.getElementById('fileInput').click();
+        });
+
+        document.getElementById('fileInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                processFile(file);
+            }
+        });
+
+        // Drag and drop
+        document.getElementById('uploadArea').addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.target.closest('.upload-area').style.background = 'rgba(102, 126, 234, 0.1)';
+        });
+
+        document.getElementById('uploadArea').addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            document.getElementById('uploadArea').style.background = '';
+        });
+
+        document.getElementById('uploadArea').addEventListener('drop', (e) => {
+            e.preventDefault();
+            document.getElementById('uploadArea').style.background = '';
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                processFile(file);
+            }
+        });
+
+        function processFile(file) {
+            status.classList.add('active', 'loading');
+            statusText.textContent = 'Обработка...';
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+
+                    analyzePhoto(img);
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function analyzePhoto(img) {
+            try {
+                let src = cv.imread(canvas);
+                let gray = new cv.Mat();
+                cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+
+                // Детекция лица
+                let faces = new cv.RectVector();
+                faceCascade.detectMultiScale(gray, faces, 1.1, 4, 0, new cv.Size(50, 50), new cv.Size(0, 0));
+
+                if (faces.size() === 0) {
+                    showError('❌ Лицо не найдено');
+                    gray.delete();
+                    src.delete();
+                    faces.delete();
+                    return;
+                }
+
+                let face = faces.get(0);
+                let faceRoi = gray.roi(face);
+
+                // Детекция глаз
+                let eyes = new cv.RectVector();
+                eyeCascade.detectMultiScale(faceRoi, eyes, 1.05, 4, 0, new cv.Size(15, 15), new cv.Size(0, 0));
+
+                let hasEyes = eyes.size() >= 2;
+
+                // Расчеты
+                let topOfHead = face.y - (face.height * 0.08); // 8% запас
+                let chin = face.y + face.height;
+                let eyeLevel = face.y + (face.height * 0.35);
+
+                let headHeight = chin - topOfHead;
+                let headPercent = ((headHeight / img.height) * 100).toFixed(1);
+
+                // Рисуем линии
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+
+                ctx.lineWidth = 3;
+                ctx.setLineDash([8, 8]);
+
+                // TOP
+                ctx.strokeStyle = '#ffeb3b';
+                ctx.beginPath();
+                ctx.moveTo(0, topOfHead);
+                ctx.lineTo(canvas.width, topOfHead);
+                ctx.stroke();
+
+                // EYES
+                ctx.strokeStyle = '#00e676';
+                ctx.beginPath();
+                ctx.moveTo(0, eyeLevel);
+                ctx.lineTo(canvas.width, eyeLevel);
+                ctx.stroke();
+
+                // CHIN
+                ctx.strokeStyle = '#ff5252';
+                ctx.beginPath();
+                ctx.moveTo(0, chin);
+                ctx.lineTo(canvas.width, chin);
+                ctx.stroke();
+
+                ctx.setLineDash([]);
+
+                // Показываем результаты
+                document.getElementById('topValue').textContent = topOfHead.toFixed(0);
+                document.getElementById('eyeValue').textContent = eyeLevel.toFixed(0);
+                document.getElementById('chinValue').textContent = chin.toFixed(0);
+                document.getElementById('heightValue').textContent = headHeight.toFixed(0) + ' px';
+                document.getElementById('percentValue').textContent = headPercent + '%';
+
+                document.getElementById('canvasWrapper').classList.add('active');
+                document.getElementById('results').classList.add('active');
+                document.getElementById('resetBtn').style.display = 'block';
+
+                // Статус
+                const isGood = headPercent >= 50 && headPercent <= 69 && hasEyes;
+                if (isGood) {
+                    showSuccess(`✅ Фото подходит! Размер: ${headPercent}%`);
+                } else {
+                    showError(`⚠️ Проверьте параметры. Размер: ${headPercent}%`);
+                }
+
+                // Очищаем
+                src.delete();
+                gray.delete();
+                faceRoi.delete();
+                faces.delete();
+                eyes.delete();
+
+            } catch (err) {
+                console.error(err);
+                showError('❌ Ошибка анализа: ' + err.message);
+            }
+        }
+
+        function showSuccess(msg) {
+            status.className = 'status active success';
+            statusText.textContent = msg;
+        }
+
+        function showError(msg) {
+            status.className = 'status active error';
+            statusText.textContent = msg;
+        }
+
+        function reset() {
+            document.getElementById('fileInput').value = '';
+            document.getElementById('canvasWrapper').classList.remove('active');
+            document.getElementById('results').classList.remove('active');
+            document.getElementById('resetBtn').style.display = 'none';
+            status.classList.remove('active');
+        }
+
+        // Инициализация когда OpenCV готов
+        if (typeof cv !== 'undefined') {
+            onOpenCvReady();
+        } else {
+            // Ждём загрузки OpenCV
+            const checkInterval = setInterval(() => {
+                if (typeof cv !== 'undefined') {
+                    clearInterval(checkInterval);
+                    onOpenCvReady();
+                }
+            }, 100);
+        }
+
+        // Telegram Web App API
+        if (window.Telegram && window.Telegram.WebApp) {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+            tg.expand();
+        }
+    </script>
 </body>
 </html>
