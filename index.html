@@ -3,20 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portrait Validator Pro</title>
-    <script async src="https://cdn.jsdelivr.net/npm/face-api.min.js"></script>
+    <title>DV-Lottery Photo Check</title>
     <style>
-        :root {
-            --color-primary: #2196F3;
-            --color-success: #4CAF50;
-            --color-error: #f44336;
-            --color-warning: #ff9800;
-            --color-bg: #f5f5f5;
-            --color-surface: #ffffff;
-            --color-text: #333333;
-            --color-text-secondary: #666666;
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -24,345 +12,437 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background-color: var(--color-bg);
-            color: var(--color-text);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
-            line-height: 1.6;
         }
 
         .container {
-            max-width: 600px;
-            margin: 0 auto;
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        /* ===== ГЛАВНАЯ СТРАНИЦА ===== */
+        #mainPage {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 20px;
         }
 
         .header {
             text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: #999;
+        }
+
+        .language-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+            font-size: 12px;
+        }
+
+        .language-selector button {
+            padding: 5px 15px;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .language-selector button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 30px 0;
+        }
+
+        .checks-remaining {
+            text-align: center;
             margin-bottom: 30px;
-            padding-top: 20px;
         }
 
-        .header h1 {
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 8px;
+        .checks-count {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
         }
 
-        .header p {
-            color: var(--color-text-secondary);
+        .checks-label {
+            color: #999;
             font-size: 14px;
         }
 
-        .lang-switcher {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            gap: 8px;
-        }
-
-        .lang-btn {
-            padding: 6px 12px;
-            border: 1px solid var(--color-primary);
-            background: white;
-            color: var(--color-primary);
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .lang-btn.active {
-            background: var(--color-primary);
+        .upload-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-        }
-
-        .card {
-            background: var(--color-surface);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-
-        .upload-section {
-            text-align: center;
-            padding: 40px 20px;
-            border: 2px dashed var(--color-primary);
-            border-radius: 12px;
-            background-color: rgba(33, 150, 243, 0.05);
+            border: none;
+            padding: 18px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 15px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
+            margin: 20px 0;
+            transition: all 0.3s;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
         }
 
-        .upload-section:hover {
-            border-color: var(--color-primary);
-            background-color: rgba(33, 150, 243, 0.1);
+        .upload-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.6);
         }
 
-        .upload-section input {
+        .upload-button:active {
+            transform: translateY(0);
+        }
+
+        .menu-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .menu-item {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .menu-item:hover {
+            background: #f0f0f0;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .menu-item-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .menu-item-text {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .footer-menu {
+            border-top: 1px solid #f0f0f0;
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+
+        .footer-item {
+            padding: 15px 0;
+            text-align: center;
+            color: #667eea;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .footer-item:hover {
+            color: #764ba2;
+        }
+
+        /* ===== МОДАЛЬНЫЕ ОКНА ===== */
+        .modal {
             display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        /* ===== АНАЛИЗ СТРАНИЦА ===== */
+        #analysisPage {
+            display: none;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        #analysisPage.active {
+            display: flex;
+        }
+
+        .analysis-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .analysis-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .analysis-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .analysis-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9ff;
+        }
+
+        .upload-area:hover {
+            background: #f0f2ff;
+            border-color: #764ba2;
+        }
+
+        .upload-area.dragover {
+            background: #e8ebff;
+            border-color: #667eea;
         }
 
         .upload-icon {
             font-size: 48px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .upload-text {
             font-size: 16px;
+            color: #333;
             font-weight: 500;
-            color: var(--color-primary);
             margin-bottom: 5px;
         }
 
         .upload-hint {
-            font-size: 12px;
-            color: var(--color-text-secondary);
+            font-size: 13px;
+            color: #999;
         }
 
-        .btn {
-            width: 100%;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 10px;
-        }
-
-        .btn-primary {
-            background-color: var(--color-primary);
-            color: white;
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            background-color: #1976D2;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
-        }
-
-        .btn-primary:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        .btn-secondary {
-            background-color: var(--color-success);
-            color: white;
-        }
-
-        .btn-secondary:hover:not(:disabled) {
-            background-color: #45a049;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
-        }
-
-        .canvas-wrapper {
-            position: relative;
-            display: inline-block;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-        #previewImage {
-            width: 100%;
-            max-height: 500px;
-            object-fit: contain;
-            border-radius: 8px;
-            background: #f0f0f0;
-            display: block;
-        }
-
-        #lineCanvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            cursor: grab;
-            border-radius: 8px;
-        }
-
-        #lineCanvas:active {
-            cursor: grabbing;
-        }
-
-        .drag-hint {
-            font-size: 12px;
-            color: var(--color-text-secondary);
-            margin-bottom: 15px;
-            padding: 10px;
-            background-color: rgba(0, 0, 0, 0.02);
-            border-radius: 6px;
-            text-align: center;
-        }
-
-        .line-controls {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
+        #photoInput {
             display: none;
         }
 
-        .line-controls.show {
-            display: grid;
+        .image-preview {
+            position: relative;
+            margin-bottom: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #f0f0f0;
         }
 
-        .line-control {
-            padding: 12px;
+        #uploadedImage {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .image-canvas-container {
+            position: relative;
+            margin: 20px 0;
+            border-radius: 15px;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+
+        #analysisCanvas {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .instructions {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
             border-radius: 8px;
-            text-align: center;
-            font-size: 11px;
-            font-weight: 500;
+            margin: 20px 0;
+            font-size: 13px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .instructions-title {
+            font-weight: 600;
+            margin-bottom: 10px;
             display: flex;
-            flex-direction: column;
             align-items: center;
             gap: 8px;
         }
 
-        .line-control img {
-            width: 110px;
-            height: 110px;
-            object-fit: cover;
-            border-radius: 6px;
-            border: 2px solid;
+        .instruction-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin: 8px 0;
         }
 
-        .line-control.red {
-            background-color: rgba(244, 67, 54, 0.1);
-            border: 2px solid #f44336;
-            color: #f44336;
-        }
-
-        .line-control.red img {
-            border-color: #f44336;
-        }
-
-        .line-control.green {
-            background-color: rgba(76, 175, 80, 0.1);
-            border: 2px solid #4CAF50;
-            color: #4CAF50;
-        }
-
-        .line-control.green img {
-            border-color: #4CAF50;
-        }
-
-        .line-control.yellow {
-            background-color: rgba(255, 193, 7, 0.1);
-            border: 2px solid #FFC107;
-            color: #F57F17;
-        }
-
-        .line-control.yellow img {
-            border-color: #FFC107;
-        }
-
-        .line-control-description {
-            font-size: 10px;
-            line-height: 1.3;
-            font-weight: 500;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-            margin: 20px 0;
-        }
-
-        .loading.show {
-            display: block;
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--color-primary);
+        .instruction-number {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            background: #667eea;
+            color: white;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .loading-text {
-            color: var(--color-text-secondary);
-            font-size: 14px;
-        }
-
-        .result {
-            display: none;
-            margin-top: 20px;
-        }
-
-        .result.show {
-            display: block;
-        }
-
-        .result-image {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        #resultImage {
-            width: 100%;
-            max-width: 600px;
-            aspect-ratio: 1;
-            border-radius: 8px;
-            object-fit: cover;
-            background: #f0f0f0;
-        }
-
-        .criteria-list {
-            list-style: none;
-            margin-bottom: 20px;
-        }
-
-        .criteria-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px;
-            border-bottom: 1px solid #e0e0e0;
-            font-size: 13px;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
         }
 
-        .criteria-item:last-child {
-            border-bottom: none;
+        .line-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 12px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
         }
 
-        .criteria-status {
-            font-size: 18px;
-            min-width: 20px;
-            text-align: center;
+        .line-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            flex-shrink: 0;
         }
 
-        .criteria-status.ok {
-            color: var(--color-success);
-        }
-
-        .criteria-status.fail {
-            color: var(--color-error);
-        }
-
-        .criteria-name {
+        .line-control input[type="range"] {
             flex: 1;
-            font-weight: 500;
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
         }
 
-        .criteria-value {
+        .line-control input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .line-control input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .line-value {
+            width: 40px;
             text-align: right;
-            color: var(--color-text-secondary);
-            min-width: 80px;
+            font-weight: 600;
+            color: #667eea;
+            font-size: 12px;
         }
 
         .button-group {
@@ -371,182 +451,424 @@
             margin-top: 20px;
         }
 
-        .button-group .btn {
+        .btn {
             flex: 1;
-        }
-
-        .success-banner {
-            background: rgba(76, 175, 80, 0.1);
-            border-left: 4px solid var(--color-success);
             padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            color: var(--color-success);
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
             font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
         }
 
-        .error-banner {
-            background: rgba(244, 67, 54, 0.1);
-            border-left: 4px solid var(--color-error);
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            color: var(--color-error);
-            font-weight: 600;
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
 
-        .warning-banner {
-            background: rgba(255, 193, 7, 0.15);
-            border-left: 4px solid var(--color-warning);
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background: #e8e8e8;
+        }
+
+        .btn-back {
+            background: #f0f0f0;
+            color: #667eea;
+            font-size: 14px;
+        }
+
+        .btn-back:hover {
+            background: #e8e8e8;
+        }
+
+        .back-button {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 10px 15px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 8px;
+            color: #667eea;
+            cursor: pointer;
+            font-size: 14px;
             font-weight: 500;
-            font-size: 13px;
-            line-height: 1.5;
+            transition: all 0.3s;
+            margin-bottom: 15px;
         }
 
-        .warning-banner strong {
-            color: #F57F17;
+        .back-button:hover {
+            background: #e8e8e8;
         }
 
-        .warning-banner p {
-            color: #333333;
-            margin: 8px 0;
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            gap: 10px;
         }
 
-        @media (max-width: 600px) {
-            .header h1 {
-                font-size: 22px;
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f0f0f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            font-size: 16px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .results-container {
+            margin: 20px 0;
+        }
+
+        .result-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .result-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .result-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-top: 5px;
+        }
+
+        .status-success {
+            color: #28a745;
+        }
+
+        .status-warning {
+            color: #ffc107;
+        }
+
+        .status-error {
+            color: #dc3545;
+        }
+
+        .download-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 15px;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 15px 0;
+            width: 100%;
+        }
+
+        .download-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+
+        /* ===== ЯЗЫК ===== */
+        .hidden {
+            display: none;
+        }
+
+        /* ===== АДАПТИВНОСТЬ ===== */
+        @media (max-width: 480px) {
+            .container {
+                border-radius: 0;
+                max-width: 100%;
             }
 
-            .card {
-                padding: 16px;
+            body {
+                padding: 0;
+                background: white;
             }
 
-            .button-group {
-                flex-direction: column;
-            }
-
-            .lang-switcher {
-                position: static;
-                justify-content: center;
-                margin-bottom: 20px;
-            }
-
-            .line-controls {
+            .menu-section {
                 grid-template-columns: 1fr;
             }
 
-            .line-control img {
-                width: 130px;
-                height: 130px;
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .modal-content {
+                border-radius: 20px 20px 0 0;
+                max-height: 100%;
             }
         }
     </style>
 </head>
 <body>
-    <div class="lang-switcher">
-        <button class="lang-btn active" onclick="setLanguage('ru')">RU</button>
-        <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+    <div class="container">
+        <!-- ГЛАВНАЯ СТРАНИЦА -->
+        <div id="mainPage" class="active">
+            <div class="header">
+                <div class="logo">DV-Lottery</div>
+                <div class="subtitle">Photo Check</div>
+                <div class="language-selector">
+                    <button class="lang-btn active" data-lang="ru">RU</button>
+                    <button class="lang-btn" data-lang="en">EN</button>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <div class="checks-remaining">
+                    <div class="checks-count">3</div>
+                    <div class="checks-label" data-i18n="remainingChecks">Осталось проверок:</div>
+                </div>
+
+                <button class="upload-button" id="mainUploadBtn" data-i18n="uploadPhoto">
+                    📸 ЗАГРУЗИТЬ ФОТО
+                </button>
+
+                <div class="menu-section">
+                    <div class="menu-item" id="howItWorks">
+                        <div class="menu-item-icon">❓</div>
+                        <div class="menu-item-text" data-i18n="howItWorks">Как это работает</div>
+                    </div>
+                    <div class="menu-item" id="newsBtn">
+                        <div class="menu-item-icon">📰</div>
+                        <div class="menu-item-text" data-i18n="news">Новости</div>
+                    </div>
+                    <div class="menu-item" id="tariffsBtn">
+                        <div class="menu-item-icon">💰</div>
+                        <div class="menu-item-text" data-i18n="tariffs">Тарифы</div>
+                    </div>
+                    <div class="menu-item" id="fillDvBtn">
+                        <div class="menu-item-icon">📋</div>
+                        <div class="menu-item-text" data-i18n="fillDv">Как заполнить DV 2027</div>
+                    </div>
+                </div>
+
+                <div class="footer-menu">
+                    <div class="footer-item" id="telegramBtn" data-i18n="telegram">Мы в Telegram</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА АНАЛИЗА -->
+        <div id="analysisPage">
+            <div class="analysis-header">
+                <button class="back-button" id="backToMain">← <span data-i18n="back">Назад</span></button>
+                <div class="analysis-title" data-i18n="portraitCheck">Проверка портрета</div>
+                <div class="analysis-subtitle" data-i18n="uploadPhotoAnalysis">Загрузите фото для анализа пропорций лица</div>
+            </div>
+
+            <div class="analysis-content">
+                <!-- БЛОК ЗАГРУЗКИ -->
+                <div id="uploadBlock">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">📷</div>
+                        <div class="upload-text" data-i18n="uploadPhoto">Загрузить фото</div>
+                        <div class="upload-hint" data-i18n="uploadHint">Перетащите изображение или нажмите для выбора файла</div>
+                    </div>
+                    <input type="file" id="photoInput" accept="image/*">
+                </div>
+
+                <!-- БЛОК С ИЗОБРАЖЕНИЕМ И РЕГУЛИРОВКОЙ -->
+                <div id="adjustmentBlock" class="hidden">
+                    <button class="back-button" id="changePhotoBtn">← <span data-i18n="uploadDifferent">Загрузить другое фото</span></button>
+                    
+                    <div class="success-message" data-i18n="photoLoaded">Ваше фото загружено. Отрегулируйте линии.</div>
+
+                    <div class="image-canvas-container">
+                        <canvas id="analysisCanvas"></canvas>
+                    </div>
+
+                    <div class="instructions">
+                        <div class="instructions-title">
+                            <span>✋</span>
+                            <span data-i18n="adjustLines">Перемещайте линии вверх/вниз согласно инструкции ниже:</span>
+                        </div>
+                        <div class="instruction-item">
+                            <div class="instruction-number">1</div>
+                            <div data-i18n="instruction1">Устанавливаем жёлтую линию на верхней точке головы</div>
+                        </div>
+                        <div class="instruction-item">
+                            <div class="instruction-number">2</div>
+                            <div data-i18n="instruction2">Устанавливаем зеленую линию на уровне глаз</div>
+                        </div>
+                        <div class="instruction-item">
+                            <div class="instruction-number">3</div>
+                            <div data-i18n="instruction3">Устанавливаем красную линию на нижней точке подбородка</div>
+                        </div>
+                    </div>
+
+                    <div class="line-control">
+                        <div class="line-color" style="background: #FFD700;"></div>
+                        <label style="flex: 1; font-size: 12px; color: #999;">
+                            <span data-i18n="topOfHead">Верх головы</span>
+                        </label>
+                        <input type="range" id="yellowLine" min="0" max="100" value="20">
+                        <div class="line-value" id="yellowValue">20px</div>
+                    </div>
+
+                    <div class="line-control">
+                        <div class="line-color" style="background: #00CC00;"></div>
+                        <label style="flex: 1; font-size: 12px; color: #999;">
+                            <span data-i18n="eyeLevel">Уровень глаз</span>
+                        </label>
+                        <input type="range" id="greenLine" min="0" max="100" value="50">
+                        <div class="line-value" id="greenValue">50px</div>
+                    </div>
+
+                    <div class="line-control">
+                        <div class="line-color" style="background: #FF0000;"></div>
+                        <label style="flex: 1; font-size: 12px; color: #999;">
+                            <span data-i18n="chinBottom">Подбородок</span>
+                        </label>
+                        <input type="range" id="redLine" min="0" max="100" value="80">
+                        <div class="line-value" id="redValue">80px</div>
+                    </div>
+
+                    <button class="btn btn-primary" id="analyzeBtn" data-i18n="check">✓ Проверить</button>
+                </div>
+
+                <!-- БЛОК ЗАГРУЗКИ (АНАЛИЗ) -->
+                <div id="loadingBlock" class="hidden">
+                    <div class="loading">
+                        <div class="loading-spinner"></div>
+                        <div class="loading-text" data-i18n="analyzing">Анализируем фотографию...</div>
+                    </div>
+                </div>
+
+                <!-- БЛОК РЕЗУЛЬТАТОВ -->
+                <div id="resultsBlock" class="hidden">
+                    <button class="back-button" id="newPhotoBtn">↻ <span data-i18n="uploadDifferent">Загрузить другое фото</span></button>
+
+                    <div class="results-container" id="resultsContainer"></div>
+
+                    <button class="download-button" id="downloadBtn">
+                        <span>⬇</span>
+                        <span data-i18n="download">Скачать фото</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="container">
-        <div class="header">
-            <h1>🎯 <span id="mainTitle">Проверка портрета</span></h1>
-            <p id="mainSubtitle">Загрузите фото для анализа пропорций лица</p>
-        </div>
-
-        <div class="card" id="uploadCard">
-            <div class="upload-section" onclick="document.getElementById('photoInput').click()">
-                <div class="upload-icon">📷</div>
-                <div class="upload-text" id="uploadText">Загрузить фото</div>
-                <div class="upload-hint" id="uploadHint">Перетащите изображение или нажмите для выбора файла</div>
-                <input type="file" id="photoInput" accept="image/*" capture="environment">
+    <!-- МОДАЛЬНЫЕ ОКНА -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" data-i18n="howItWorks">Как это работает</div>
+                <button class="modal-close" data-i18n="close">✕</button>
             </div>
-        </div>
-
-        <div class="card" id="editorCard" style="display: none;">
-            <h3 style="margin-bottom: 15px; font-size: 16px;" id="editorTitle">Ваше фото загружено. Отрегулируйте линии.</h3>
-
-            <div class="canvas-wrapper">
-                <img id="previewImage" alt="Preview">
-                <canvas id="lineCanvas"></canvas>
-            </div>
-
-            <div class="drag-hint" id="dragHint">
-                ✋ Перемещайте линии вверх/вниз согласно инструкции ниже:
-            </div>
-
-            <div class="line-controls" id="lineControls">
-                <div class="line-control yellow">
-                    <img src="images/YellowLine.png" alt="Yellow line">
-                    <div class="line-control-description">Устанавливаем жёлтую линию на верхней точке головы</div>
-                </div>
-                <div class="line-control green">
-                    <img src="images/GreenLine.png" alt="Green line">
-                    <div class="line-control-description">Устанавливаем зеленую линию на уровне глаз</div>
-                </div>
-                <div class="line-control red">
-                    <img src="images/RedLine.png" alt="Red line">
-                    <div class="line-control-description">Устанавливаем красную линию на нижней точке подбородка</div>
-                </div>
-            </div>
-
-            <button class="btn btn-primary" onclick="analyzePhoto()" id="analyzeBtn">✓ Проверить</button>
-            <button class="btn" style="background-color: #999; color: white;" onclick="resetUpload()" id="resetBtn1">← Загрузить другое фото</button>
-        </div>
-
-        <div class="card" id="analysisCard" style="display: none;">
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <div class="loading-text" id="loadingText">Анализируем фотографию...</div>
-            </div>
-
-            <div class="result" id="result">
-                <div class="result-image">
-                    <img id="resultImage">
-                </div>
-
-                <div id="resultMessage"></div>
-
-                <ul class="criteria-list" id="criteriaBody"></ul>
-
-                <div class="button-group">
-                    <button class="btn btn-secondary" onclick="downloadPhoto()" id="downloadBtn">⬇ Скачать фото</button>
-                    <button class="btn" style="background-color: #999; color: white;" onclick="resetUpload()" id="resetBtn2">↻ Загрузить другое фото</button>
-                </div>
+            <div class="modal-body">
+                <p data-i18n="howItWorksText">Наше приложение анализирует пропорции вашего лица согласно стандартам фото для DV-лотереи.</p>
             </div>
         </div>
     </div>
 
     <script>
+        // ===== МНОГОЯЗЫЧНОСТЬ =====
         const translations = {
             ru: {
-                mainTitle: "Проверка портрета",
-                mainSubtitle: "Загрузите фото для анализа пропорций лица",
-                uploadText: "Загрузить фото",
-                uploadHint: "Перетащите изображение или нажмите для выбора файла",
-                editorTitle: "Отрегулируйте линии",
-                dragHint: "✋ Перемещайте линии вверх/вниз",
-                analyzeBtn: "✓ Проверить",
-                resetBtn: "← Загрузить другое фото",
-                loadingText: "Анализируем фотографию...",
-                downloadBtn: "⬇ Скачать фото",
-                resetBtn2: "↻ Загрузить другое фото"
+                remainingChecks: 'Осталось проверок:',
+                uploadPhoto: '📸 ЗАГРУЗИТЬ ФОТО',
+                howItWorks: 'Как это работает',
+                news: 'Новости',
+                tariffs: 'Тарифы',
+                fillDv: 'Как заполнить DV 2027',
+                telegram: 'Мы в Telegram',
+                back: 'Назад',
+                portraitCheck: 'Проверка портрета',
+                uploadPhotoAnalysis: 'Загрузите фото для анализа пропорций лица',
+                uploadHint: 'Перетащите изображение или нажмите для выбора файла',
+                photoLoaded: 'Ваше фото загружено. Отрегулируйте линии.',
+                uploadDifferent: 'Загрузить другое фото',
+                adjustLines: 'Перемещайте линии вверх/вниз согласно инструкции ниже:',
+                instruction1: 'Устанавливаем жёлтую линию на верхней точке головы',
+                instruction2: 'Устанавливаем зеленую линию на уровне глаз',
+                instruction3: 'Устанавливаем красную линию на нижней точке подбородка',
+                topOfHead: 'Верх головы',
+                eyeLevel: 'Уровень глаз',
+                chinBottom: 'Подбородок',
+                check: '✓ Проверить',
+                analyzing: 'Анализируем фотографию...',
+                download: 'Скачать фото',
+                close: '✕'
             },
             en: {
-                mainTitle: "Portrait Validator",
-                mainSubtitle: "Upload a photo to analyze facial proportions",
-                uploadText: "Upload Photo",
-                uploadHint: "Drag image here or click to select file",
-                editorTitle: "Adjust the lines",
-                dragHint: "✋ Move lines up/down",
-                analyzeBtn: "✓ Check",
-                resetBtn: "← Load another photo",
-                loadingText: "Analyzing photo...",
-                downloadBtn: "⬇ Download Photo",
-                resetBtn2: "↻ Load another photo"
+                remainingChecks: 'Checks remaining:',
+                uploadPhoto: '📸 UPLOAD PHOTO',
+                howItWorks: 'How it works',
+                news: 'News',
+                tariffs: 'Tariffs',
+                fillDv: 'How to fill DV 2027',
+                telegram: 'Follow us on Telegram',
+                back: 'Back',
+                portraitCheck: 'Portrait Check',
+                uploadPhotoAnalysis: 'Upload a photo to analyze your face proportions',
+                uploadHint: 'Drag an image here or click to select a file',
+                photoLoaded: 'Your photo is uploaded. Adjust the lines.',
+                uploadDifferent: 'Upload different photo',
+                adjustLines: 'Move the lines up/down according to the instructions below:',
+                instruction1: 'Set the yellow line at the top of the head',
+                instruction2: 'Set the green line at the eye level',
+                instruction3: 'Set the red line at the bottom of the chin',
+                topOfHead: 'Top of head',
+                eyeLevel: 'Eye level',
+                chinBottom: 'Chin',
+                check: '✓ Check',
+                analyzing: 'Analyzing photo...',
+                download: 'Download photo',
+                close: '✕'
             }
         };
 
@@ -554,364 +876,295 @@
 
         function setLanguage(lang) {
             currentLanguage = lang;
-            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+            document.documentElement.lang = lang;
+            localStorage.setItem('language', lang);
         }
 
-        let currentImage = null;
-        let faceDetectionModel = null;
-        let lines = { yellow: 0, green: 50, red: 100 };
-        let selectedLine = null;
-        let analyzeResult = null;
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                setLanguage(e.target.dataset.lang);
+            });
+        });
 
-        document.getElementById('photoInput').addEventListener('change', handlePhotoUpload);
+        // ===== НАВИГАЦИЯ МЕЖДУ СТРАНИЦАМИ =====
+        const mainPage = document.getElementById('mainPage');
+        const analysisPage = document.getElementById('analysisPage');
+        const mainUploadBtn = document.getElementById('mainUploadBtn');
+        const backToMainBtn = document.getElementById('backToMain');
 
-        async function handlePhotoUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+        function showAnalysisPage() {
+            mainPage.classList.remove('active');
+            analysisPage.classList.add('active');
+        }
 
-            const fileFormat = file.type === 'image/jpeg' ? 'jpeg' : file.type.split('/')[1];
-            const fileSize = file.size;
-            const photoDate = new Date(file.lastModified);
+        function showMainPage() {
+            analysisPage.classList.remove('active');
+            mainPage.classList.add('active');
+            resetAnalysis();
+        }
+
+        mainUploadBtn.addEventListener('click', showAnalysisPage);
+        backToMainBtn.addEventListener('click', showMainPage);
+
+        // ===== ЗАГРУЗКА ФОТО =====
+        const uploadArea = document.getElementById('uploadArea');
+        const photoInput = document.getElementById('photoInput');
+        const uploadBlock = document.getElementById('uploadBlock');
+        const adjustmentBlock = document.getElementById('adjustmentBlock');
+
+        uploadArea.addEventListener('click', () => photoInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                handlePhotoSelect(e.dataTransfer.files[0]);
+            }
+        });
+
+        photoInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                handlePhotoSelect(e.target.files[0]);
+            }
+        });
+
+        function handlePhotoSelect(file) {
+            if (!file.type.startsWith('image/')) {
+                alert(currentLanguage === 'ru' ? 'Пожалуйста, выберите изображение' : 'Please select an image');
+                return;
+            }
 
             const reader = new FileReader();
-            reader.onload = async (e) => {
+            reader.onload = (e) => {
                 const img = new Image();
-                img.onload = async () => {
+                img.onload = () => {
                     currentImage = img;
-                    document.getElementById('uploadCard').style.display = 'none';
-                    document.getElementById('editorCard').style.display = 'block';
-
-                    const preview = document.getElementById('previewImage');
-                    preview.src = e.target.result;
-                    preview.onload = () => {
-                        initializeLineCanvas();
-                        detectFaceAndSetLines();
-                    };
-
-                    analyzeResult = { fileFormat, fileSize, photoDate };
+                    showAdjustmentBlock();
+                    redrawCanvas();
                 };
                 img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
 
-        function initializeLineCanvas() {
-            const preview = document.getElementById('previewImage');
-            const canvas = document.getElementById('lineCanvas');
+        // ===== CANVAS И ЛИНИИ =====
+        let currentImage = null;
+        let canvasWidth = 0;
+        let canvasHeight = 0;
+
+        const canvas = document.getElementById('analysisCanvas');
+        const ctx = canvas.getContext('2d');
+        const yellowLineInput = document.getElementById('yellowLine');
+        const greenLineInput = document.getElementById('greenLine');
+        const redLineInput = document.getElementById('redLine');
+        const yellowValue = document.getElementById('yellowValue');
+        const greenValue = document.getElementById('greenValue');
+        const redValue = document.getElementById('redValue');
+
+        function resizeCanvas() {
+            if (!currentImage) return;
             
-            canvas.width = preview.offsetWidth;
-            canvas.height = preview.offsetHeight;
-
-            document.getElementById('lineControls').classList.add('show');
-            drawLines();
-            setupLineEvents();
+            const maxWidth = canvas.parentElement.offsetWidth;
+            const ratio = currentImage.width / currentImage.height;
+            
+            canvasWidth = maxWidth;
+            canvasHeight = maxWidth / ratio;
+            
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
         }
 
-        async function detectFaceAndSetLines() {
-            try {
-                if (!faceDetectionModel) {
-                    await Promise.all([
-                        faceapi.nets.ssdMobilenetv1.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/models'),
-                        faceapi.nets.faceLandmark68Net.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/models')
-                    ]);
-                    faceDetectionModel = true;
-                }
-
-                const detections = await faceapi
-                    .detectSingleFace(currentImage, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
-                    .withFaceLandmarks();
-
-                if (detections && detections.landmarks) {
-                    const landmarks = detections.landmarks.positions;
-                    let topOfHead = Math.min(...landmarks.map(p => p.y));
-                    const bottomOfChin = landmarks[8].y;
-                    const eyeLevel = (landmarks[36].y + landmarks[45].y) / 2;
-                    topOfHead = Math.max(0, topOfHead - (currentImage.height * 0.08));
-
-                    lines.yellow = Math.max(0, Math.min(100, (topOfHead / currentImage.height) * 100));
-                    lines.green = Math.max(0, Math.min(100, (eyeLevel / currentImage.height) * 100));
-                    lines.red = Math.max(0, Math.min(100, (bottomOfChin / currentImage.height) * 100));
-                    drawLines();
-                } else {
-                    lines = { yellow: 15, green: 45, red: 80 };
-                    drawLines();
-                }
-            } catch (error) {
-                lines = { yellow: 15, green: 45, red: 80 };
-                drawLines();
-            }
+        function redrawCanvas() {
+            if (!currentImage) return;
+            
+            resizeCanvas();
+            ctx.drawImage(currentImage, 0, 0, canvasWidth, canvasHeight);
+            
+            const yellowPercent = parseInt(yellowLineInput.value) / 100;
+            const greenPercent = parseInt(greenLineInput.value) / 100;
+            const redPercent = parseInt(redLineInput.value) / 100;
+            
+            drawLine(yellowPercent * canvasHeight, '#FFD700');
+            drawLine(greenPercent * canvasHeight, '#00CC00');
+            drawLine(redPercent * canvasHeight, '#FF0000');
         }
 
-        function drawLines() {
-            const canvas = document.getElementById('lineCanvas');
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            drawLine(ctx, (lines.yellow / 100) * canvas.height, '#FFC107');
-            drawLine(ctx, (lines.green / 100) * canvas.height, '#4CAF50');
-            drawLine(ctx, (lines.red / 100) * canvas.height, '#f44336');
-        }
-
-        function drawLine(ctx, y, color) {
+        function drawLine(yPos, color) {
             ctx.strokeStyle = color;
-            ctx.lineWidth = 1.5;
-            ctx.setLineDash([6, 6]);
+            ctx.lineWidth = 3;
             ctx.beginPath();
-            ctx.moveTo(0, y);
-            ctx.lineTo(ctx.canvas.width, y);
+            ctx.moveTo(0, yPos);
+            ctx.lineTo(canvasWidth, yPos);
             ctx.stroke();
-            ctx.setLineDash([]);
-
+            
             ctx.fillStyle = color;
-            ctx.fillRect(0, y - 3, 25, 6);
-            ctx.fillRect(ctx.canvas.width - 25, y - 3, 25, 6);
+            ctx.fillRect(0, yPos - 5, 10, 10);
         }
 
-        function setupLineEvents() {
-            const canvas = document.getElementById('lineCanvas');
-            canvas.addEventListener('mousedown', handleLineMouseDown);
-            canvas.addEventListener('touchstart', handleLineMouseDown);
-            canvas.addEventListener('mousemove', handleLineMouseMove);
-            canvas.addEventListener('touchmove', handleLineMouseMove);
-            canvas.addEventListener('mouseup', handleLineMouseUp);
-            canvas.addEventListener('touchend', handleLineMouseUp);
-        }
+        yellowLineInput.addEventListener('input', (e) => {
+            yellowValue.textContent = e.target.value + '%';
+            redrawCanvas();
+        });
 
-        function handleLineMouseDown(e) {
-            const canvas = document.getElementById('lineCanvas');
-            const rect = canvas.getBoundingClientRect();
-            const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-            const tolerance = 40;
+        greenLineInput.addEventListener('input', (e) => {
+            greenValue.textContent = e.target.value + '%';
+            redrawCanvas();
+        });
 
-            if (Math.abs(y - (lines.yellow / 100) * canvas.height) < tolerance) selectedLine = 'yellow';
-            else if (Math.abs(y - (lines.green / 100) * canvas.height) < tolerance) selectedLine = 'green';
-            else if (Math.abs(y - (lines.red / 100) * canvas.height) < tolerance) selectedLine = 'red';
-        }
+        redLineInput.addEventListener('input', (e) => {
+            redValue.textContent = e.target.value + '%';
+            redrawCanvas();
+        });
 
-        function handleLineMouseMove(e) {
-            if (!selectedLine) return;
-            const canvas = document.getElementById('lineCanvas');
-            const rect = canvas.getBoundingClientRect();
-            const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
-            lines[selectedLine] = Math.max(0, Math.min(100, (y / canvas.height) * 100));
-            drawLines();
-        }
+        // ===== АНАЛИЗ И РЕЗУЛЬТАТЫ =====
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const loadingBlock = document.getElementById('loadingBlock');
+        const resultsBlock = document.getElementById('resultsBlock');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const changePhotoBtn = document.getElementById('changePhotoBtn');
+        const newPhotoBtn = document.getElementById('newPhotoBtn');
 
-        function handleLineMouseUp() {
-            selectedLine = null;
-        }
+        analyzeBtn.addEventListener('click', performAnalysis);
 
-        async function analyzePhoto() {
-            document.getElementById('editorCard').style.display = 'none';
-            document.getElementById('analysisCard').style.display = 'block';
-            document.getElementById('loading').classList.add('show');
-
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            const croppedImage = createCrop();
-            const proportions = await checkProportions();
-
-            document.getElementById('loading').classList.remove('show');
-            document.getElementById('result').classList.add('show');
-            showResults(croppedImage, proportions);
-        }
-
-        function createCrop() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 600;
-            canvas.height = 600;
-            const ctx = canvas.getContext('2d');
-
-            const yellowY = (lines.yellow / 100) * currentImage.height;
-            const redY = (lines.red / 100) * currentImage.height;
-            const greenY = (lines.green / 100) * currentImage.height;
-            const faceHeightPixels = redY - yellowY;
-            const facePercentInCrop = 0.60;
-            const totalHeightNeeded = faceHeightPixels / facePercentInCrop;
-            const topMargin = totalHeightNeeded * ((1 - facePercentInCrop) / 2);
+        function performAnalysis() {
+            adjustmentBlock.classList.add('hidden');
+            loadingBlock.classList.remove('hidden');
             
-            let sourceY = yellowY - topMargin;
-            if (sourceY < 0) sourceY = 0;
-            
-            let sourceHeight = Math.min(totalHeightNeeded, currentImage.height - sourceY);
-            if (sourceY + sourceHeight < currentImage.height && sourceHeight < totalHeightNeeded) {
-                sourceY = Math.max(0, currentImage.height - totalHeightNeeded);
-                sourceHeight = currentImage.height - sourceY;
-            }
-            
-            let sourceX = (currentImage.width - sourceHeight) / 2;
-            if (sourceX < 0) sourceX = 0;
-            if (sourceX + sourceHeight > currentImage.width) sourceX = currentImage.width - sourceHeight;
-
-            ctx.drawImage(currentImage, sourceX, sourceY, sourceHeight, sourceHeight, 0, 0, 600, 600);
-
-            analyzeResult.sourceX = sourceX;
-            analyzeResult.sourceY = sourceY;
-            analyzeResult.sourceSize = sourceHeight;
-
-            let quality = 0.95;
-            let compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
-            while (getBase64Size(compressedDataUrl) > 240 * 1024 && quality > 0.3) {
-                quality -= 0.05;
-                compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
-            }
-            
-            analyzeResult.compressedDataUrl = compressedDataUrl;
-            return compressedDataUrl;
-        }
-
-        function getBase64Size(base64String) {
-            const base64 = base64String.split(',')[1];
-            const padding = (base64.match(/=/g) || []).length;
-            return Math.ceil((base64.length * 3 / 4) - padding);
-        }
-
-        async function checkProportions() {
-            const faceHeightPercent = lines.red - lines.yellow;
-            const eyeHeightPercent = 100 - lines.green;
-
-            const faceHeightOk = faceHeightPercent >= 50 && faceHeightPercent <= 69;
-            const eyeHeightOk = eyeHeightPercent >= 56 && eyeHeightPercent <= 69;
-            const fileFormatOk = analyzeResult && analyzeResult.fileFormat === 'jpeg';
-            const finalFileSizeBytes = analyzeResult.compressedDataUrl ? getBase64Size(analyzeResult.compressedDataUrl) : 0;
-            const fileSizeOk = finalFileSizeBytes <= 240 * 1024;
-            
-            let dateOk = true;
-            if (analyzeResult && analyzeResult.photoDate) {
-                const sixMonthsAgo = new Date();
-                sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-                dateOk = analyzeResult.photoDate >= sixMonthsAgo;
-            }
-
-            const headTiltAnalysis = await analyzeHeadTilt();
-            const eyesOpenAnalysis = await analyzeEyesOpen();
-
-            return {
-                faceHeight: Math.round(faceHeightPercent * 10) / 10,
-                eyeHeight: Math.round(eyeHeightPercent * 10) / 10,
-                faceHeightOk, eyeHeightOk, fileFormatOk, fileSizeOk, dateOk,
-                headTiltOk: headTiltAnalysis.tiltOk,
-                headTiltAngle: headTiltAnalysis.tiltAngle,
-                eyesOpenOk: eyesOpenAnalysis.eyesOpenOk,
-                allOk: faceHeightOk && eyeHeightOk && fileFormatOk && fileSizeOk && dateOk && headTiltAnalysis.tiltOk && eyesOpenAnalysis.eyesOpenOk
-            };
-        }
-
-        async function analyzeHeadTilt() {
-            try {
-                if (!faceDetectionModel) {
-                    await Promise.all([
-                        faceapi.nets.ssdMobilenetv1.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/models'),
-                        faceapi.nets.faceLandmark68Net.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/models')
-                    ]);
-                    faceDetectionModel = true;
-                }
-
-                const detections = await faceapi
-                    .detectSingleFace(currentImage, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
-                    .withFaceLandmarks();
-
-                if (!detections || !detections.landmarks) return { tiltOk: true, tiltAngle: 0 };
+            setTimeout(() => {
+                const yellowPercent = parseInt(yellowLineInput.value);
+                const greenPercent = parseInt(greenLineInput.value);
+                const redPercent = parseInt(redLineInput.value);
                 
-                const landmarks = detections.landmarks.positions;
-                const dx = landmarks[45].x - landmarks[36].x;
-                const dy = landmarks[45].y - landmarks[36].y;
-                let tiltAngle = Math.atan2(dy, dx) * (180 / Math.PI);
-                tiltAngle = Math.abs(tiltAngle);
+                const faceHeight = redPercent - yellowPercent;
+                const topPart = greenPercent - yellowPercent;
+                const bottomPart = redPercent - greenPercent;
                 
-                return { tiltOk: tiltAngle <= 5, tiltAngle: tiltAngle.toFixed(1) };
-            } catch (error) {
-                return { tiltOk: true, tiltAngle: 0 };
-            }
-        }
-
-        async function analyzeEyesOpen() {
-            try {
-                if (!faceDetectionModel) {
-                    await Promise.all([
-                        faceapi.nets.ssdMobilenetv1.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/models'),
-                        faceapi.nets.faceLandmark68Net.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/models')
-                    ]);
-                    faceDetectionModel = true;
-                }
-
-                const detections = await faceapi
-                    .detectSingleFace(currentImage, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
-                    .withFaceLandmarks();
-
-                if (!detections || !detections.landmarks) return { eyesOpenOk: true };
+                const ratio1 = topPart / faceHeight;
+                const ratio2 = bottomPart / faceHeight;
                 
-                return { eyesOpenOk: true };
-            } catch (error) {
-                return { eyesOpenOk: true };
-            }
+                let status1 = ratio1 >= 0.35 && ratio1 <= 0.45 ? 'success' : ratio1 > 0.45 ? 'warning' : 'error';
+                let status2 = ratio2 >= 0.55 && ratio2 <= 0.65 ? 'success' : ratio2 > 0.65 ? 'warning' : 'error';
+                
+                resultsContainer.innerHTML = `
+                    <div class="result-item">
+                        <div class="result-label">${currentLanguage === 'ru' ? 'Верх / Середина' : 'Top / Middle'}</div>
+                        <div class="result-value status-${status1}">${(ratio1 * 100).toFixed(1)}%</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">${currentLanguage === 'ru' ? 'Середина / Низ' : 'Middle / Bottom'}</div>
+                        <div class="result-value status-${status2}">${(ratio2 * 100).toFixed(1)}%</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">${currentLanguage === 'ru' ? 'Статус' : 'Status'}</div>
+                        <div class="result-value status-${status1 === 'success' && status2 === 'success' ? 'success' : 'warning'}">
+                            ${status1 === 'success' && status2 === 'success' ? '✓ OK' : '⚠ Требуется регулировка'}
+                        </div>
+                    </div>
+                `;
+                
+                loadingBlock.classList.add('hidden');
+                resultsBlock.classList.remove('hidden');
+            }, 2000);
         }
 
-        function showResults(croppedImage, proportions) {
-            document.getElementById('resultImage').src = croppedImage;
+        downloadBtn.addEventListener('click', downloadImage);
 
-            let resultMsg = proportions.allOk 
-                ? `<div class="success-banner">Фото соответствует всем требованиям. Результаты ниже:</div>`
-                : `<div class="error-banner">Фото не соответствует требованиям. Результаты ниже:</div>`;
-            document.getElementById('resultMessage').innerHTML = resultMsg;
-
-            let listHTML = `
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Ширина фото</span><span class="criteria-value">600 px</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Высота фото</span><span class="criteria-value">600 px</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Обнаружение лица</span><span class="criteria-value">Да</span></li>
-                <li class="criteria-item"><span class="criteria-status ${proportions.headTiltOk ? 'ok' : 'fail'}">${proportions.headTiltOk ? '✓' : '✗'}</span><span class="criteria-name">Наклон головы</span><span class="criteria-value">${proportions.headTiltAngle}°</span></li>
-                <li class="criteria-item"><span class="criteria-status ${proportions.faceHeightOk ? 'ok' : 'fail'}">${proportions.faceHeightOk ? '✓' : '✗'}</span><span class="criteria-name">Размер головы</span><span class="criteria-value">${proportions.faceHeight}%</span></li>
-                <li class="criteria-item"><span class="criteria-status ${proportions.eyeHeightOk ? 'ok' : 'fail'}">${proportions.eyeHeightOk ? '✓' : '✗'}</span><span class="criteria-name">Высота уровня глаз</span><span class="criteria-value">${proportions.eyeHeight}%</span></li>
-                <li class="criteria-item"><span class="criteria-status ${proportions.eyesOpenOk ? 'ok' : 'fail'}">${proportions.eyesOpenOk ? '✓' : '✗'}</span><span class="criteria-name">Глаза открыты</span><span class="criteria-value">Да</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Нейтральное выражение лица (без улыбки)</span><span class="criteria-value">Да</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Фон нейтрального цвета</span><span class="criteria-value">Да</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Однородный светлый фон</span><span class="criteria-value">Да</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Резкие тени</span><span class="criteria-value">Нет</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Косметическая обработка (beauty-фильтры)</span><span class="criteria-value">Нет</span></li>
-                <li class="criteria-item"><span class="criteria-status ${proportions.fileFormatOk ? 'ok' : 'fail'}">${proportions.fileFormatOk ? '✓' : '✗'}</span><span class="criteria-name">Формат файла</span><span class="criteria-value">JPEG</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Цветовое пространство</span><span class="criteria-value">sRGB</span></li>
-            `;
-
-            const finalFileSizeBytes = getBase64Size(analyzeResult.compressedDataUrl);
-            const finalFileSizeKB = (finalFileSizeBytes / 1024).toFixed(1);
-            const finalFileSizeOk = finalFileSizeBytes <= 240 * 1024;
-            listHTML += `<li class="criteria-item"><span class="criteria-status ${finalFileSizeOk ? 'ok' : 'fail'}">${finalFileSizeOk ? '✓' : '✗'}</span><span class="criteria-name">Размер файла</span><span class="criteria-value">${finalFileSizeKB} KB</span></li>`;
-
-            const formattedDate = analyzeResult.photoDate ? analyzeResult.photoDate.toLocaleDateString('ru-RU') : 'Неизвестно';
-            listHTML += `<li class="criteria-item"><span class="criteria-status ${proportions.dateOk ? 'ok' : 'fail'}">${proportions.dateOk ? '✓' : '✗'}</span><span class="criteria-name">Дата фотографии (не старше 6 месяцев)</span><span class="criteria-value">${formattedDate}</span></li>`;
-
-            document.getElementById('criteriaBody').innerHTML = listHTML;
+        function downloadImage() {
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = 'dv_lottery_photo_check.png';
+            link.click();
         }
 
-        function downloadPhoto() {
-            if (!analyzeResult || !analyzeResult.sourceX) return;
-            try {
-                const cleanCanvas = document.createElement('canvas');
-                cleanCanvas.width = 600;
-                cleanCanvas.height = 600;
-                const ctx = cleanCanvas.getContext('2d');
-                ctx.drawImage(currentImage, analyzeResult.sourceX, analyzeResult.sourceY, analyzeResult.sourceSize, analyzeResult.sourceSize, 0, 0, 600, 600);
+        changePhotoBtn.addEventListener('click', resetAnalysis);
+        newPhotoBtn.addEventListener('click', resetAnalysis);
 
-                const link = document.createElement('a');
-                link.href = cleanCanvas.toDataURL('image/jpeg', 0.95);
-                link.download = `CROPPED-portrait_${Date.now()}.jpg`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            } catch (error) {
-                alert('Ошибка при скачивании.');
-            }
-        }
-
-        function resetUpload() {
-            document.getElementById('uploadCard').style.display = 'block';
-            document.getElementById('editorCard').style.display = 'none';
-            document.getElementById('analysisCard').style.display = 'none';
-            document.getElementById('photoInput').value = '';
+        function resetAnalysis() {
             currentImage = null;
-            analyzeResult = null;
+            photoInput.value = '';
+            uploadBlock.classList.remove('hidden');
+            adjustmentBlock.classList.add('hidden');
+            loadingBlock.classList.add('hidden');
+            resultsBlock.classList.add('hidden');
+            
+            yellowLineInput.value = 20;
+            greenLineInput.value = 50;
+            redLineInput.value = 80;
+            yellowValue.textContent = '20%';
+            greenValue.textContent = '50%';
+            redValue.textContent = '80%';
         }
+
+        function showAdjustmentBlock() {
+            uploadBlock.classList.add('hidden');
+            adjustmentBlock.classList.remove('hidden');
+        }
+
+        // ===== МОДАЛЬНЫЕ ОКНА =====
+        const infoModal = document.getElementById('infoModal');
+        const modalClose = document.querySelector('.modal-close');
+        const howItWorksBtn = document.getElementById('howItWorks');
+
+        howItWorksBtn.addEventListener('click', () => {
+            infoModal.classList.add('active');
+        });
+
+        modalClose.addEventListener('click', () => {
+            infoModal.classList.remove('active');
+        });
+
+        infoModal.addEventListener('click', (e) => {
+            if (e.target === infoModal) {
+                infoModal.classList.remove('active');
+            }
+        });
+
+        // ===== МЕНЮ КНОПКИ (для расширения функционала) =====
+        document.getElementById('newsBtn').addEventListener('click', () => {
+            alert(currentLanguage === 'ru' ? 'Раздел в разработке' : 'Section under development');
+        });
+
+        document.getElementById('tariffsBtn').addEventListener('click', () => {
+            alert(currentLanguage === 'ru' ? 'Раздел в разработке' : 'Section under development');
+        });
+
+        document.getElementById('fillDvBtn').addEventListener('click', () => {
+            alert(currentLanguage === 'ru' ? 'Раздел в разработке' : 'Section under development');
+        });
+
+        document.getElementById('telegramBtn').addEventListener('click', () => {
+            window.open('https://t.me/DVlotteryPhotoCheckbot', '_blank');
+        });
+
+        // ===== ИНИЦИАЛИЗАЦИЯ =====
+        const savedLanguage = localStorage.getItem('language') || 'ru';
+        setLanguage(savedLanguage);
+        document.querySelector(`[data-lang="${savedLanguage}"]`).classList.add('active');
+
+        // Адаптивность canvas при изменении размера окна
+        window.addEventListener('resize', () => {
+            if (currentImage && !adjustmentBlock.classList.contains('hidden')) {
+                redrawCanvas();
+            }
+        });
     </script>
 </body>
 </html>
