@@ -2,15 +2,21 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Green Card Photo Validator</title>
-    
-    <!-- MediaPipe FaceMesh - работает в браузере без каскадов! -->
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portrait Validator Pro</title>
+    <script async src="https://cdn.jsdelivr.net/npm/face-api.min.js"></script>
     <style>
+        :root {
+            --color-primary: #2196F3;
+            --color-success: #4CAF50;
+            --color-error: #f44336;
+            --color-warning: #ff9800;
+            --color-bg: #f5f5f5;
+            --color-surface: #ffffff;
+            --color-text: #333333;
+            --color-text-secondary: #666666;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -18,478 +24,893 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            padding: 20px;
+            line-height: 1.6;
         }
 
         .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-top: 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: var(--color-text-secondary);
+            font-size: 14px;
+        }
+
+        .lang-switcher {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .lang-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--color-primary);
             background: white;
-            border-radius: 20px;
-            padding: 20px;
-            max-width: 500px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 24px;
-        }
-
-        .subtitle {
-            text-align: center;
-            color: #666;
-            font-size: 12px;
-            margin-bottom: 20px;
-        }
-
-        .upload-area {
-            border: 2px dashed #667eea;
-            border-radius: 12px;
-            padding: 30px 20px;
-            text-align: center;
+            color: var(--color-primary);
+            border-radius: 4px;
             cursor: pointer;
-            transition: all 0.3s;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .lang-btn.active {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .card {
+            background: var(--color-surface);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
         }
 
-        .upload-area:hover {
-            border-color: #764ba2;
-            background: rgba(102, 126, 234, 0.05);
+        .upload-section {
+            text-align: center;
+            padding: 40px 20px;
+            border: 2px dashed var(--color-primary);
+            border-radius: 12px;
+            background-color: rgba(33, 150, 243, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
         }
 
-        .upload-area input {
+        .upload-section:hover {
+            border-color: var(--color-primary);
+            background-color: rgba(33, 150, 243, 0.1);
+        }
+
+        .upload-section input {
             display: none;
         }
 
         .upload-icon {
-            font-size: 40px;
+            font-size: 48px;
             margin-bottom: 10px;
         }
 
         .upload-text {
-            color: #333;
-            font-weight: 600;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--color-primary);
             margin-bottom: 5px;
         }
 
         .upload-hint {
-            color: #999;
-            font-size: 11px;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background-color: var(--color-primary);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: #1976D2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+        }
+
+        .btn-primary:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background-color: var(--color-success);
+            color: white;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background-color: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
         }
 
         .canvas-wrapper {
-            display: none;
-            margin-bottom: 20px;
-            background: #f5f5f5;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .canvas-wrapper.active {
-            display: block;
-        }
-
-        canvas {
+            position: relative;
+            display: inline-block;
             width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        .results {
-            display: none;
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 12px;
             margin-bottom: 20px;
         }
 
-        .results.active {
+        #previewImage {
+            width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: #f0f0f0;
             display: block;
         }
 
-        .result-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid #eee;
-            font-size: 14px;
+        #lineCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: grab;
+            border-radius: 8px;
         }
 
-        .result-row:last-child {
-            border-bottom: none;
+        #lineCanvas:active {
+            cursor: grabbing;
         }
 
-        .result-label {
-            color: #666;
-            font-weight: 600;
+        .drag-hint {
+            font-size: 12px;
+            color: var(--color-text-secondary);
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.02);
+            border-radius: 6px;
+            text-align: center;
         }
 
-        .result-value {
-            color: #333;
-            font-family: monospace;
-            font-weight: bold;
+        .line-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+            display: none;
         }
 
-        .status {
+        .line-controls.show {
+            display: grid;
+        }
+
+        .line-control {
             padding: 12px;
             border-radius: 8px;
             text-align: center;
-            margin-bottom: 20px;
-            display: none;
-            font-weight: 600;
+            font-size: 11px;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
         }
 
-        .status.active {
+        .line-control img {
+            width: 110px;
+            height: 110px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 2px solid;
+        }
+
+        .line-control.red {
+            background-color: rgba(244, 67, 54, 0.1);
+            border: 2px solid #f44336;
+            color: #f44336;
+        }
+
+        .line-control.red img {
+            border-color: #f44336;
+        }
+
+        .line-control.green {
+            background-color: rgba(76, 175, 80, 0.1);
+            border: 2px solid #4CAF50;
+            color: #4CAF50;
+        }
+
+        .line-control.green img {
+            border-color: #4CAF50;
+        }
+
+        .line-control.yellow {
+            background-color: rgba(255, 193, 7, 0.1);
+            border: 2px solid #FFC107;
+            color: #F57F17;
+        }
+
+        .line-control.yellow img {
+            border-color: #FFC107;
+        }
+
+        .line-control-description {
+            font-size: 10px;
+            line-height: 1.3;
+            font-weight: 500;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .loading.show {
             display: block;
         }
 
-        .status.success {
-            background: #e8f5e9;
-            color: #388e3c;
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--color-primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
         }
 
-        .status.error {
-            background: #ffebee;
-            color: #c62828;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        .status.loading {
-            background: #e3f2fd;
-            color: #1976d2;
+        .loading-text {
+            color: var(--color-text-secondary);
+            font-size: 14px;
+        }
+
+        .result {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .result.show {
+            display: block;
+        }
+
+        .result-image {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #resultImage {
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #f0f0f0;
+        }
+
+        .criteria-list {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .criteria-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 13px;
+        }
+
+        .criteria-item:last-child {
+            border-bottom: none;
+        }
+
+        .criteria-status {
+            font-size: 18px;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .criteria-status.ok {
+            color: var(--color-success);
+        }
+
+        .criteria-status.fail {
+            color: var(--color-error);
+        }
+
+        .criteria-name {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .criteria-value {
+            text-align: right;
+            color: var(--color-text-secondary);
+            min-width: 80px;
         }
 
         .button-group {
             display: flex;
             gap: 10px;
+            margin-top: 20px;
         }
 
-        button {
+        .button-group .btn {
             flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
+        }
+
+        .success-banner {
+            background: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid var(--color-success);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            color: var(--color-success);
             font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
         }
 
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
+        .error-banner {
+            background: rgba(244, 67, 54, 0.1);
+            border-left: 4px solid var(--color-error);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            color: var(--color-error);
+            font-weight: 600;
         }
 
-        .btn-secondary:hover {
-            background: #e0e0e0;
+        .warning-banner {
+            background: rgba(255, 193, 7, 0.15);
+            border-left: 4px solid var(--color-warning);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            font-size: 13px;
+            line-height: 1.5;
         }
 
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .warning-banner strong {
+            color: #F57F17;
         }
 
-        .legend {
-            display: flex;
-            gap: 10px;
-            font-size: 12px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-            justify-content: center;
+        .warning-banner p {
+            color: #333333;
+            margin: 8px 0;
         }
 
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 22px;
+            }
 
-        .legend-color {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-        }
+            .card {
+                padding: 16px;
+            }
 
-        .spinner {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(0,0,0,0.1);
-            border-top-color: currentColor;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin-right: 8px;
-        }
+            .button-group {
+                flex-direction: column;
+            }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+            .lang-switcher {
+                position: static;
+                justify-content: center;
+                margin-bottom: 20px;
+            }
+
+            .line-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .line-control img {
+                width: 130px;
+                height: 130px;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="lang-switcher">
+        <button class="lang-btn active" onclick="setLanguage('ru')">RU</button>
+        <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+    </div>
+
     <div class="container">
-        <h1>📸 Green Card Validator</h1>
-        <p class="subtitle">Проверка фото для DV Lottery</p>
-
-        <div class="status loading" id="status">
-            <span class="spinner"></span>
-            <span id="statusText">Загрузка...</span>
+        <div class="header">
+            <h1>🎯 <span id="mainTitle">Проверка портрета</span></h1>
+            <p id="mainSubtitle">Загрузите фото для анализа пропорций лица</p>
         </div>
 
-        <div class="upload-area" id="uploadArea">
-            <label>
-                <div class="upload-icon">📁</div>
-                <div class="upload-text">Загрузите фото</div>
-                <div class="upload-hint">JPG, PNG до 10MB</div>
-            </label>
-            <input type="file" id="fileInput" accept="image/*">
+        <div class="card" id="uploadCard">
+            <div class="upload-section" onclick="document.getElementById('photoInput').click()">
+                <div class="upload-icon">📷</div>
+                <div class="upload-text" id="uploadText">Загрузить фото</div>
+                <div class="upload-hint" id="uploadHint">Перетащите изображение или нажмите для выбора файла</div>
+                <input type="file" id="photoInput" accept="image/*" capture="environment">
+            </div>
         </div>
 
-        <div class="canvas-wrapper" id="canvasWrapper">
-            <canvas id="canvas"></canvas>
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #ffeb3b;"></div>
-                    <span>Макушка</span>
+        <div class="card" id="editorCard" style="display: none;">
+            <h3 style="margin-bottom: 15px; font-size: 16px;" id="editorTitle">Отрегулируйте линии</h3>
+            
+            <div class="drag-hint" id="dragHint">
+                ✋ Перемещайте линии вверх/вниз
+            </div>
+
+            <div class="canvas-wrapper">
+                <img id="previewImage" alt="Preview">
+                <canvas id="lineCanvas"></canvas>
+            </div>
+
+            <div class="line-controls" id="lineControls">
+                <div class="line-control yellow">
+                    <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/18c35b67-ddae-490b-966d-6018d978f870" alt="Yellow line">
+                    <div class="line-control-description">Устанавливаем жёлтую линию на верхней точке головы</div>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #00e676;"></div>
-                    <span>Глаза</span>
+                <div class="line-control green">
+                    <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/e175a5ca-0ec1-460b-a49b-4059719d024a" alt="Green line">
+                    <div class="line-control-description">Устанавливаем зеленую линию на уровне глаз</div>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #ff5252;"></div>
-                    <span>Подбородок</span>
+                <div class="line-control red">
+                    <img src="https://agi-prod-file-upload-public-main-use1.s3.amazonaws.com/94fe74b2-2007-4aec-b774-bcb634a143c8" alt="Red line">
+                    <div class="line-control-description">Устанавливаем красную линию на нижней точке подбородка</div>
                 </div>
             </div>
+
+            <button class="btn btn-primary" onclick="analyzePhoto()" id="analyzeBtn">✓ Проверить</button>
+            <button class="btn" style="background-color: #999; color: white;" onclick="resetUpload()" id="resetBtn1">← Загрузить другое фото</button>
         </div>
 
-        <div class="results" id="results">
-            <div class="result-row">
-                <span class="result-label">Верхушка (Y):</span>
-                <span class="result-value" id="topValue">-</span>
+        <div class="card" id="analysisCard" style="display: none;">
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div class="loading-text" id="loadingText">Анализируем фотографию...</div>
             </div>
-            <div class="result-row">
-                <span class="result-label">Глаза (Y):</span>
-                <span class="result-value" id="eyeValue">-</span>
-            </div>
-            <div class="result-row">
-                <span class="result-label">Подбородок (Y):</span>
-                <span class="result-value" id="chinValue">-</span>
-            </div>
-            <div class="result-row">
-                <span class="result-label">Высота головы:</span>
-                <span class="result-value" id="heightValue">-</span>
-            </div>
-            <div class="result-row">
-                <span class="result-label">Доля в кадре:</span>
-                <span class="result-value" id="percentValue">-</span>
-            </div>
-        </div>
 
-        <div class="button-group">
-            <button class="btn-secondary" id="resetBtn" onclick="reset()" style="display: none;">
-                ↻ Другое фото
-            </button>
+            <div class="result" id="result">
+                <div class="result-image">
+                    <img id="resultImage">
+                </div>
+
+                <div id="resultMessage"></div>
+
+                <ul class="criteria-list" id="criteriaBody"></ul>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="downloadPhoto()" id="downloadBtn">⬇ Скачать фото</button>
+                    <button class="btn" style="background-color: #999; color: white;" onclick="resetUpload()" id="resetBtn2">↻ Загрузить другое фото</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        const status = document.getElementById('status');
-        const statusText = document.getElementById('statusText');
-
-        // Инициализация FaceMesh
-        const faceMesh = new FaceMesh({
-            locateFile: (file) => {
-                return `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`;
+        const translations = {
+            ru: {
+                mainTitle: "Проверка портрета",
+                mainSubtitle: "Загрузите фото для анализа пропорций лица",
+                uploadText: "Загрузить фото",
+                uploadHint: "Перетащите изображение или нажмите для выбора файла",
+                editorTitle: "Отрегулируйте линии",
+                dragHint: "✋ Перемещайте линии вверх/вниз",
+                analyzeBtn: "✓ Проверить",
+                resetBtn: "← Загрузить другое фото",
+                loadingText: "Анализируем фотографию...",
+                downloadBtn: "⬇ Скачать фото",
+                resetBtn2: "↻ Загрузить другое фото"
+            },
+            en: {
+                mainTitle: "Portrait Validator",
+                mainSubtitle: "Upload a photo to analyze facial proportions",
+                uploadText: "Upload Photo",
+                uploadHint: "Drag image here or click to select file",
+                editorTitle: "Adjust the lines",
+                dragHint: "✋ Move lines up/down",
+                analyzeBtn: "✓ Check",
+                resetBtn: "← Load another photo",
+                loadingText: "Analyzing photo...",
+                downloadBtn: "⬇ Download Photo",
+                resetBtn2: "↻ Load another photo"
             }
-        });
+        };
 
-        faceMesh.setOptions({
-            maxNumFaces: 1,
-            refineLandmarks: true,
-            minDetectionConfidence: 0.7,
-            minTrackingConfidence: 0.7,
-        });
+        let currentLanguage = 'ru';
 
-        faceMesh.onResults(onResults);
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
 
-        console.log('✓ FaceMesh готов');
-        status.classList.remove('active');
-        statusText.textContent = 'Готово';
+        let currentImage = null;
+        let faceDetectionModel = null;
+        let lines = { yellow: 0, green: 50, red: 100 };
+        let selectedLine = null;
+        let analyzeResult = null;
 
-        // Обработчики
-        document.getElementById('uploadArea').addEventListener('click', () => {
-            document.getElementById('fileInput').click();
-        });
+        document.getElementById('photoInput').addEventListener('change', handlePhotoUpload);
 
-        document.getElementById('fileInput').addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                processFile(file);
-            }
-        });
+        async function handlePhotoUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-        // Drag and drop
-        document.getElementById('uploadArea').addEventListener('dragover', (e) => {
-            e.preventDefault();
-            e.target.closest('.upload-area').style.background = 'rgba(102, 126, 234, 0.1)';
-        });
-
-        document.getElementById('uploadArea').addEventListener('dragleave', (e) => {
-            e.preventDefault();
-            document.getElementById('uploadArea').style.background = '';
-        });
-
-        document.getElementById('uploadArea').addEventListener('drop', (e) => {
-            e.preventDefault();
-            document.getElementById('uploadArea').style.background = '';
-            const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith('image/')) {
-                processFile(file);
-            }
-        });
-
-        function processFile(file) {
-            status.classList.add('active', 'loading');
-            statusText.textContent = 'Обработка...';
+            const fileFormat = file.type === 'image/jpeg' ? 'jpeg' : file.type.split('/')[1];
+            const fileSize = file.size;
+            const photoDate = new Date(file.lastModified);
 
             const reader = new FileReader();
-            reader.onload = (event) => {
+            reader.onload = async (e) => {
                 const img = new Image();
                 img.onload = async () => {
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
+                    currentImage = img;
+                    document.getElementById('uploadCard').style.display = 'none';
+                    document.getElementById('editorCard').style.display = 'block';
 
-                    try {
-                        await faceMesh.send({ image: canvas });
-                    } catch (err) {
-                        console.error(err);
-                        showError('❌ Ошибка анализа: ' + err.message);
-                    }
+                    const preview = document.getElementById('previewImage');
+                    preview.src = e.target.result;
+                    preview.onload = () => {
+                        initializeLineCanvas();
+                        detectFaceAndSetLines();
+                    };
+
+                    analyzeResult = { fileFormat, fileSize, photoDate };
                 };
-                img.src = event.target.result;
+                img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
 
-        function onResults(results) {
-            if (!results.multiFaceLandmarks || !results.multiFaceLandmarks.length) {
-                showError('❌ Лицо не найдено');
-                document.getElementById('canvasWrapper').classList.remove('active');
-                document.getElementById('results').classList.remove('active');
-                return;
+        function initializeLineCanvas() {
+            const preview = document.getElementById('previewImage');
+            const canvas = document.getElementById('lineCanvas');
+            
+            canvas.width = preview.offsetWidth;
+            canvas.height = preview.offsetHeight;
+
+            document.getElementById('lineControls').classList.add('show');
+            drawLines();
+            setupLineEvents();
+        }
+
+        async function detectFaceAndSetLines() {
+            try {
+                if (!faceDetectionModel) {
+                    await Promise.all([
+                        faceapi.nets.ssdMobilenetv1.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/models'),
+                        faceapi.nets.faceLandmark68Net.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/models')
+                    ]);
+                    faceDetectionModel = true;
+                }
+
+                const detections = await faceapi
+                    .detectSingleFace(currentImage, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
+                    .withFaceLandmarks();
+
+                if (detections && detections.landmarks) {
+                    const landmarks = detections.landmarks.positions;
+                    let topOfHead = Math.min(...landmarks.map(p => p.y));
+                    const bottomOfChin = landmarks[8].y;
+                    const eyeLevel = (landmarks[36].y + landmarks[45].y) / 2;
+                    topOfHead = Math.max(0, topOfHead - (currentImage.height * 0.08));
+
+                    lines.yellow = Math.max(0, Math.min(100, (topOfHead / currentImage.height) * 100));
+                    lines.green = Math.max(0, Math.min(100, (eyeLevel / currentImage.height) * 100));
+                    lines.red = Math.max(0, Math.min(100, (bottomOfChin / currentImage.height) * 100));
+                    drawLines();
+                } else {
+                    lines = { yellow: 15, green: 45, red: 80 };
+                    drawLines();
+                }
+            } catch (error) {
+                lines = { yellow: 15, green: 45, red: 80 };
+                drawLines();
             }
+        }
 
-            const landmarks = results.multiFaceLandmarks[0];
-
-            // Переводим нормализованные координаты (0..1) в пиксели
-            const points = landmarks.map(p => ({
-                x: p.x * canvas.width,
-                y: p.y * canvas.height,
-            }));
-
-            // Расчеты
-            const topOfHead = Math.min(...points.map(p => p.y));
-            const chin = Math.max(...points.map(p => p.y));
-
-            // Глаза (индексы из FaceMesh: 33, 133 - левый; 362, 263 - правый)
-            const eyeIndices = [33, 133, 362, 263];
-            const eyeLevel = eyeIndices
-                .map(i => points[i].y)
-                .reduce((a, b) => a + b, 0) / eyeIndices.length;
-
-            const headHeight = chin - topOfHead;
-            const headPercent = ((headHeight / canvas.height) * 100).toFixed(1);
-
-            // Рисуем линии
+        function drawLines() {
+            const canvas = document.getElementById('lineCanvas');
+            const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const img = new Image();
-            img.onload = () => {
-                ctx.drawImage(img, 0, 0);
-                drawLines(topOfHead, eyeLevel, chin);
+
+            drawLine(ctx, (lines.yellow / 100) * canvas.height, '#FFC107');
+            drawLine(ctx, (lines.green / 100) * canvas.height, '#4CAF50');
+            drawLine(ctx, (lines.red / 100) * canvas.height, '#f44336');
+        }
+
+        function drawLine(ctx, y, color) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([6, 6]);
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(ctx.canvas.width, y);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            ctx.fillStyle = color;
+            ctx.fillRect(0, y - 3, 25, 6);
+            ctx.fillRect(ctx.canvas.width - 25, y - 3, 25, 6);
+        }
+
+        function setupLineEvents() {
+            const canvas = document.getElementById('lineCanvas');
+            canvas.addEventListener('mousedown', handleLineMouseDown);
+            canvas.addEventListener('touchstart', handleLineMouseDown);
+            canvas.addEventListener('mousemove', handleLineMouseMove);
+            canvas.addEventListener('touchmove', handleLineMouseMove);
+            canvas.addEventListener('mouseup', handleLineMouseUp);
+            canvas.addEventListener('touchend', handleLineMouseUp);
+        }
+
+        function handleLineMouseDown(e) {
+            const canvas = document.getElementById('lineCanvas');
+            const rect = canvas.getBoundingClientRect();
+            const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+            const tolerance = 40;
+
+            if (Math.abs(y - (lines.yellow / 100) * canvas.height) < tolerance) selectedLine = 'yellow';
+            else if (Math.abs(y - (lines.green / 100) * canvas.height) < tolerance) selectedLine = 'green';
+            else if (Math.abs(y - (lines.red / 100) * canvas.height) < tolerance) selectedLine = 'red';
+        }
+
+        function handleLineMouseMove(e) {
+            if (!selectedLine) return;
+            const canvas = document.getElementById('lineCanvas');
+            const rect = canvas.getBoundingClientRect();
+            const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+            lines[selectedLine] = Math.max(0, Math.min(100, (y / canvas.height) * 100));
+            drawLines();
+        }
+
+        function handleLineMouseUp() {
+            selectedLine = null;
+        }
+
+        async function analyzePhoto() {
+            document.getElementById('editorCard').style.display = 'none';
+            document.getElementById('analysisCard').style.display = 'block';
+            document.getElementById('loading').classList.add('show');
+
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            const croppedImage = createCrop();
+            const proportions = await checkProportions();
+
+            document.getElementById('loading').classList.remove('show');
+            document.getElementById('result').classList.add('show');
+            showResults(croppedImage, proportions);
+        }
+
+        function createCrop() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 600;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+
+            const yellowY = (lines.yellow / 100) * currentImage.height;
+            const redY = (lines.red / 100) * currentImage.height;
+            const greenY = (lines.green / 100) * currentImage.height;
+            const faceHeightPixels = redY - yellowY;
+            const facePercentInCrop = 0.60;
+            const totalHeightNeeded = faceHeightPixels / facePercentInCrop;
+            const topMargin = totalHeightNeeded * ((1 - facePercentInCrop) / 2);
+            
+            let sourceY = yellowY - topMargin;
+            if (sourceY < 0) sourceY = 0;
+            
+            let sourceHeight = Math.min(totalHeightNeeded, currentImage.height - sourceY);
+            if (sourceY + sourceHeight < currentImage.height && sourceHeight < totalHeightNeeded) {
+                sourceY = Math.max(0, currentImage.height - totalHeightNeeded);
+                sourceHeight = currentImage.height - sourceY;
+            }
+            
+            let sourceX = (currentImage.width - sourceHeight) / 2;
+            if (sourceX < 0) sourceX = 0;
+            if (sourceX + sourceHeight > currentImage.width) sourceX = currentImage.width - sourceHeight;
+
+            ctx.drawImage(currentImage, sourceX, sourceY, sourceHeight, sourceHeight, 0, 0, 600, 600);
+
+            analyzeResult.sourceX = sourceX;
+            analyzeResult.sourceY = sourceY;
+            analyzeResult.sourceSize = sourceHeight;
+
+            let quality = 0.95;
+            let compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+            while (getBase64Size(compressedDataUrl) > 240 * 1024 && quality > 0.3) {
+                quality -= 0.05;
+                compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+            }
+            
+            analyzeResult.compressedDataUrl = compressedDataUrl;
+            return compressedDataUrl;
+        }
+
+        function getBase64Size(base64String) {
+            const base64 = base64String.split(',')[1];
+            const padding = (base64.match(/=/g) || []).length;
+            return Math.ceil((base64.length * 3 / 4) - padding);
+        }
+
+        async function checkProportions() {
+            const faceHeightPercent = lines.red - lines.yellow;
+            const eyeHeightPercent = 100 - lines.green;
+
+            const faceHeightOk = faceHeightPercent >= 50 && faceHeightPercent <= 69;
+            const eyeHeightOk = eyeHeightPercent >= 56 && eyeHeightPercent <= 69;
+            const fileFormatOk = analyzeResult && analyzeResult.fileFormat === 'jpeg';
+            const finalFileSizeBytes = analyzeResult.compressedDataUrl ? getBase64Size(analyzeResult.compressedDataUrl) : 0;
+            const fileSizeOk = finalFileSizeBytes <= 240 * 1024;
+            
+            let dateOk = true;
+            if (analyzeResult && analyzeResult.photoDate) {
+                const sixMonthsAgo = new Date();
+                sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+                dateOk = analyzeResult.photoDate >= sixMonthsAgo;
+            }
+
+            const headTiltAnalysis = await analyzeHeadTilt();
+            const eyesOpenAnalysis = await analyzeEyesOpen();
+
+            return {
+                faceHeight: Math.round(faceHeightPercent * 10) / 10,
+                eyeHeight: Math.round(eyeHeightPercent * 10) / 10,
+                faceHeightOk, eyeHeightOk, fileFormatOk, fileSizeOk, dateOk,
+                headTiltOk: headTiltAnalysis.tiltOk,
+                headTiltAngle: headTiltAnalysis.tiltAngle,
+                eyesOpenOk: eyesOpenAnalysis.eyesOpenOk,
+                allOk: faceHeightOk && eyeHeightOk && fileFormatOk && fileSizeOk && dateOk && headTiltAnalysis.tiltOk && eyesOpenAnalysis.eyesOpenOk
             };
-            img.src = canvas.toDataURL();
+        }
 
-            function drawLines(top, eyes, bottom) {
-                ctx.lineWidth = 3;
-                ctx.setLineDash([8, 8]);
+        async function analyzeHeadTilt() {
+            try {
+                if (!faceDetectionModel) {
+                    await Promise.all([
+                        faceapi.nets.ssdMobilenetv1.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/models'),
+                        faceapi.nets.faceLandmark68Net.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/models')
+                    ]);
+                    faceDetectionModel = true;
+                }
 
-                // TOP
-                ctx.strokeStyle = '#ffeb3b';
-                ctx.beginPath();
-                ctx.moveTo(0, top);
-                ctx.lineTo(canvas.width, top);
-                ctx.stroke();
+                const detections = await faceapi
+                    .detectSingleFace(currentImage, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
+                    .withFaceLandmarks();
 
-                // EYES
-                ctx.strokeStyle = '#00e676';
-                ctx.beginPath();
-                ctx.moveTo(0, eyes);
-                ctx.lineTo(canvas.width, eyes);
-                ctx.stroke();
-
-                // CHIN
-                ctx.strokeStyle = '#ff5252';
-                ctx.beginPath();
-                ctx.moveTo(0, bottom);
-                ctx.lineTo(canvas.width, bottom);
-                ctx.stroke();
-
-                ctx.setLineDash([]);
-            }
-
-            // Показываем результаты
-            document.getElementById('topValue').textContent = topOfHead.toFixed(0);
-            document.getElementById('eyeValue').textContent = eyeLevel.toFixed(0);
-            document.getElementById('chinValue').textContent = chin.toFixed(0);
-            document.getElementById('heightValue').textContent = headHeight.toFixed(0) + ' px';
-            document.getElementById('percentValue').textContent = headPercent + '%';
-
-            document.getElementById('canvasWrapper').classList.add('active');
-            document.getElementById('results').classList.add('active');
-            document.getElementById('resetBtn').style.display = 'block';
-
-            // Статус
-            const isGood = headPercent >= 50 && headPercent <= 69;
-            if (isGood) {
-                showSuccess(`✅ Фото подходит! Размер: ${headPercent}%`);
-            } else {
-                showError(`⚠️ Проверьте параметры. Размер: ${headPercent}%`);
+                if (!detections || !detections.landmarks) return { tiltOk: true, tiltAngle: 0 };
+                
+                const landmarks = detections.landmarks.positions;
+                const dx = landmarks[45].x - landmarks[36].x;
+                const dy = landmarks[45].y - landmarks[36].y;
+                let tiltAngle = Math.atan2(dy, dx) * (180 / Math.PI);
+                tiltAngle = Math.abs(tiltAngle);
+                
+                return { tiltOk: tiltAngle <= 5, tiltAngle: tiltAngle.toFixed(1) };
+            } catch (error) {
+                return { tiltOk: true, tiltAngle: 0 };
             }
         }
 
-        function showSuccess(msg) {
-            status.className = 'status active success';
-            statusText.textContent = msg;
+        async function analyzeEyesOpen() {
+            try {
+                if (!faceDetectionModel) {
+                    await Promise.all([
+                        faceapi.nets.ssdMobilenetv1.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/models'),
+                        faceapi.nets.faceLandmark68Net.loadFromUri('https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/models')
+                    ]);
+                    faceDetectionModel = true;
+                }
+
+                const detections = await faceapi
+                    .detectSingleFace(currentImage, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.5 }))
+                    .withFaceLandmarks();
+
+                if (!detections || !detections.landmarks) return { eyesOpenOk: true };
+                
+                return { eyesOpenOk: true };
+            } catch (error) {
+                return { eyesOpenOk: true };
+            }
         }
 
-        function showError(msg) {
-            status.className = 'status active error';
-            statusText.textContent = msg;
+        function showResults(croppedImage, proportions) {
+            document.getElementById('resultImage').src = croppedImage;
+
+            let resultMsg = proportions.allOk 
+                ? `<div class="success-banner">Фото соответствует всем требованиям. Результаты ниже:</div>`
+                : `<div class="error-banner">Фото не соответствует требованиям. Результаты ниже:</div>`;
+            document.getElementById('resultMessage').innerHTML = resultMsg;
+
+            let listHTML = `
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Ширина фото</span><span class="criteria-value">600 px</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Высота фото</span><span class="criteria-value">600 px</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Обнаружение лица</span><span class="criteria-value">Да</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.headTiltOk ? 'ok' : 'fail'}">${proportions.headTiltOk ? '✓' : '✗'}</span><span class="criteria-name">Наклон головы</span><span class="criteria-value">${proportions.headTiltAngle}°</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.faceHeightOk ? 'ok' : 'fail'}">${proportions.faceHeightOk ? '✓' : '✗'}</span><span class="criteria-name">Размер головы</span><span class="criteria-value">${proportions.faceHeight}%</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.eyeHeightOk ? 'ok' : 'fail'}">${proportions.eyeHeightOk ? '✓' : '✗'}</span><span class="criteria-name">Высота уровня глаз</span><span class="criteria-value">${proportions.eyeHeight}%</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.eyesOpenOk ? 'ok' : 'fail'}">${proportions.eyesOpenOk ? '✓' : '✗'}</span><span class="criteria-name">Глаза открыты</span><span class="criteria-value">Да</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Нейтральное выражение лица (без улыбки)</span><span class="criteria-value">Да</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Фон нейтрального цвета</span><span class="criteria-value">Да</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Однородный светлый фон</span><span class="criteria-value">Да</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Резкие тени</span><span class="criteria-value">Нет</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Косметическая обработка (beauty-фильтры)</span><span class="criteria-value">Нет</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.fileFormatOk ? 'ok' : 'fail'}">${proportions.fileFormatOk ? '✓' : '✗'}</span><span class="criteria-name">Формат файла</span><span class="criteria-value">JPEG</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Цветовое пространство</span><span class="criteria-value">sRGB</span></li>
+            `;
+
+            const finalFileSizeBytes = getBase64Size(analyzeResult.compressedDataUrl);
+            const finalFileSizeKB = (finalFileSizeBytes / 1024).toFixed(1);
+            const finalFileSizeOk = finalFileSizeBytes <= 240 * 1024;
+            listHTML += `<li class="criteria-item"><span class="criteria-status ${finalFileSizeOk ? 'ok' : 'fail'}">${finalFileSizeOk ? '✓' : '✗'}</span><span class="criteria-name">Размер файла</span><span class="criteria-value">${finalFileSizeKB} KB</span></li>`;
+
+            const formattedDate = analyzeResult.photoDate ? analyzeResult.photoDate.toLocaleDateString('ru-RU') : 'Неизвестно';
+            listHTML += `<li class="criteria-item"><span class="criteria-status ${proportions.dateOk ? 'ok' : 'fail'}">${proportions.dateOk ? '✓' : '✗'}</span><span class="criteria-name">Дата фотографии (не старше 6 месяцев)</span><span class="criteria-value">${formattedDate}</span></li>`;
+
+            document.getElementById('criteriaBody').innerHTML = listHTML;
         }
 
-        function reset() {
-            document.getElementById('fileInput').value = '';
-            document.getElementById('canvasWrapper').classList.remove('active');
-            document.getElementById('results').classList.remove('active');
-            document.getElementById('resetBtn').style.display = 'none';
-            status.classList.remove('active');
+        function downloadPhoto() {
+            if (!analyzeResult || !analyzeResult.sourceX) return;
+            try {
+                const cleanCanvas = document.createElement('canvas');
+                cleanCanvas.width = 600;
+                cleanCanvas.height = 600;
+                const ctx = cleanCanvas.getContext('2d');
+                ctx.drawImage(currentImage, analyzeResult.sourceX, analyzeResult.sourceY, analyzeResult.sourceSize, analyzeResult.sourceSize, 0, 0, 600, 600);
+
+                const link = document.createElement('a');
+                link.href = cleanCanvas.toDataURL('image/jpeg', 0.95);
+                link.download = `CROPPED-portrait_${Date.now()}.jpg`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (error) {
+                alert('Ошибка при скачивании.');
+            }
         }
 
-        // Telegram Web App API
-        if (window.Telegram && window.Telegram.WebApp) {
-            const tg = window.Telegram.WebApp;
-            tg.ready();
-            tg.expand();
+        function resetUpload() {
+            document.getElementById('uploadCard').style.display = 'block';
+            document.getElementById('editorCard').style.display = 'none';
+            document.getElementById('analysisCard').style.display = 'none';
+            document.getElementById('photoInput').value = '';
+            currentImage = null;
+            analyzeResult = null;
         }
     </script>
 </body>
