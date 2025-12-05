@@ -622,7 +622,7 @@
         .upload-section {
             text-align: center;
             padding: 40px 20px;
-            border: none;
+            border: 2px dashed var(--color-primary);
             border-radius: 12px;
             background-color: rgba(33, 150, 243, 0.05);
             cursor: pointer;
@@ -1404,16 +1404,12 @@
             document.getElementById('photoInput').addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (file) {
-                    // Вызываю функцию из indexAnaliz.html
-                    if (typeof handlePhotoUpload === 'function') {
-                        handlePhotoUpload(e);
-                    }
+                    alert(CONTENT[appState.currentLang].upload_success);
                     if (!appState.isAdmin) {
                         appState.attempts--;
                     }
-                    document.getElementById('attemptsCount').textContent = appState.attempts;
+                    document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
                 }
-            });
             });
 
             document.getElementById('applyPromoBtn').addEventListener('click', applyPromoCode);
@@ -2484,6 +2480,106 @@ if (uploadBtnMain) {
     });
 }
 </script>
+
+    
+    <script>
+        // ===== ИНИЦИАЛИЗАЦИЯ ЯЗЫКОВ И ПРИЛОЖЕНИЯ =====
+        function initializeApp() {
+            console.log('Инициализация приложения...');
+
+            const savedLang = localStorage.getItem('language') || 'ru';
+            console.log('Язык:', savedLang);
+
+            // Отмечу активную кнопку языка
+            document.querySelectorAll('.lang-btn-splash').forEach(btn => {
+                if (btn.getAttribute('data-lang') === savedLang) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Устанавливаю язык в обеих системах
+            try {
+                if (typeof selectLanguage === 'function') {
+                    console.log('Вызываю selectLanguage...');
+                    selectLanguage(savedLang);
+                } else {
+                    console.warn('selectLanguage не найдена');
+                }
+            } catch(e) {
+                console.error('Ошибка selectLanguage:', e);
+            }
+
+            try {
+                if (typeof setLanguage === 'function') {
+                    console.log('Вызываю setLanguage...');
+                    setLanguage(savedLang);
+                } else {
+                    console.warn('setLanguage не найдена');
+                }
+            } catch(e) {
+                console.error('Ошибка setLanguage:', e);
+            }
+
+            if (typeof appState !== 'undefined') {
+                appState.currentLang = savedLang;
+            }
+        }
+
+        // Обработчики для кнопок языка
+        function setupLanguageButtons() {
+            console.log('Настройка кнопок языков...');
+            document.querySelectorAll('.lang-btn-splash').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+
+                    const lang = this.getAttribute('data-lang');
+                    console.log('Выбран язык:', lang);
+
+                    if (lang) {
+                        localStorage.setItem('language', lang);
+
+                        // Обновляю активную кнопку
+                        document.querySelectorAll('.lang-btn-splash').forEach(b => {
+                            b.classList.remove('active');
+                        });
+                        this.classList.add('active');
+
+                        // Обновляю язык во всех системах
+                        if (typeof selectLanguage === 'function') {
+                            selectLanguage(lang);
+                        }
+                        if (typeof setLanguage === 'function') {
+                            setLanguage(lang);
+                        }
+                        if (typeof appState !== 'undefined') {
+                            appState.currentLang = lang;
+                        }
+                    }
+                });
+            });
+        }
+
+        // Инициализирую при загрузке
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(() => {
+                    setupLanguageButtons();
+                    initializeApp();
+                }, 100);
+            });
+        } else {
+            // Если скрипт загружается после DOMContentLoaded
+            setTimeout(() => {
+                setupLanguageButtons();
+                initializeApp();
+            }, 100);
+        }
+    </script>
+
+
 </body>
 </html>
 
