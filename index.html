@@ -622,7 +622,7 @@
         .upload-section {
             text-align: center;
             padding: 40px 20px;
-            border: 2px dashed var(--color-primary);
+            border: none;
             border-radius: 12px;
             background-color: rgba(33, 150, 243, 0.05);
             cursor: pointer;
@@ -1404,12 +1404,16 @@
             document.getElementById('photoInput').addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (file) {
-                    alert(CONTENT[appState.currentLang].upload_success);
+                    // Вызываю функцию из indexAnaliz.html
+                    if (typeof handlePhotoUpload === 'function') {
+                        handlePhotoUpload(e);
+                    }
                     if (!appState.isAdmin) {
                         appState.attempts--;
                     }
-                    document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
+                    document.getElementById('attemptsCount').textContent = appState.attempts;
                 }
+            });
             });
 
             document.getElementById('applyPromoBtn').addEventListener('click', applyPromoCode);
