@@ -983,22 +983,24 @@
     
 </style>
 <style>
-    .app-page {
+    .page {
         display: none;
     }
-    .app-page.active {
+    .page.active {
         display: block;
     }
-    .analiz-page {
-        display: none;
+    .page-app {
+        width: 100%;
+        height: 100%;
     }
-    .analiz-page.active {
-        display: block;
+    .page-analiz {
+        width: 100%;
+        min-height: 100%;
     }
 </style>
 </head>
 <body>
-<div id="appPage" class="app-page active">
+<div id="page-app" class="page active page-app">
 
     <!-- SPLASH SCREEN -->
     <div class="splash" id="splashScreen">
@@ -1102,153 +1104,7 @@
 
     <input type="file" id="photoInput" accept="image/*" style="display: none;">
 
-    
-</div>
-<div id="analizPage" class="analiz-page">
-
-    <div class="lang-switcher">
-        <button class="lang-btn active" onclick="setLanguage('ru')">RU</button>
-        <button class="lang-btn" onclick="setLanguage('en')">EN</button>
-    </div>
-
-    <div class="container">
-        <div class="header">
-            <h1>🎯 <span id="mainTitle">Проверка портрета</span></h1>
-            <p id="mainSubtitle">Загрузите фото для анализа пропорций лица</p>
-        </div>
-
-        <div class="card" id="uploadCard">
-            <div class="upload-section" onclick="document.getElementById('photoInput').click()">
-                <div class="upload-icon">📷</div>
-                <div class="upload-text" id="uploadText">Загрузить фото</div>
-                <div class="upload-hint" id="uploadHint">Перетащите изображение или нажмите для выбора файла</div>
-                <input type="file" id="photoInput" accept="image/*" capture="environment">
-            </div>
-        </div>
-
-        <div class="card" id="editorCard" style="display: none;">
-            <h3 style="margin-bottom: 15px; font-size: 16px;" id="editorTitle">Ваше фото загружено. Отрегулируйте линии.</h3>
-
-            <div class="canvas-wrapper">
-                <img id="previewImage" alt="Preview">
-                <canvas id="lineCanvas"></canvas>
-            </div>
-
-            <div class="drag-hint" id="dragHint">
-                ✋ Перемещайте линии вверх/вниз согласно инструкции ниже:
-            </div>
-
-            <div class="line-controls" id="lineControls">
-                <div class="line-control yellow">
-                    <img src="images/YellowLine.png" alt="Yellow line">
-                    <div class="line-control-description">Устанавливаем жёлтую линию на верхней точке головы</div>
-                </div>
-                <div class="line-control green">
-                    <img src="images/GreenLine.png" alt="Green line">
-                    <div class="line-control-description">Устанавливаем зеленую линию на уровне глаз</div>
-                </div>
-                <div class="line-control red">
-                    <img src="images/RedLine.png" alt="Red line">
-                    <div class="line-control-description">Устанавливаем красную линию на нижней точке подбородка</div>
-                </div>
-            </div>
-
-            <button class="btn btn-primary" onclick="analyzePhoto()" id="analyzeBtn">✓ Проверить</button>
-            <button class="btn" style="background-color: #999; color: white;" onclick="resetUpload()" id="resetBtn1">← Загрузить другое фото</button>
-        </div>
-
-        <div class="card" id="analysisCard" style="display: none;">
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <div class="loading-text" id="loadingText">Анализируем фотографию...</div>
-            </div>
-
-            <div class="result" id="result">
-                <div class="result-image">
-                    <img id="resultImage">
-                </div>
-
-                <div id="resultMessage"></div>
-
-                <ul class="criteria-list" id="criteriaBody"></ul>
-
-                <div class="button-group">
-                    <button class="btn btn-secondary" onclick="downloadPhoto()" id="downloadBtn">⬇ Скачать фото</button>
-                    <button class="btn" style="background-color: #999; color: white;" onclick="resetUpload()" id="resetBtn2">↻ Загрузить другое фото</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    
-</div>
-
-<script>
-// Глобальные функции переключения страниц
-function showAnalyzPage() {
-    const appPage = document.getElementById('appPage');
-    const analizPage = document.getElementById('analizPage');
-    if (appPage) appPage.classList.remove('active');
-    if (analizPage) analizPage.classList.add('active');
-}
-
-function showAppPage() {
-    const appPage = document.getElementById('appPage');
-    const analizPage = document.getElementById('analizPage');
-    if (appPage) appPage.classList.add('active');
-    if (analizPage) analizPage.classList.remove('active');
-}
-
-// Инициализация при загрузке документа
-document.addEventListener('DOMContentLoaded', function() {
-    // Находим кнопку "ЗАГРУЗИТЬ ФОТО" на главной странице
-    const appPageDiv = document.getElementById('appPage');
-    if (appPageDiv) {
-        const buttons = appPageDiv.querySelectorAll('button, [role="button"], a');
-        buttons.forEach(btn => {
-            const text = btn.textContent || btn.innerText || '';
-            if (text.includes('ЗАГРУЗИТЬ ФОТО') || text.includes('📸')) {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    showAnalyzPage();
-                    return false;
-                });
-            }
-        });
-    }
-
-    // Инициализируем кнопки на странице анализа (если скрипт анализатора не перехватил)
-    initializeAnalyzPageButtons();
-});
-
-// Функция для инициализации кнопок страницы анализа
-function initializeAnalyzPageButtons() {
-    const analizPageDiv = document.getElementById('analizPage');
-    if (analizPageDiv) {
-        const allElements = analizPageDiv.querySelectorAll('a, button');
-        allElements.forEach(elem => {
-            const text = elem.textContent || elem.innerText || '';
-            if (text.includes('Загрузить другое фото')) {
-                elem.addEventListener('click', function(e) {
-                    if (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    }
-                    showAppPage();
-                    return false;
-                });
-            }
-        });
-    }
-}
-
-// Запускаем инициализацию и после загрузки Face-API
-setTimeout(function() {
-    initializeAnalyzPageButtons();
-}, 1000);
-</script>
-<script>
+    <script>
         // ADMIN IDS
         const ADMIN_IDS = [380950248, 375133882];
 
@@ -1773,7 +1629,84 @@ setTimeout(function() {
             document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
         });
     </script>
-<script>
+</div>
+<div id="page-analiz" class="page page-analiz">
+
+    <div class="lang-switcher">
+        <button class="lang-btn active" onclick="setLanguage('ru')">RU</button>
+        <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🎯 <span id="mainTitle">Проверка портрета</span></h1>
+            <p id="mainSubtitle">Загрузите фото для анализа пропорций лица</p>
+        </div>
+
+        <div class="card" id="uploadCard">
+            <div class="upload-section" onclick="document.getElementById('photoInput').click()">
+                <div class="upload-icon">📷</div>
+                <div class="upload-text" id="uploadText">Загрузить фото</div>
+                <div class="upload-hint" id="uploadHint">Перетащите изображение или нажмите для выбора файла</div>
+                <input type="file" id="photoInput" accept="image/*" capture="environment">
+            </div>
+        </div>
+
+        <div class="card" id="editorCard" style="display: none;">
+            <h3 style="margin-bottom: 15px; font-size: 16px;" id="editorTitle">Ваше фото загружено. Отрегулируйте линии.</h3>
+
+            <div class="canvas-wrapper">
+                <img id="previewImage" alt="Preview">
+                <canvas id="lineCanvas"></canvas>
+            </div>
+
+            <div class="drag-hint" id="dragHint">
+                ✋ Перемещайте линии вверх/вниз согласно инструкции ниже:
+            </div>
+
+            <div class="line-controls" id="lineControls">
+                <div class="line-control yellow">
+                    <img src="images/YellowLine.png" alt="Yellow line">
+                    <div class="line-control-description">Устанавливаем жёлтую линию на верхней точке головы</div>
+                </div>
+                <div class="line-control green">
+                    <img src="images/GreenLine.png" alt="Green line">
+                    <div class="line-control-description">Устанавливаем зеленую линию на уровне глаз</div>
+                </div>
+                <div class="line-control red">
+                    <img src="images/RedLine.png" alt="Red line">
+                    <div class="line-control-description">Устанавливаем красную линию на нижней точке подбородка</div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="analyzePhoto()" id="analyzeBtn">✓ Проверить</button>
+            <button class="btn" style="background-color: #999; color: white;" onclick="resetUpload()" id="resetBtn1">← Загрузить другое фото</button>
+        </div>
+
+        <div class="card" id="analysisCard" style="display: none;">
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div class="loading-text" id="loadingText">Анализируем фотографию...</div>
+            </div>
+
+            <div class="result" id="result">
+                <div class="result-image">
+                    <img id="resultImage">
+                </div>
+
+                <div id="resultMessage"></div>
+
+                <ul class="criteria-list" id="criteriaBody"></ul>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="downloadPhoto()" id="downloadBtn">⬇ Скачать фото</button>
+                    <button class="btn" style="background-color: #999; color: white;" onclick="resetUpload()" id="resetBtn2">↻ Загрузить другое фото</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
         const translations = {
             ru: {
                 mainTitle: "Проверка портрета",
@@ -2166,6 +2099,43 @@ setTimeout(function() {
             analyzeResult = null;
         }
     </script>
+</div>
 
+<script>
+// Функция для переключения страниц
+function showPage(pageName) {
+    const pages = document.querySelectorAll('.page');
+    pages.forEach(page => {
+        page.classList.remove('active');
+    });
+    const targetPage = document.getElementById('page-' + pageName);
+    if (targetPage) {
+        targetPage.classList.add('active');
+    }
+}
+
+// Ждем, пока страница загрузится, а потом добавляем обработчик на кнопку
+document.addEventListener('DOMContentLoaded', function() {
+    // Находим кнопку "Загрузить фото" на главной странице
+    const uploadBtn = document.querySelector('[data-action="upload-photo"]');
+    if (uploadBtn) {
+        uploadBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            showPage('analiz');
+        });
+    }
+
+    // Также ищем по текстовому содержимому
+    const allButtons = document.querySelectorAll('button, [role="button"]');
+    allButtons.forEach(btn => {
+        if (btn.textContent.includes('ЗАГРУЗИТЬ ФОТО') || btn.textContent.includes('📸')) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                showPage('analiz');
+            });
+        }
+    });
+});
+</script>
 </body>
 </html>
