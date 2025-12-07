@@ -1091,6 +1091,31 @@
         touch-action: manipulation;
     }
 
+    /* ИСПРАВЛЕНИЕ: Увеличиваем картинки в инструкциях */
+    .line-control img {
+        width: 180px !important;
+        height: 180px !important;
+        object-fit: contain;
+        margin-bottom: 20px;
+    }
+
+    /* Увеличиваем сами блоки инструкций */
+    .line-control {
+        padding: 25px 20px !important;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Текст в инструкциях становится больше */
+    .line-control-description {
+        font-size: 15px;
+        line-height: 1.5;
+        text-align: center;
+        margin-top: 10px;
+    }
+
     /* Скрываем ползунок прокрутки для .analiz-page */
     .analiz-page::-webkit-scrollbar {
         width: 8px;
@@ -1806,15 +1831,15 @@ if (!appState.isAdmin) {
             <div class="line-controls" id="lineControls">
                 <div class="line-control yellow">
                     <img src="images/YellowLine.png" alt="Yellow line">
-                    <div class="line-control-description">Устанавливаем жёлтую линию на верхней точке головы</div>
+                    <div class="line-control-description">Установите жёлтую пунктирную линию на верхней точке головы</div>
                 </div>
                 <div class="line-control green">
                     <img src="images/GreenLine.png" alt="Green line">
-                    <div class="line-control-description">Устанавливаем зеленую линию на уровне глаз</div>
+                    <div class="line-control-description">Установите зелёную пунктирную линию на уровне глаз</div>
                 </div>
                 <div class="line-control red">
                     <img src="images/RedLine.png" alt="Red line">
-                    <div class="line-control-description">Устанавливаем красную линию на нижней точке подбородка</div>
+                    <div class="line-control-description">Установите красную пунктирную линию на нижней точке подбородка</div>
                 </div>
             </div>
 
