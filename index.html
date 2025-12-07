@@ -1019,13 +1019,28 @@
     .app-page.active {
         display: block;
     }
+
+    /* ИСПРАВЛЕНИЕ: .analiz-page с одной прокруткой */
     .analiz-page {
         display: none;
         overflow-y: auto;
         height: 100vh;
+        width: 100%;
     }
     .analiz-page.active {
         display: block;
+    }
+
+    /* ИСПРАВЛЕНИЕ: убираем overflow из контейнеров анализатора */
+    .analiz-page #editorCard {
+        overflow: visible !important;
+        overflow-y: visible !important;
+        max-height: none !important;
+        height: auto !important;
+    }
+
+    .analiz-page .container {
+        overflow: visible !important;
     }
 
     /* Скрываем дублирующиеся элементы в анализаторе при открытии */
@@ -1039,21 +1054,6 @@
 
     .analiz-page #uploadCard {
         display: none !important;
-    }
-
-    /* Исправление прокрутки */
-    body {
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-    }
-
-    .container {
-        overflow-y: auto !important;
-    }
-
-    #editorCard {
-        overflow-y: auto !important;
-        max-height: 100vh !important;
     }
 </style>
 </head>
