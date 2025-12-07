@@ -1020,10 +1020,10 @@
         display: block;
     }
 
-    /* ИСПРАВЛЕНИЕ: .analiz-page с одной прокруткой */
+    /* Страница анализатора - БЕЗ собственной прокрутки */
     .analiz-page {
         display: none;
-        overflow-y: auto;
+        overflow: hidden;
         height: 100vh;
         width: 100%;
     }
@@ -1031,16 +1031,22 @@
         display: block;
     }
 
-    /* ИСПРАВЛЕНИЕ: убираем overflow из контейнеров анализатора */
+    /* ПРАВИЛЬНОЕ ИСПРАВЛЕНИЕ: editorCard с прокруткой */
     .analiz-page #editorCard {
-        overflow: visible !important;
-        overflow-y: visible !important;
-        max-height: none !important;
-        height: auto !important;
+        overflow-y: auto;
+        max-height: calc(100vh - 100px);
+        overflow-x: hidden;
     }
 
-    .analiz-page .container {
-        overflow: visible !important;
+    /* Скрываем стандартный ползунок прокрутки, но оставляем функционал */
+    .analiz-page #editorCard::-webkit-scrollbar {
+        width: 0;
+        background: transparent;
+    }
+
+    .analiz-page #editorCard {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
     }
 
     /* Скрываем дублирующиеся элементы в анализаторе при открытии */
@@ -2169,7 +2175,6 @@ function showAnalyzPage() {
         analizPage.classList.add('active');
         const uploadCard = document.getElementById('uploadCard');
         if (uploadCard) uploadCard.style.display = 'none';
-        analizPage.scrollTop = 0;
     }
 }
 
