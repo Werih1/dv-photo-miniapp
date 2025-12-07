@@ -1025,12 +1025,6 @@
     }
 
     /* Добавляем padding внизу для .app-page */
-    .app-page body,
-    .app-page > * {
-        padding-bottom: 60px;
-    }
-
-    /* Если есть .container в .app-page, добавляем padding */
     .app-page .container {
         padding-bottom: 60px;
     }
@@ -1067,6 +1061,34 @@
     /* Добавляем padding внизу для .analiz-page */
     .analiz-page .container {
         padding-bottom: 60px;
+    }
+
+    /* ИСПРАВЛЕНИЕ: Canvas-wrapper - блокируем прокрутку при касании */
+    .canvas-wrapper {
+        touch-action: none !important;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+        overflow: visible !important;
+    }
+
+    /* Canvas - запрещаем прокрутку */
+    .canvas-wrapper canvas {
+        touch-action: none !important;
+        pointer-events: auto !important;
+    }
+
+    /* Изображение в canvas-wrapper */
+    .canvas-wrapper img {
+        touch-action: none !important;
+        pointer-events: none !important;
+        user-select: none;
+        -webkit-user-select: none;
+    }
+
+    /* Line-controls - запрещаем прокрутку при касании */
+    .line-controls {
+        touch-action: manipulation;
     }
 
     /* Скрываем ползунок прокрутки для .analiz-page */
@@ -2229,6 +2251,9 @@ function showAnalyzPage() {
         const uploadCard = document.getElementById('uploadCard');
         if (uploadCard) uploadCard.style.display = 'none';
         analizPage.scrollTop = 0;
+
+        // Инициализируем обработчики для canvas при открытии
+        setTimeout(initializeCanvasHandlers, 100);
     }
 }
 
@@ -2237,6 +2262,56 @@ function showAppPage() {
     const analizPage = document.getElementById('analizPage');
     if (appPage) appPage.classList.add('active');
     if (analizPage) analizPage.classList.remove('active');
+}
+
+// ИСПРАВЛЕНИЕ: Блокируем прокрутку страницы при взаимодействии с canvas
+function initializeCanvasHandlers() {
+    const lineCanvas = document.getElementById('lineCanvas');
+    const canvasWrapper = document.querySelector('.canvas-wrapper');
+
+    if (!canvasWrapper) return;
+
+    // Блокируем прокрутку при касании canvas-wrapper
+    canvasWrapper.addEventListener('touchstart', function(e) {
+        // Проверяем что касание именно на canvas или изображении
+        if (e.target === lineCanvas || e.target.id === 'previewImage') {
+            e.preventDefault();
+            document.body.style.overflow = 'hidden';
+        }
+    }, { passive: false });
+
+    canvasWrapper.addEventListener('touchmove', function(e) {
+        // Блокируем прокрутку страницы при перемещении пальца на canvas
+        if (e.target === lineCanvas || e.target.id === 'previewImage') {
+            e.preventDefault();
+            document.body.style.overflow = 'hidden';
+        }
+    }, { passive: false });
+
+    canvasWrapper.addEventListener('touchend', function(e) {
+        // Возвращаем возможность прокрутки после того как палец отпущен
+        setTimeout(function() {
+            document.body.style.overflow = 'auto';
+        }, 50);
+    }, { passive: false });
+
+    // ДОПОЛНИТЕЛЬНО: Блокируем прокрутку на всём editorCard при касании
+    const editorCard = document.getElementById('editorCard');
+    if (editorCard) {
+        editorCard.addEventListener('touchstart', function(e) {
+            // Если касание на canvas или линиях - блокируем прокрутку
+            const rect = canvasWrapper.getBoundingClientRect();
+            if (e.touches[0].clientY >= rect.top && e.touches[0].clientY <= rect.bottom) {
+                document.body.style.overflow = 'hidden';
+            }
+        }, { passive: false });
+
+        editorCard.addEventListener('touchend', function(e) {
+            setTimeout(function() {
+                document.body.style.overflow = 'auto';
+            }, 50);
+        }, { passive: false });
+    }
 }
 
 // Инициализация при загрузке документа
@@ -2292,6 +2367,8 @@ function initializeAnalyzPageButtons() {
                         e.preventDefault();
                         e.stopPropagation();
                     }
+                    // Возвращаем прокрутку
+                    document.body.style.overflow = 'auto';
                     showAppPage();
                     return false;
                 });
@@ -2302,6 +2379,7 @@ function initializeAnalyzPageButtons() {
 
 // Запускаем инициализацию и после загрузки Face-API
 setTimeout(function() {
+    initializeCanvasHandlers();
     initializeAnalyzPageButtons();
 }, 1000);
 </script>
