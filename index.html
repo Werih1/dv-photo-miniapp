@@ -981,23 +981,38 @@
             }
         }
     
-    /* Исправление прокрутки */
-    body {
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-    }
-
-    .container {
-        overflow-y: auto !important;
-    }
-
-    #editorCard {
-        overflow-y: auto !important;
-        max-height: 100vh !important;
-    }
-
 </style>
 <style>
+    /* Убираем пунктирную границу (outline) при focus */
+    * {
+        outline: none !important;
+    }
+
+    *:focus {
+        outline: none !important;
+    }
+
+    button:focus {
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    .upload-section {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        padding: 0 !important;
+        border: none !important;
+        background: none !important;
+        box-shadow: none !important;
+    }
+
+    .upload-section:focus {
+        outline: none !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
     .app-page {
         display: none;
     }
@@ -1024,6 +1039,21 @@
 
     .analiz-page #uploadCard {
         display: none !important;
+    }
+
+    /* Исправление прокрутки */
+    body {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+    }
+
+    .container {
+        overflow-y: auto !important;
+    }
+
+    #editorCard {
+        overflow-y: auto !important;
+        max-height: 100vh !important;
     }
 </style>
 </head>
@@ -2114,7 +2144,7 @@
                 link.click();
                 document.body.removeChild(link);
             } catch (error) {
-                console.error('Ошибка при скачивании.');
+                alert('Ошибка при скачивании.');
             }
         }
 
@@ -2137,10 +2167,8 @@ function showAnalyzPage() {
     if (appPage) appPage.classList.remove('active');
     if (analizPage) {
         analizPage.classList.add('active');
-        // Убеждаемся что элементы скрыты
         const uploadCard = document.getElementById('uploadCard');
         if (uploadCard) uploadCard.style.display = 'none';
-        // Прокручиваем вверх
         analizPage.scrollTop = 0;
     }
 }
@@ -2154,6 +2182,14 @@ function showAppPage() {
 
 // Инициализация при загрузке документа
 document.addEventListener('DOMContentLoaded', function() {
+    // Убираем focus outline глобально
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+            // При навигации Tab убираем outline
+            document.body.style.outline = 'none';
+        }
+    });
+
     // Находим кнопку "ЗАГРУЗИТЬ ФОТО" на главной странице
     const appPageDiv = document.getElementById('appPage');
     if (appPageDiv) {
