@@ -1013,7 +1013,7 @@
         box-shadow: none !important;
     }
 
-    /* ГЛАВНАЯ СТРАНИЦА - С ПРОКРУТКОЙ */
+    /* ГЛАВНАЯ СТРАНИЦА - С ПРОКРУТКОЙ И PADDING ВНИЗУ */
     .app-page {
         display: none;
         overflow-y: auto;
@@ -1022,6 +1022,17 @@
     }
     .app-page.active {
         display: block;
+    }
+
+    /* Добавляем padding внизу для .app-page */
+    .app-page body,
+    .app-page > * {
+        padding-bottom: 60px;
+    }
+
+    /* Если есть .container в .app-page, добавляем padding */
+    .app-page .container {
+        padding-bottom: 60px;
     }
 
     /* Скрываем ползунок прокрутки для .app-page */
@@ -1042,7 +1053,7 @@
         -ms-overflow-style: none;
     }
 
-    /* СТРАНИЦА АНАЛИЗАТОРА - С ПРОКРУТКОЙ */
+    /* СТРАНИЦА АНАЛИЗАТОРА - С ПРОКРУТКОЙ И PADDING ВНИЗУ */
     .analiz-page {
         display: none;
         overflow-y: auto;
@@ -1051,6 +1062,11 @@
     }
     .analiz-page.active {
         display: block;
+    }
+
+    /* Добавляем padding внизу для .analiz-page */
+    .analiz-page .container {
+        padding-bottom: 60px;
     }
 
     /* Скрываем ползунок прокрутки для .analiz-page */
@@ -1071,7 +1087,7 @@
         -ms-overflow-style: none;
     }
 
-    /* #editorCard и #analysisCard - растягиваются, наследуют прокрутку от parent */
+    /* #editorCard и #analysisCard - без ограничений */
     .analiz-page #editorCard {
         overflow: visible;
         max-height: none;
@@ -1742,10 +1758,7 @@ if (!appState.isAdmin) {
     </div>
 
     <div class="container">
-        <div class="header">
-            <h1>🎯 <span id="mainTitle">Проверка портрета</span></h1>
-            <p id="mainSubtitle">Загрузите фото для анализа пропорций лица</p>
-        </div>
+        <!-- Заголовок убран -->
 
         <div class="card" id="uploadCard">
             <div class="upload-section" onclick="document.getElementById('photoInput').click()">
