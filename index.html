@@ -1013,17 +1013,39 @@
         box-shadow: none !important;
     }
 
+    /* ГЛАВНАЯ СТРАНИЦА - С ПРОКРУТКОЙ */
     .app-page {
         display: none;
+        overflow-y: auto;
+        height: 100vh;
+        width: 100%;
     }
     .app-page.active {
         display: block;
     }
 
-    /* Страница анализатора - БЕЗ собственной прокрутки */
+    /* Скрываем ползунок прокрутки для .app-page */
+    .app-page::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .app-page::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .app-page::-webkit-scrollbar-thumb {
+        background: transparent;
+    }
+
+    .app-page {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    /* СТРАНИЦА АНАЛИЗАТОРА - С ПРОКРУТКОЙ */
     .analiz-page {
         display: none;
-        overflow: hidden;
+        overflow-y: auto;
         height: 100vh;
         width: 100%;
     }
@@ -1031,22 +1053,40 @@
         display: block;
     }
 
-    /* ПРАВИЛЬНОЕ ИСПРАВЛЕНИЕ: editorCard с прокруткой */
-    .analiz-page #editorCard {
-        overflow-y: auto;
-        max-height: calc(100vh - 100px);
-        overflow-x: hidden;
+    /* Скрываем ползунок прокрутки для .analiz-page */
+    .analiz-page::-webkit-scrollbar {
+        width: 8px;
     }
 
-    /* Скрываем стандартный ползунок прокрутки, но оставляем функционал */
-    .analiz-page #editorCard::-webkit-scrollbar {
-        width: 0;
+    .analiz-page::-webkit-scrollbar-track {
         background: transparent;
     }
 
-    .analiz-page #editorCard {
+    .analiz-page::-webkit-scrollbar-thumb {
+        background: transparent;
+    }
+
+    .analiz-page {
         scrollbar-width: none;
         -ms-overflow-style: none;
+    }
+
+    /* #editorCard и #analysisCard - растягиваются, наследуют прокрутку от parent */
+    .analiz-page #editorCard {
+        overflow: visible;
+        max-height: none;
+        height: auto;
+    }
+
+    .analiz-page #analysisCard {
+        overflow: visible;
+        max-height: none;
+        height: auto;
+    }
+
+    /* СКРЫВАЕМ LANG-SWITCHER НА СТРАНИЦЕ АНАЛИЗАТОРА */
+    .analiz-page .lang-switcher {
+        display: none !important;
     }
 
     /* Скрываем дублирующиеся элементы в анализаторе при открытии */
@@ -2175,6 +2215,7 @@ function showAnalyzPage() {
         analizPage.classList.add('active');
         const uploadCard = document.getElementById('uploadCard');
         if (uploadCard) uploadCard.style.display = 'none';
+        analizPage.scrollTop = 0;
     }
 }
 
@@ -2218,6 +2259,10 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(function() {
         const uploadCard = document.getElementById('uploadCard');
         if (uploadCard) uploadCard.style.display = 'none';
+
+        // Скрываем lang-switcher на странице анализа
+        const langSwitcher = document.querySelector('.analiz-page .lang-switcher');
+        if (langSwitcher) langSwitcher.style.display = 'none';
     }, 500);
 });
 
