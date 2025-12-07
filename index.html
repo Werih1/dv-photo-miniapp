@@ -2298,7 +2298,6 @@ function initializeCanvasHandlers() {
 
     // Блокируем прокрутку при касании canvas-wrapper
     canvasWrapper.addEventListener('touchstart', function(e) {
-        // Проверяем что касание именно на canvas или изображении
         if (e.target === lineCanvas || e.target.id === 'previewImage') {
             e.preventDefault();
             document.body.style.overflow = 'hidden';
@@ -2306,7 +2305,6 @@ function initializeCanvasHandlers() {
     }, { passive: false });
 
     canvasWrapper.addEventListener('touchmove', function(e) {
-        // Блокируем прокрутку страницы при перемещении пальца на canvas
         if (e.target === lineCanvas || e.target.id === 'previewImage') {
             e.preventDefault();
             document.body.style.overflow = 'hidden';
@@ -2314,17 +2312,14 @@ function initializeCanvasHandlers() {
     }, { passive: false });
 
     canvasWrapper.addEventListener('touchend', function(e) {
-        // Возвращаем возможность прокрутки после того как палец отпущен
         setTimeout(function() {
             document.body.style.overflow = 'auto';
         }, 50);
     }, { passive: false });
 
-    // ДОПОЛНИТЕЛЬНО: Блокируем прокрутку на всём editorCard при касании
     const editorCard = document.getElementById('editorCard');
     if (editorCard) {
         editorCard.addEventListener('touchstart', function(e) {
-            // Если касание на canvas или линиях - блокируем прокрутку
             const rect = canvasWrapper.getBoundingClientRect();
             if (e.touches[0].clientY >= rect.top && e.touches[0].clientY <= rect.bottom) {
                 document.body.style.overflow = 'hidden';
@@ -2339,11 +2334,38 @@ function initializeCanvasHandlers() {
     }
 }
 
-// ИСПРАВЛЕНИЕ 2: Открывать выбор фото НАПРЯМУЮ при клике на кнопку "ЗАГРУЗИТЬ ФОТО"
+// ИСПРАВЛЕНИЕ 2: Открывать выбор фото НАПРЯМУЮ при клике на кнопку
 function openPhotoPicker() {
     const photoInput = document.getElementById('photoInput');
     if (photoInput) {
         photoInput.click();
+    }
+}
+
+// ИСПРАВЛЕНИЕ: Обработчик загрузки файла - ГЛАВНЫЙ ИСПРАВЛЕНИЕ
+function handlePhotoSelect(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            // Показываем страницу анализа
+            showAnalyzPage();
+
+            // Загружаем изображение на preview
+            setTimeout(function() {
+                const previewImage = document.getElementById('previewImage');
+                if (previewImage) {
+                    previewImage.src = e.target.result;
+                    previewImage.onload = function() {
+                        // Если есть функция инициализации canvas
+                        if (window.initializeCanvas) {
+                            window.initializeCanvas();
+                        }
+                    };
+                }
+            }, 100);
+        };
+        reader.readAsDataURL(file);
     }
 }
 
@@ -2363,7 +2385,6 @@ document.addEventListener('DOMContentLoaded', function() {
         buttons.forEach(btn => {
             const text = btn.textContent || btn.innerText || '';
             if (text.includes('ЗАГРУЗИТЬ ФОТО') || text.includes('📸')) {
-                // Заменяем обработчик на прямое открытие файлового диалога
                 btn.onclick = function(e) {
                     e.preventDefault();
                     e.stopPropagation();
@@ -2374,6 +2395,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // КРИТИЧНОЕ ИСПРАВЛЕНИЕ: Обработчик для input файла
+    const photoInput = document.getElementById('photoInput');
+    if (photoInput) {
+        photoInput.addEventListener('change', handlePhotoSelect, false);
+    }
+
     // Инициализируем кнопки на странице анализа
     initializeAnalyzPageButtons();
 
@@ -2382,7 +2409,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const uploadCard = document.getElementById('uploadCard');
         if (uploadCard) uploadCard.style.display = 'none';
 
-        // Скрываем lang-switcher на странице анализа
         const langSwitcher = document.querySelector('.analiz-page .lang-switcher');
         if (langSwitcher) langSwitcher.style.display = 'none';
     }, 500);
@@ -2401,7 +2427,6 @@ function initializeAnalyzPageButtons() {
                         e.preventDefault();
                         e.stopPropagation();
                     }
-                    // Возвращаем прокрутку
                     document.body.style.overflow = 'auto';
                     showAppPage();
                     return false;
@@ -2411,7 +2436,7 @@ function initializeAnalyzPageButtons() {
     }
 }
 
-// Запускаем инициализацию и после загрузки Face-API
+// Запускаем инициализацию
 setTimeout(function() {
     initializeCanvasHandlers();
     initializeAnalyzPageButtons();
