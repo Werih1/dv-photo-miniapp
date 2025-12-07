@@ -1485,8 +1485,8 @@
             document.getElementById('photoInput').addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (file) {
-                    alert(CONTENT[appState.currentLang].upload_success);
-                    if (!appState.isAdmin) {
+                    // Уведомление загружено
+if (!appState.isAdmin) {
                         appState.attempts--;
                     }
                     document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
@@ -2185,7 +2185,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Убираем focus outline глобально
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Tab') {
-            // При навигации Tab убираем outline
             document.body.style.outline = 'none';
         }
     });
