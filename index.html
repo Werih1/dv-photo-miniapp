@@ -618,9 +618,9 @@
         .card {
             background: var(--color-surface);
             border-radius: 12px;
-            padding: 16px;
+            padding: 24px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 16px;
+            margin-bottom: 20px;
         }
 
         .upload-section {
@@ -741,8 +741,7 @@
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 10px;
-            margin-top: 15px;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             display: none;
         }
 
@@ -1165,16 +1164,6 @@
     .analiz-page #uploadCard {
         display: none !important;
     }
-
-
-        /* Instruction label styling */
-        #instructionLabel {
-            font-size: 11px !important;
-            font-weight: 600 !important;
-            color: #000 !important;
-            text-decoration: underline !important;
-            display: block;
-        }
 </style>
 </head>
 <body>
@@ -1871,7 +1860,7 @@ if (!appState.isAdmin) {
             <button class="btn" style="background-color: #999; color: white;" onclick="resetUpload()" id="resetBtn1">← Загрузить другое фото</button>
 
             <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.1);">
-                <div style="font-size: 11px; font-weight: 600; color: #000; text-align: center; margin-bottom: 8px;" id="instructionLabel">Инструкция:</div>
+                <div style="font-size: 11px; font-weight: 600; color: #000; text-align: center; margin-bottom: 8px; text-decoration: underline;" id="instructionLabel">Инструкция:</div>
                 <div class="line-controls" id="lineControls">
                     <div class="line-control yellow">
                         <img src="images/YellowLine.png" alt="Yellow line">
@@ -2277,22 +2266,60 @@ if (!appState.isAdmin) {
         }
 
         function downloadPhoto() {
-            if (!analyzeResult || !analyzeResult.sourceX) return;
             try {
-                const cleanCanvas = document.createElement('canvas');
-                cleanCanvas.width = 600;
-                cleanCanvas.height = 600;
-                const ctx = cleanCanvas.getContext('2d');
-                ctx.drawImage(currentImage, analyzeResult.sourceX, analyzeResult.sourceY, analyzeResult.sourceSize, analyzeResult.sourceSize, 0, 0, 600, 600);
+                // Получаем уже обработанное изображение из resultImage
+                const resultImageEl = document.getElementById('resultImage');
+                if (!resultImageEl || !resultImageEl.src) {
+                    alert('Изображение не найдено. Пожалуйста, сначала проверьте фото.');
+                    return;
+                }
 
+                const imgSrc = resultImageEl.src;
+
+                // Преобразуем DataURL в Blob и скачиваем
+                fetch(imgSrc)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        // Создаём URL для Blob
+                        const url = URL.createObjectURL(blob);
+
+                        // Создаём ссылку для скачивания
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `dv-photo_${Date.now()}.jpg`;
+
+                        // Добавляем в DOM и триггерим клик
+                        document.body.appendChild(link);
+                        link.click();
+
+                        // Очищаем
+                        setTimeout(() => {
+                            document.body.removeChild(link);
+                            URL.revokeObjectURL(url);
+                        }, 100);
+                    })
+                    .catch(error => {
+                        console.error('Ошибка скачивания:', error);
+                        // Если fetch не работает, пробуем прямой метод
+                        downloadPhotoFallback(imgSrc);
+                    });
+            } catch (error) {
+                console.error('Download error:', error);
+                alert('Не получается скачать фото. Попробуйте ещё раз.');
+            }
+        }
+
+        // Backup метод для скачивания если fetch не работает
+        function downloadPhotoFallback(dataUrl) {
+            try {
                 const link = document.createElement('a');
-                link.href = cleanCanvas.toDataURL('image/jpeg', 0.95);
-                link.download = `CROPPED-portrait_${Date.now()}.jpg`;
+                link.href = dataUrl;
+                link.download = `dv-photo_${Date.now()}.jpg`;
                 document.body.appendChild(link);
                 link.click();
-                document.body.removeChild(link);
-            } catch (error) {
-                alert('Ошибка при скачивании.');
+                setTimeout(() => document.body.removeChild(link), 100);
+            } catch (e) {
+                alert('Кажется, браузер не позволяет скачивать файлы. Попробуйте другой браузер.');
             }
         }
 
