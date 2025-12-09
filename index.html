@@ -618,9 +618,9 @@
         .card {
             background: var(--color-surface);
             border-radius: 12px;
-            padding: 24px;
+            padding: 16px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
 
         .upload-section {
@@ -708,7 +708,7 @@
 
         #previewImage {
             width: 100%;
-            max-height: 500px;
+            max-height: 380px;
             object-fit: contain;
             border-radius: 8px;
             background: #f0f0f0;
@@ -728,10 +728,10 @@
         }
 
         .drag-hint {
-            font-size: 12px;
+            font-size: 11px;
             color: var(--color-text-secondary);
-            margin-bottom: 15px;
-            padding: 10px;
+            margin-bottom: 8px;
+            padding: 6px;
             background-color: rgba(0, 0, 0, 0.02);
             border-radius: 6px;
             text-align: center;
@@ -741,7 +741,8 @@
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-top: 15px;
+            margin-bottom: 15px;
             display: none;
         }
 
@@ -750,20 +751,20 @@
         }
 
         .line-control {
-            padding: 12px;
+            padding: 8px;
             border-radius: 8px;
             text-align: center;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 500;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .line-control img {
-            width: 110px;
-            height: 110px;
+            width: 60px;
+            height: 60px;
             object-fit: cover;
             border-radius: 6px;
             border: 2px solid;
@@ -1164,6 +1165,48 @@
     .analiz-page #uploadCard {
         display: none !important;
     }
+
+
+        /* ===== MOBILE OPTIMIZATION ===== */
+        @media (max-width: 768px) {
+            .card {
+                padding: 12px;
+                margin-bottom: 12px;
+            }
+
+            #previewImage {
+                max-height: 350px;
+            }
+
+            .line-controls {
+                gap: 6px;
+                margin-top: 10px;
+                margin-bottom: 10px;
+            }
+
+            .line-control {
+                padding: 6px;
+                font-size: 9px;
+                gap: 4px;
+            }
+
+            .line-control img {
+                width: 50px;
+                height: 50px;
+            }
+
+            .btn {
+                padding: 10px 16px;
+                font-size: 14px;
+                margin-bottom: 8px;
+            }
+
+            .drag-hint {
+                font-size: 10px;
+                margin-bottom: 6px;
+                padding: 4px;
+            }
+        }
 </style>
 </head>
 <body>
@@ -1828,23 +1871,26 @@ if (!appState.isAdmin) {
                 ✋ Перемещайте линии вверх/вниз согласно инструкции ниже:
             </div>
 
-            <div class="line-controls" id="lineControls">
-                <div class="line-control yellow">
-                    <img src="images/YellowLine.png" alt="Yellow line">
-                    <div class="line-control-description">Установите жёлтую пунктирную линию на верхней точке головы</div>
-                </div>
-                <div class="line-control green">
-                    <img src="images/GreenLine.png" alt="Green line">
-                    <div class="line-control-description">Установите зелёную пунктирную линию на уровне глаз</div>
-                </div>
-                <div class="line-control red">
-                    <img src="images/RedLine.png" alt="Red line">
-                    <div class="line-control-description">Установите красную пунктирную линию на нижней точке подбородка</div>
-                </div>
-            </div>
-
             <button class="btn btn-primary" onclick="analyzePhoto()" id="analyzeBtn">✓ Проверить</button>
             <button class="btn" style="background-color: #999; color: white;" onclick="resetUpload()" id="resetBtn1">← Загрузить другое фото</button>
+
+            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.1);">
+                <div style="font-size: 10px; color: var(--color-text-secondary); text-align: center; margin-bottom: 8px;">Примеры расположения линий:</div>
+                <div class="line-controls" id="lineControls">
+                    <div class="line-control yellow">
+                        <img src="images/YellowLine.png" alt="Yellow line">
+                        <div class="line-control-description">Верхняя точка</div>
+                    </div>
+                    <div class="line-control green">
+                        <img src="images/GreenLine.png" alt="Green line">
+                        <div class="line-control-description">Уровень глаз</div>
+                    </div>
+                    <div class="line-control red">
+                        <img src="images/RedLine.png" alt="Red line">
+                        <div class="line-control-description">Подбородок</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="card" id="analysisCard" style="display: none;">
