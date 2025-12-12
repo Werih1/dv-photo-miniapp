@@ -544,79 +544,73 @@
         }
     
 
-        /* ===== MODAL UPLOAD OVERLAY ===== */
-        .upload-modal {
+        /* ===== MODAL FOR PHOTO UPLOAD ===== */
+        .upload-modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: flex;
-            align-items: flex-end;
-            z-index: 100;
-            animation: slideUp 0.3s ease-out;
+            background: rgba(0, 0, 0, 0.4);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
         }
 
-        @keyframes slideUp {
+        .upload-modal-overlay.active {
+            display: flex;
+        }
+
+        .upload-modal-box {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            min-width: 280px;
+            max-width: 90%;
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
             from {
-                transform: translateY(100%);
+                transform: scale(0.8);
                 opacity: 0;
             }
             to {
-                transform: translateY(0);
+                transform: scale(1);
                 opacity: 1;
             }
         }
 
-        .upload-modal-content {
-            background: white;
-            width: 100%;
-            border-radius: 16px 16px 0 0;
-            padding: 20px;
-            max-height: 70vh;
-            overflow-y: auto;
-            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .upload-modal-close {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            z-index: 101;
-        }
-
-        .upload-options {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .upload-option {
+        .upload-option-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 16px;
-            border-radius: 12px;
-            border: 1px solid #e0e0e0;
+            gap: 16px;
+            padding: 14px 16px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
+            border-bottom: 1px solid #f0f0f0;
         }
 
-        .upload-option:active {
+        .upload-option-item:last-child {
+            border-bottom: none;
+        }
+
+        .upload-option-item:active {
             background: #f5f5f5;
             transform: scale(0.98);
         }
 
         .upload-option-icon {
-            font-size: 24px;
+            font-size: 28px;
+            width: 32px;
+            text-align: center;
         }
 
-        .upload-option-text {
+        .upload-option-label {
+            font-size: 16px;
             font-weight: 500;
             color: #333;
         }
@@ -2076,8 +2070,7 @@ if (!appState.isAdmin) {
                 const img = new Image();
                 img.onload = async () => {
                     currentImage = img;
-                    // НЕ скрываем menuView - editorCard будет показан как modal
-                    // document.getElementById('uploadCard').style.display = 'none';
+                    document.getElementById('uploadCard').style.display = 'none';
                     document.getElementById('editorCard').style.display = 'block';
 
                     const preview = document.getElementById('previewImage');
@@ -2467,7 +2460,6 @@ if (!appState.isAdmin) {
             document.getElementById('photoInput').value = '';
             currentImage = null;
             analyzeResult = null;
-            closeUploadModal();
         }
     </script>
 </div>
@@ -2475,43 +2467,37 @@ if (!appState.isAdmin) {
 <script>
 
         function showUploadModal() {
-            const modal = document.getElementById('uploadModal');
-            if (!modal) {
-                // Создаём modal если его нет
-                createUploadModal();
-            } else {
-                modal.style.display = 'flex';
-            }
+            document.getElementById('uploadModalOverlay').classList.add('active');
         }
 
         function closeUploadModal() {
-            const modal = document.getElementById('uploadModal');
-            if (modal) {
-                modal.style.display = 'none';
-            }
+            document.getElementById('uploadModalOverlay').classList.remove('active');
         }
 
-        function createUploadModal() {
-            const modal = document.createElement('div');
-            modal.id = 'uploadModal';
-            modal.className = 'upload-modal';
-            modal.innerHTML = `
-                <div class="upload-modal-content">
-                    <button class="upload-modal-close" onclick="closeUploadModal()">✕</button>
-                    <div class="upload-options">
-                        <div class="upload-option" onclick="document.getElementById('photoInput').click(); closeUploadModal();">
-                            <div class="upload-option-icon">📷</div>
-                            <div class="upload-option-text">Сделать снимок</div>
-                        </div>
-                        <div class="upload-option" onclick="document.getElementById('photoInput').click(); closeUploadModal();">
-                            <div class="upload-option-icon">📁</div>
-                            <div class="upload-option-text">Выбрать файл</div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
+        function selectUploadSource(source) {
+            // Закрываем модаль
+            closeUploadModal();
+
+            // Открываем file picker
+            const photoInput = document.getElementById('photoInput');
+
+            // Устанавливаем нужные параметры
+            if (source === 'camera') {
+                photoInput.capture = 'environment';
+            } else if (source === 'gallery' || source === 'file') {
+                photoInput.removeAttribute('capture');
+            }
+
+            // Триггерим клик на input
+            photoInput.click();
         }
+
+        // Закрываем модаль при клике на оверлей (вне окна)
+        document.getElementById('uploadModalOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'uploadModalOverlay') {
+                closeUploadModal();
+            }
+        });
 
         // Глобальные функции переключения страниц
 function showAnalyzPage() {
@@ -2655,6 +2641,25 @@ setTimeout(function() {
     initializeAnalyzPageButtons();
 }, 1000);
 </script>
+
+
+    <!-- MODAL UPLOAD -->
+    <div class="upload-modal-overlay" id="uploadModalOverlay">
+        <div class="upload-modal-box" id="uploadModalBox">
+            <div class="upload-option-item" onclick="selectUploadSource('gallery')">
+                <div class="upload-option-icon">📷</div>
+                <div class="upload-option-label">Медиатека</div>
+            </div>
+            <div class="upload-option-item" onclick="selectUploadSource('camera')">
+                <div class="upload-option-icon">📸</div>
+                <div class="upload-option-label">Сделать снимок</div>
+            </div>
+            <div class="upload-option-item" onclick="selectUploadSource('file')">
+                <div class="upload-option-icon">📁</div>
+                <div class="upload-option-label">Выбрать файл</div>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>
