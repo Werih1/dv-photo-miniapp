@@ -543,6 +543,81 @@
             background: #999;
         }
     
+
+        /* ===== UPLOAD MODAL ===== */
+        .upload-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 150;
+        }
+
+        .upload-modal-overlay.active {
+            display: flex;
+        }
+
+        .upload-modal-box {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            min-width: 300px;
+            max-width: 85%;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .upload-modal-option {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.15s;
+            background: white;
+        }
+
+        .upload-modal-option:last-child {
+            margin-bottom: 0;
+        }
+
+        .upload-modal-option:active {
+            background: #f5f5f5;
+            transform: scale(0.98);
+        }
+
+        .upload-modal-icon {
+            font-size: 32px;
+            width: 40px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .upload-modal-text {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+            flex: 1;
+        }
 </style>
 <style>
 
@@ -1297,7 +1372,9 @@
         </div>
     </div>
 
-    <input type="file" id="photoInput" accept="image/*" capture="environment" style="display: none;">
+    <input type="file" id="photoInput_gallery" accept="image/*" style="display: none;">
+    <input type="file" id="photoInput_camera" accept="image/*" capture="environment" style="display: none;">
+    <input type="file" id="photoInput_file" accept="image/*" style="display: none;">
 
     <script>
         // ADMIN IDS
@@ -1632,10 +1709,10 @@
 
             // Upload
             document.getElementById('uploadBtn').addEventListener('click', () => {
-                document.getElementById('photoInput').click();
+                document.getElementById('uploadModalOverlay').classList.add('active');
             });
 
-            document.getElementById('photoInput').addEventListener('change', (e) => {
+            function handlePhotoUpload(e) {
                 const file = e.target.files[0];
                 if (file) {
                     // Уведомление загружено
@@ -1646,6 +1723,13 @@ if (!appState.isAdmin) {
                     document.querySelectorAll('.attemptsCount').forEach(el => {
                         el.textContent = attemptsText;
                     });
+                }
+            }
+
+            // Добавляем listener ко всем трём input'а
+            document.getElementById('photoInput_gallery').addEventListener('change', handlePhotoUpload);
+            document.getElementById('photoInput_camera').addEventListener('change', handlePhotoUpload);
+            document.getElementById('photoInput_file').addEventListener('change', handlePhotoUpload);
                 }
             });
 
@@ -2394,7 +2478,29 @@ if (!appState.isAdmin) {
 </div>
 
 <script>
-// Глобальные функции переключения страниц
+
+        function openUploadSource(source) {
+            // Закрываем модаль
+            document.getElementById('uploadModalOverlay').classList.remove('active');
+
+            // Кликаем нужный input
+            if (source === 'gallery') {
+                document.getElementById('photoInput_gallery').click();
+            } else if (source === 'camera') {
+                document.getElementById('photoInput_camera').click();
+            } else if (source === 'file') {
+                document.getElementById('photoInput_file').click();
+            }
+        }
+
+        // Закрываем модаль при клике вне окна
+        document.getElementById('uploadModalOverlay').addEventListener('click', (e) => {
+            if (e.target.id === 'uploadModalOverlay') {
+                document.getElementById('uploadModalOverlay').classList.remove('active');
+            }
+        });
+
+        // Глобальные функции переключения страниц
 function showAnalyzPage() {
     const appPage = document.getElementById('appPage');
     const analizPage = document.getElementById('analizPage');
@@ -2536,6 +2642,25 @@ setTimeout(function() {
     initializeAnalyzPageButtons();
 }, 1000);
 </script>
+
+
+    <!-- UPLOAD MODAL -->
+    <div class="upload-modal-overlay" id="uploadModalOverlay">
+        <div class="upload-modal-box">
+            <div class="upload-modal-option" onclick="openUploadSource('gallery')">
+                <div class="upload-modal-icon">📷</div>
+                <div class="upload-modal-text">Медиатека</div>
+            </div>
+            <div class="upload-modal-option" onclick="openUploadSource('camera')">
+                <div class="upload-modal-icon">📸</div>
+                <div class="upload-modal-text">Сделать снимок</div>
+            </div>
+            <div class="upload-modal-option" onclick="openUploadSource('file')">
+                <div class="upload-modal-icon">📁</div>
+                <div class="upload-modal-text">Выбрать файл</div>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>
