@@ -543,77 +543,6 @@
             background: #999;
         }
     
-
-        /* ===== MODAL FOR PHOTO UPLOAD ===== */
-        .upload-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.4);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 200;
-        }
-
-        .upload-modal-overlay.active {
-            display: flex;
-        }
-
-        .upload-modal-box {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            min-width: 280px;
-            max-width: 90%;
-            animation: popIn 0.3s ease-out;
-        }
-
-        @keyframes popIn {
-            from {
-                transform: scale(0.8);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .upload-option-item {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 14px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .upload-option-item:last-child {
-            border-bottom: none;
-        }
-
-        .upload-option-item:active {
-            background: #f5f5f5;
-            transform: scale(0.98);
-        }
-
-        .upload-option-icon {
-            font-size: 28px;
-            width: 32px;
-            text-align: center;
-        }
-
-        .upload-option-label {
-            font-size: 16px;
-            font-weight: 500;
-            color: #333;
-        }
 </style>
 <style>
 
@@ -1703,7 +1632,7 @@
 
             // Upload
             document.getElementById('uploadBtn').addEventListener('click', () => {
-                showUploadModal();
+                document.getElementById('photoInput').click();
             });
 
             document.getElementById('photoInput').addEventListener('change', (e) => {
@@ -2465,41 +2394,7 @@ if (!appState.isAdmin) {
 </div>
 
 <script>
-
-        function showUploadModal() {
-            document.getElementById('uploadModalOverlay').classList.add('active');
-        }
-
-        function closeUploadModal() {
-            document.getElementById('uploadModalOverlay').classList.remove('active');
-        }
-
-        function selectUploadSource(source) {
-            // Закрываем модаль
-            closeUploadModal();
-
-            // Открываем file picker
-            const photoInput = document.getElementById('photoInput');
-
-            // Устанавливаем нужные параметры
-            if (source === 'camera') {
-                photoInput.capture = 'environment';
-            } else if (source === 'gallery' || source === 'file') {
-                photoInput.removeAttribute('capture');
-            }
-
-            // Триггерим клик на input
-            photoInput.click();
-        }
-
-        // Закрываем модаль при клике на оверлей (вне окна)
-        document.getElementById('uploadModalOverlay').addEventListener('click', (e) => {
-            if (e.target.id === 'uploadModalOverlay') {
-                closeUploadModal();
-            }
-        });
-
-        // Глобальные функции переключения страниц
+// Глобальные функции переключения страниц
 function showAnalyzPage() {
     const appPage = document.getElementById('appPage');
     const analizPage = document.getElementById('analizPage');
@@ -2641,25 +2536,6 @@ setTimeout(function() {
     initializeAnalyzPageButtons();
 }, 1000);
 </script>
-
-
-    <!-- MODAL UPLOAD -->
-    <div class="upload-modal-overlay" id="uploadModalOverlay">
-        <div class="upload-modal-box" id="uploadModalBox">
-            <div class="upload-option-item" onclick="selectUploadSource('gallery')">
-                <div class="upload-option-icon">📷</div>
-                <div class="upload-option-label">Медиатека</div>
-            </div>
-            <div class="upload-option-item" onclick="selectUploadSource('camera')">
-                <div class="upload-option-icon">📸</div>
-                <div class="upload-option-label">Сделать снимок</div>
-            </div>
-            <div class="upload-option-item" onclick="selectUploadSource('file')">
-                <div class="upload-option-icon">📁</div>
-                <div class="upload-option-label">Выбрать файл</div>
-            </div>
-        </div>
-    </div>
 
 </body>
 </html>
