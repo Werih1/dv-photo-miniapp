@@ -543,80 +543,6 @@
             background: #999;
         }
     
-
-        /* ===== UPLOAD MODAL (НА ГЛАВНОЙ СТРАНИЦЕ) ===== */
-        .upload-modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 150;
-        }
-
-        .upload-modal-overlay.show {
-            display: flex;
-        }
-
-        .upload-modal-content {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            min-width: 320px;
-            max-width: 85%;
-            animation: popIn 0.3s ease-out;
-        }
-
-        @keyframes popIn {
-            from {
-                transform: scale(0.9);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .upload-modal-option {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 16px;
-            margin-bottom: 8px;
-            border-radius: 10px;
-            border: 1px solid #e0e0e0;
-            cursor: pointer;
-            transition: all 0.15s;
-            background: white;
-        }
-
-        .upload-modal-option:last-child {
-            margin-bottom: 0;
-        }
-
-        .upload-modal-option:active {
-            background: #f5f5f5;
-            transform: scale(0.98);
-        }
-
-        .upload-modal-option-icon {
-            font-size: 32px;
-            width: 40px;
-            text-align: center;
-            flex-shrink: 0;
-        }
-
-        .upload-modal-option-text {
-            font-size: 16px;
-            font-weight: 500;
-            color: #333;
-        }
 </style>
 <style>
 
@@ -1371,7 +1297,7 @@
         </div>
     </div>
 
-    <input type="file" id="photoInput" accept="image/*" style="display: none;">
+    <input type="file" id="photoInput" accept="image/*" capture="environment" style="display: none;">
 
     <script>
         // ADMIN IDS
@@ -1706,7 +1632,7 @@
 
             // Upload
             document.getElementById('uploadBtn').addEventListener('click', () => {
-                document.getElementById('uploadModalOverlay').classList.add('show');
+                document.getElementById('photoInput').click();
             });
 
             document.getElementById('photoInput').addEventListener('change', (e) => {
@@ -2468,49 +2394,7 @@ if (!appState.isAdmin) {
 </div>
 
 <script>
-
-        function showUploadModal() {
-            document.getElementById('uploadModalOverlay').classList.add('show');
-        }
-
-        function closeUploadModal() {
-            document.getElementById('uploadModalOverlay').classList.remove('show');
-        }
-
-        function triggerPhotoInput(type) {
-            closeUploadModal();
-            const input = document.getElementById('photoInput');
-
-            // Очищаем предыдущее значение
-            input.value = '';
-
-            // Устанавливаем нужные атрибуты в зависимости от типа
-            if (type === 'camera') {
-                // Для снимка с камеры
-                input.accept = 'image/*';
-                input.capture = 'environment';
-            } else if (type === 'gallery') {
-                // Для медиатеки/галереи
-                input.accept = 'image/*';
-                input.removeAttribute('capture');
-            } else if (type === 'file') {
-                // Для обычного файла
-                input.accept = 'image/*';
-                input.removeAttribute('capture');
-            }
-
-            // Открываем file picker
-            input.click();
-        }
-
-        // Закрываем модаль при клике на оверлей (вне содержимого)
-        document.getElementById('uploadModalOverlay').addEventListener('click', (e) => {
-            if (e.target.id === 'uploadModalOverlay') {
-                closeUploadModal();
-            }
-        });
-
-        // Глобальные функции переключения страниц
+// Глобальные функции переключения страниц
 function showAnalyzPage() {
     const appPage = document.getElementById('appPage');
     const analizPage = document.getElementById('analizPage');
@@ -2652,25 +2536,6 @@ setTimeout(function() {
     initializeAnalyzPageButtons();
 }, 1000);
 </script>
-
-
-    <!-- UPLOAD MODAL OVERLAY -->
-    <div class="upload-modal-overlay" id="uploadModalOverlay">
-        <div class="upload-modal-content">
-            <div class="upload-modal-option" onclick="triggerPhotoInput('gallery')">
-                <div class="upload-modal-option-icon">📷</div>
-                <div class="upload-modal-option-text">Медиатека</div>
-            </div>
-            <div class="upload-modal-option" onclick="triggerPhotoInput('camera')">
-                <div class="upload-modal-option-icon">📸</div>
-                <div class="upload-modal-option-text">Сделать снимок</div>
-            </div>
-            <div class="upload-modal-option" onclick="triggerPhotoInput('file')">
-                <div class="upload-modal-option-icon">📁</div>
-                <div class="upload-modal-option-text">Выбрать файл</div>
-            </div>
-        </div>
-    </div>
 
 </body>
 </html>
