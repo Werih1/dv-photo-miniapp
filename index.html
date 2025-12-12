@@ -1206,7 +1206,7 @@
         <!-- APP HEADER -->
         <div class="app-header">
             <div class="app-title">DV-Lottery Photo Check</div>
-            <div class="attempts-badge"><span id="attemptsLabel">Осталось проверок:</span> <span id="attemptsCount">3</span></div>
+            <div class="attempts-badge"><span id="attemptsLabel">Осталось проверок:</span> <span id="attemptsCount" class="attemptsCount">3</span></div>
         </div>
 
 
@@ -1249,7 +1249,7 @@
         <!-- APP HEADER -->
         <div class="app-header">
             <div class="app-title">DV-Lottery Photo Check</div>
-            <div class="attempts-badge"><span id="attemptsLabel">Осталось проверок:</span> <span id="attemptsCount">3</span></div>
+            <div class="attempts-badge"><span id="attemptsLabel">Осталось проверок:</span> <span class="attemptsCount">3</span></div>
         </div>
 
             <button class="back-btn" id="backBtn1">← Назад</button>
@@ -1261,7 +1261,7 @@
         <!-- APP HEADER -->
         <div class="app-header">
             <div class="app-title">DV-Lottery Photo Check</div>
-            <div class="attempts-badge"><span id="attemptsLabel">Осталось проверок:</span> <span id="attemptsCount">3</span></div>
+            <div class="attempts-badge"><span id="attemptsLabel">Осталось проверок:</span> <span class="attemptsCount">3</span></div>
         </div>
 
             <button class="back-btn" id="backBtn2">← Назад</button>
@@ -1273,7 +1273,7 @@
         <!-- APP HEADER -->
         <div class="app-header">
             <div class="app-title">DV-Lottery Photo Check</div>
-            <div class="attempts-badge"><span id="attemptsLabel">Осталось проверок:</span> <span id="attemptsCount">3</span></div>
+            <div class="attempts-badge"><span id="attemptsLabel">Осталось проверок:</span> <span class="attemptsCount">3</span></div>
         </div>
 
             <button class="back-btn" id="backBtn3">← Назад</button>
@@ -1289,7 +1289,7 @@
         <!-- APP HEADER -->
         <div class="app-header">
             <div class="app-title">DV-Lottery Photo Check</div>
-            <div class="attempts-badge"><span id="attemptsLabel">Осталось проверок:</span> <span id="attemptsCount">3</span></div>
+            <div class="attempts-badge"><span id="attemptsLabel">Осталось проверок:</span> <span class="attemptsCount">3</span></div>
         </div>
 
             <button class="back-btn" id="backBtn4">← Назад</button>
@@ -1642,7 +1642,9 @@
 if (!appState.isAdmin) {
                         appState.attempts--;
                     }
-                    document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
+                    const attemptsText = appState.attempts === 999 ? '∞' : appState.attempts;
+                    document.getElementById('attemptsCount').textContent = attemptsText;
+                    document.querySelectorAll('.attemptsCount').forEach(el => el.textContent = attemptsText);
                 }
             });
 
@@ -1818,7 +1820,9 @@ if (!appState.isAdmin) {
             
             if (code === 'GIFT2026') {
                 appState.attempts += 5;
-                document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
+                const attemptsText = appState.attempts === 999 ? '∞' : appState.attempts;
+                    document.getElementById('attemptsCount').textContent = attemptsText;
+                    document.querySelectorAll('.attemptsCount').forEach(el => el.textContent = attemptsText);
                 alert(content.promo_success);
                 document.getElementById('promoCode').value = '';
             } else {
@@ -1849,7 +1853,9 @@ if (!appState.isAdmin) {
 
         // Display attempts on load
         window.addEventListener('load', () => {
-            document.getElementById('attemptsCount').textContent = appState.attempts === 999 ? '∞' : appState.attempts;
+            const attemptsText = appState.attempts === 999 ? '∞' : appState.attempts;
+                    document.getElementById('attemptsCount').textContent = attemptsText;
+                    document.querySelectorAll('.attemptsCount').forEach(el => el.textContent = attemptsText);
         });
     </script>
 </div>
