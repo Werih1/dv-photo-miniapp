@@ -2206,6 +2206,7 @@ if (!appState.isAdmin) {
 
             const headTiltAnalysis = await analyzeHeadTilt();
             const eyesOpenAnalysis = await analyzeEyesOpen();
+            const backgroundAnalysis = await analyzeBackground();
 
             return {
                 faceHeight: Math.round(faceHeightPercent * 10) / 10,
@@ -2214,6 +2215,8 @@ if (!appState.isAdmin) {
                 headTiltOk: headTiltAnalysis.tiltOk,
                 headTiltAngle: headTiltAnalysis.tiltAngle,
                 eyesOpenOk: eyesOpenAnalysis.eyesOpenOk,
+                neutralBgOk: backgroundAnalysis.isNeutral,
+                uniformBgOk: backgroundAnalysis.isUniform,
                 allOk: faceHeightOk && eyeHeightOk && fileFormatOk && fileSizeOk && dateOk && headTiltAnalysis.tiltOk && eyesOpenAnalysis.eyesOpenOk
             };
         }
@@ -2285,8 +2288,8 @@ if (!appState.isAdmin) {
                 <li class="criteria-item"><span class="criteria-status ${proportions.eyeHeightOk ? 'ok' : 'fail'}">${proportions.eyeHeightOk ? '✓' : '✗'}</span><span class="criteria-name">Высота уровня глаз</span><span class="criteria-value">${proportions.eyeHeight}%</span></li>
                 
                 
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Фон нейтрального цвета</span><span class="criteria-value">Да</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Однородный светлый фон</span><span class="criteria-value">Да</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.neutralBgOk ? 'ok' : 'fail'}">${proportions.neutralBgOk ? '✓' : '✗'}</span><span class="criteria-name">Фон нейтрального цвета</span><span class="criteria-value">${proportions.neutralBgOk ? 'Да' : 'Нет'}</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.uniformBgOk ? 'ok' : 'fail'}">${proportions.uniformBgOk ? '✓' : '✗'}</span><span class="criteria-name">Однородный светлый фон</span><span class="criteria-value">${proportions.uniformBgOk ? 'Да' : 'Нет'}</span></li>
                 <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Резкие тени</span><span class="criteria-value">Нет</span></li>
                 <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Косметическая обработка (beauty-фильтры)</span><span class="criteria-value">Нет</span></li>
                 <li class="criteria-item"><span class="criteria-status ${proportions.fileFormatOk ? 'ok' : 'fail'}">${proportions.fileFormatOk ? '✓' : '✗'}</span><span class="criteria-name">Формат файла</span><span class="criteria-value">JPEG</span></li>
@@ -2535,6 +2538,96 @@ setTimeout(function() {
     initializeCanvasHandlers();
     initializeAnalyzPageButtons();
 }, 1000);
+
+        async function analyzeBackground() {
+            try {
+                // Анализируем фон изображения
+                const canvas = document.getElementById('lineCanvas');
+                if (!canvas || !currentImage) {
+                    return { isNeutral: false, isUniform: false };
+                }
+
+                const ctx = canvas.getContext('2d');
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const data = imgData.data;
+
+                // Берем пиксели с краёв (фон)
+                const bgPixels = [];
+
+                // Верхний край (10% от высоты)
+                const topEdge = Math.floor(canvas.height * 0.1);
+                for (let i = 0; i < canvas.width; i++) {
+                    const pixelIndex = (topEdge * canvas.width + i) * 4;
+                    bgPixels.push({
+                        r: data[pixelIndex],
+                        g: data[pixelIndex + 1],
+                        b: data[pixelIndex + 2],
+                        a: data[pixelIndex + 3]
+                    });
+                }
+
+                // Нижний край (10% от высоты)
+                const bottomEdge = Math.floor(canvas.height * 0.9);
+                for (let i = 0; i < canvas.width; i++) {
+                    const pixelIndex = (bottomEdge * canvas.width + i) * 4;
+                    bgPixels.push({
+                        r: data[pixelIndex],
+                        g: data[pixelIndex + 1],
+                        b: data[pixelIndex + 2],
+                        a: data[pixelIndex + 3]
+                    });
+                }
+
+                // Левый край
+                const leftEdge = Math.floor(canvas.width * 0.1);
+                for (let j = 0; j < canvas.height; j++) {
+                    const pixelIndex = (j * canvas.width + leftEdge) * 4;
+                    bgPixels.push({
+                        r: data[pixelIndex],
+                        g: data[pixelIndex + 1],
+                        b: data[pixelIndex + 2],
+                        a: data[pixelIndex + 3]
+                    });
+                }
+
+                // Правый край
+                const rightEdge = Math.floor(canvas.width * 0.9);
+                for (let j = 0; j < canvas.height; j++) {
+                    const pixelIndex = (j * canvas.width + rightEdge) * 4;
+                    bgPixels.push({
+                        r: data[pixelIndex],
+                        g: data[pixelIndex + 1],
+                        b: data[pixelIndex + 2],
+                        a: data[pixelIndex + 3]
+                    });
+                }
+
+                // Вычисляем среднее значение RGB
+                const avgR = Math.round(bgPixels.reduce((sum, p) => sum + p.r, 0) / bgPixels.length);
+                const avgG = Math.round(bgPixels.reduce((sum, p) => sum + p.g, 0) / bgPixels.length);
+                const avgB = Math.round(bgPixels.reduce((sum, p) => sum + p.b, 0) / bgPixels.length);
+
+                // Вычисляем стандартное отклонение для оценки однородности
+                const rVariance = bgPixels.reduce((sum, p) => sum + Math.pow(p.r - avgR, 2), 0) / bgPixels.length;
+                const gVariance = bgPixels.reduce((sum, p) => sum + Math.pow(p.g - avgG, 2), 0) / bgPixels.length;
+                const bVariance = bgPixels.reduce((sum, p) => sum + Math.pow(p.b - avgB, 2), 0) / bgPixels.length;
+                const stdDev = Math.sqrt((rVariance + gVariance + bVariance) / 3);
+
+                // Проверяем нейтральность (grayscale значения)
+                const maxDiff = Math.max(Math.abs(avgR - avgG), Math.abs(avgG - avgB), Math.abs(avgR - avgB));
+                const isNeutral = maxDiff < 30 && avgR > 100 && avgR < 230; // Серые тоны, не чёрные, не белые
+
+                // Проверяем однородность
+                const isUniform = stdDev < 25; // Низкое стандартное отклонение = однородный фон
+
+                console.log(`Background analysis: RGB(${avgR},${avgG},${avgB}), StdDev: ${stdDev}, Neutral: ${isNeutral}, Uniform: ${isUniform}`);
+
+                return { isNeutral, isUniform };
+            } catch (error) {
+                console.error('Background analysis error:', error);
+                return { isNeutral: false, isUniform: false };
+            }
+        }
 </script>
 
 </body>
