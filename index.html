@@ -1892,7 +1892,7 @@ if (!appState.isAdmin) {
             </div>
 
             <div class="drag-hint" id="dragHint">
-                ✋ Перемещайте линии вверх/вниз согласно инструкции ниже:
+                ${t('move_lines')}
             </div>
 
             <button class="btn btn-primary" onclick="analyzePhoto()" id="analyzeBtn">${t('check_btn')}</button>
@@ -1934,7 +1934,7 @@ if (!appState.isAdmin) {
 
                 <div class="button-group">
                     <button class="btn btn-secondary" onclick="downloadPhoto()" id="downloadBtn">${t('download_btn')}</button>
-                    <button class="btn" style="background-color: #999; color: white;" onclick="resetUpload()" id="resetBtn2">${t('load_other')}</button>
+                    <button class="btn" style="background-color: #999; color: white;" onclick="resetUpload()" id="resetBtn2">↻ Загрузить другое фото</button>
                 </div>
             </div>
         </div>
@@ -1949,10 +1949,10 @@ if (!appState.isAdmin) {
                 uploadHint: "Перетащите изображение или нажмите для выбора файла",
                 editorTitle: "Отрегулируйте линии",
                 dragHint: "✋ Перемещайте линии вверх/вниз",
-                analyzeBtn: "✓ Проверить",
-                resetBtn: "← Загрузить другое фото",
-                loadingText: "Анализируем фотографию...",
-                downloadBtn: "⬇ Скачать фото",
+                analyzeBtn: "${t('check_btn')}",
+                resetBtn: "${t('load_other')}",
+                loadingText: "${t('analyzing')}",
+                downloadBtn: "${t('download_btn')}",
                 resetBtn2: "↻ Загрузить другое фото"
             },
             en: {
@@ -1975,56 +1975,55 @@ if (!appState.isAdmin) {
         // ===== ПЕРЕВОДЫ =====
         const i18n = {
             'ru': {
-                'photo_loaded': 'Ваше фото загружено. Отрегулируйте линии.',
-                'move_lines': '✋ Перемещайте линии вверх/вниз согласно инструкции ниже:',
-                'check_btn': 'Проверить',
-                'load_other': 'Загрузить другое фото',
-                'analyzing': 'Анализируем фотографию...',
-                'not_match': 'Фото не соответствует требованиям. Результаты ниже:',
-                'match': 'Фото соответствует всем требованиям. Результаты ниже:',
-                'download_btn': 'Скачать фото',
+                'photo_loaded': '${t('photo_loaded')}',
+                'move_lines': '${t('move_lines')}',
+                'check_btn': '${t('check_btn')}',
+                'load_other': '${t('load_other')}',
+                'analyzing': '${t('analyzing')}',
+                'not_match': '${t('not_match')}',
+                'match': '${t('match')}',
+                'download_btn': '${t('download_btn')}',
                 'yes': 'Да',
                 'no': 'Нет',
             },
             'en': {
                 'photo_loaded': 'Photo uploaded. Adjust the lines.',
                 'move_lines': '✋ Move the lines up/down according to the instructions below:',
-                'check_btn': 'Check',
-                'load_other': 'Upload another photo',
+                'check_btn': '✓ Check',
+                'load_other': '← Upload another photo',
                 'analyzing': 'Analyzing photo...',
                 'not_match': 'Photo does not meet requirements. Results below:',
                 'match': 'Photo meets all requirements. Results below:',
-                'download_btn': 'Download photo',
+                'download_btn': '⬇ Download photo',
                 'yes': 'Yes',
                 'no': 'No',
             },
             'fr': {
                 'photo_loaded': 'Photo chargée. Ajustez les lignes.',
                 'move_lines': '✋ Déplacez les lignes vers le haut/bas selon les instructions ci-dessous:',
-                'check_btn': 'Vérifier',
-                'load_other': 'Charger une autre photo',
+                'check_btn': '✓ Vérifier',
+                'load_other': '← Charger une autre photo',
                 'analyzing': 'Analyse de la photo...',
                 'not_match': 'La photo ne répond pas aux exigences. Résultats ci-dessous:',
                 'match': 'La photo répond à toutes les exigences. Résultats ci-dessous:',
-                'download_btn': 'Télécharger la photo',
+                'download_btn': '⬇ Télécharger la photo',
                 'yes': 'Oui',
                 'no': 'Non',
             },
             'ar': {
                 'photo_loaded': 'تم تحميل الصورة. اضبط الخطوط.',
                 'move_lines': '✋ حرك الخطوط لأعلى/لأسفل وفقًا للتعليمات أدناه:',
-                'check_btn': 'التحقق',
-                'load_other': 'تحميل صورة أخرى',
+                'check_btn': '✓ التحقق',
+                'load_other': '← تحميل صورة أخرى',
                 'analyzing': 'تحليل الصورة...',
                 'not_match': 'الصورة لا تستوفي المتطلبات. النتائج أدناه:',
                 'match': 'الصورة تستوفي جميع المتطلبات. النتائج أدناه:',
-                'download_btn': 'تنزيل الصورة',
+                'download_btn': '⬇ تنزيل الصورة',
                 'yes': 'نعم',
                 'no': 'لا',
             }
         };
 
-        // Функция получения текста на текущем языке
         function t(key) {
             const lang = currentLanguage || 'ru';
             return i18n[lang]?.[key] || i18n['ru'][key];
@@ -2348,8 +2347,8 @@ if (!appState.isAdmin) {
                 <li class="criteria-item"><span class="criteria-status ${proportions.eyeHeightOk ? 'ok' : 'fail'}">${proportions.eyeHeightOk ? '✓' : '✗'}</span><span class="criteria-name">Высота уровня глаз</span><span class="criteria-value">${proportions.eyeHeight}%</span></li>
                 
                 
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Фон нейтрального цвета</span><span class="criteria-value">${t('yes')}</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Однородный светлый фон</span><span class="criteria-value">${t('yes')}</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.neutralBgOk ? 'ok' : 'fail'}">${proportions.neutralBgOk ? '✓' : '✗'}</span><span class="criteria-name">Фон нейтрального цвета</span><span class="criteria-value">${proportions.neutralBgOk ? 'Да' : 'Нет'}</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.uniformBgOk ? 'ok' : 'fail'}">${proportions.uniformBgOk ? '✓' : '✗'}</span><span class="criteria-name">Однородный светлый фон</span><span class="criteria-value">${proportions.uniformBgOk ? 'Да' : 'Нет'}</span></li>
                 <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Резкие тени</span><span class="criteria-value">${t('no')}</span></li>
                 <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Косметическая обработка (beauty-фильтры)</span><span class="criteria-value">${t('no')}</span></li>
                 <li class="criteria-item"><span class="criteria-status ${proportions.fileFormatOk ? 'ok' : 'fail'}">${proportions.fileFormatOk ? '✓' : '✗'}</span><span class="criteria-name">Формат файла</span><span class="criteria-value">JPEG</span></li>
@@ -2610,8 +2609,9 @@ setTimeout(function() {
                 const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const data = imgData.data;
 
+                // Анализируем ВЕСЬ фон по сетке
                 const bgPixels = [];
-                const step = 30;
+                const step = 30; // Шаг анализа
 
                 for (let y = 0; y < canvas.height; y += step) {
                     for (let x = 0; x < canvas.width; x += step) {
@@ -2628,17 +2628,20 @@ setTimeout(function() {
                     return { isNeutral: false, isUniform: false };
                 }
 
+                // Вычисляем среднее RGB
                 const avgR = Math.round(bgPixels.reduce((sum, p) => sum + p.r, 0) / bgPixels.length);
                 const avgG = Math.round(bgPixels.reduce((sum, p) => sum + p.g, 0) / bgPixels.length);
                 const avgB = Math.round(bgPixels.reduce((sum, p) => sum + p.b, 0) / bgPixels.length);
 
+                // КРИТЕРИЙ 1: Нейтральность (строгий)
                 const maxDiff = Math.max(
                     Math.abs(avgR - avgG),
                     Math.abs(avgG - avgB),
                     Math.abs(avgR - avgB)
                 );
-                const isNeutral = maxDiff < 40;
+                const isNeutral = maxDiff < 40; // Серые тона
 
+                // КРИТЕРИЙ 2: Однородность (МЯГКИЙ)
                 const pixelDiffs = bgPixels.map(p => {
                     return Math.abs(p.r - avgR) + Math.abs(p.g - avgG) + Math.abs(p.b - avgB);
                 });
@@ -2646,9 +2649,12 @@ setTimeout(function() {
                 const maxPixelDiff = Math.max(...pixelDiffs);
                 const avgPixelDiff = pixelDiffs.reduce((a, b) => a + b, 0) / pixelDiffs.length;
 
+                // МЯГКИЕ требования для однородности
+                // avgPixelDiff < 55 и maxPixelDiff < 130
+                // Так большинство реальных фото будут приниматься
                 const isUniform = avgPixelDiff < 55 && maxPixelDiff < 130;
 
-                console.log(\`BG: RGB(\${avgR},\${avgG},\${avgB}), ColorDiff=\${maxDiff}, AvgPixelDiff=\${avgPixelDiff.toFixed(1)}, MaxPixelDiff=\${maxPixelDiff}, Neutral=\${isNeutral}, Uniform=\${isUniform}\`);
+                console.log(`BG: RGB(${avgR},${avgG},${avgB}), ColorDiff=${maxDiff}, AvgPixelDiff=${avgPixelDiff.toFixed(1)}, MaxPixelDiff=${maxPixelDiff}, Neutral=${isNeutral}, Uniform=${isUniform}`);
 
                 return { isNeutral, isUniform };
             } catch (error) {
