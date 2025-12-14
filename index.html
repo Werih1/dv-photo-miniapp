@@ -2187,40 +2187,7 @@ if (!appState.isAdmin) {
             return Math.ceil((base64.length * 3 / 4) - padding);
         }
 
-        async function checkProportions() {
-            const faceHeightPercent = lines.red - lines.yellow;
-            const eyeHeightPercent = 100 - lines.green;
-
-            const faceHeightOk = faceHeightPercent >= 50 && faceHeightPercent <= 69;
-            const eyeHeightOk = eyeHeightPercent >= 56 && eyeHeightPercent <= 69;
-            const fileFormatOk = analyzeResult && analyzeResult.fileFormat === 'jpeg';
-            const finalFileSizeBytes = analyzeResult.compressedDataUrl ? getBase64Size(analyzeResult.compressedDataUrl) : 0;
-            const fileSizeOk = finalFileSizeBytes <= 240 * 1024;
-            
-            let dateOk = true;
-            if (analyzeResult && analyzeResult.photoDate) {
-                const sixMonthsAgo = new Date();
-                sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-                dateOk = analyzeResult.photoDate >= sixMonthsAgo;
-            }
-
-            const headTiltAnalysis = await analyzeHeadTilt();
-            const eyesOpenAnalysis = await analyzeEyesOpen();
-            const backgroundAnalysis = await analyzeBackground(currentImage);
-
-            return {
-                faceHeight: Math.round(faceHeightPercent * 10) / 10,
-                eyeHeight: Math.round(eyeHeightPercent * 10) / 10,
-                faceHeightOk, eyeHeightOk, fileFormatOk, fileSizeOk, dateOk,
-                headTiltOk: headTiltAnalysis.tiltOk,
-                headTiltAngle: headTiltAnalysis.tiltAngle,
-                eyesOpenOk: eyesOpenAnalysis.eyesOpenOk,
-                neutralColorOk: backgroundAnalysis.neutralColorOk,
-                lightHomogeneousOk: backgroundAnalysis.lightHomogeneousOk,
-                allOk: faceHeightOk && eyeHeightOk && fileFormatOk && fileSizeOk && dateOk && headTiltAnalysis.tiltOk && eyesOpenAnalysis.eyesOpenOk && backgroundAnalysis.neutralColorOk && backgroundAnalysis.lightHomogeneousOk
-            };
-        }
-
+        
         // Анализ фона фотографии
         async function analyzeBackground(imageElement) {
             try {
@@ -2233,7 +2200,6 @@ if (!appState.isAdmin) {
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const data = imageData.data;
 
-                // Анализируем цвета пикселей фона (берем края)
                 const bgPixels = [];
                 const margin = Math.min(50, Math.floor(Math.min(canvas.width, canvas.height) * 0.1));
 
@@ -2265,14 +2231,12 @@ if (!appState.isAdmin) {
                     }
                 }
 
-                // Вычисляем среднее значение цвета фона
                 const avgColor = {
                     r: Math.round(bgPixels.reduce((sum, p) => sum + p.r, 0) / bgPixels.length),
                     g: Math.round(bgPixels.reduce((sum, p) => sum + p.g, 0) / bgPixels.length),
                     b: Math.round(bgPixels.reduce((sum, p) => sum + p.b, 0) / bgPixels.length)
                 };
 
-                // Проверяем нейтральность (равномерное распределение RGB)
                 const maxDiff = Math.max(
                     Math.abs(avgColor.r - avgColor.g),
                     Math.abs(avgColor.g - avgColor.b),
@@ -2280,12 +2244,9 @@ if (!appState.isAdmin) {
                 );
 
                 const isNeutral = maxDiff < 40;
-
-                // Проверяем светлоту (значения должны быть > 180 для светлого фона)
                 const brightness = (avgColor.r + avgColor.g + avgColor.b) / 3;
                 const isLight = brightness > 180;
 
-                // Проверяем однородность
                 const variance = bgPixels.reduce((sum, p) => {
                     const diff = Math.abs(p.r - avgColor.r) + Math.abs(p.g - avgColor.g) + Math.abs(p.b - avgColor.b);
                     return sum + diff;
@@ -2310,6 +2271,40 @@ if (!appState.isAdmin) {
                     variance: 0
                 };
             }
+        }
+
+async function checkProportions() {
+            const faceHeightPercent = lines.red - lines.yellow;
+            const eyeHeightPercent = 100 - lines.green;
+
+            const faceHeightOk = faceHeightPercent >= 50 && faceHeightPercent <= 69;
+            const eyeHeightOk = eyeHeightPercent >= 56 && eyeHeightPercent <= 69;
+            const fileFormatOk = analyzeResult && analyzeResult.fileFormat === 'jpeg';
+            const finalFileSizeBytes = analyzeResult.compressedDataUrl ? getBase64Size(analyzeResult.compressedDataUrl) : 0;
+            const fileSizeOk = finalFileSizeBytes <= 240 * 1024;
+            
+            let dateOk = true;
+            if (analyzeResult && analyzeResult.photoDate) {
+                const sixMonthsAgo = new Date();
+                sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+                dateOk = analyzeResult.photoDate >= sixMonthsAgo;
+            }
+
+            const headTiltAnalysis = await analyzeHeadTilt();
+            const eyesOpenAnalysis = await analyzeEyesOpen();
+            const backgroundAnalysis = await analyzeBackground(currentImage);
+
+            return {
+                faceHeight: Math.round(faceHeightPercent * 10) / 10,
+                eyeHeight: Math.round(eyeHeightPercent * 10) / 10,
+                faceHeightOk, eyeHeightOk, fileFormatOk, fileSizeOk, dateOk,
+                headTiltOk: headTiltAnalysis.tiltOk,
+                headTiltAngle: headTiltAnalysis.tiltAngle,
+                eyesOpenOk: eyesOpenAnalysis.eyesOpenOk,
+                neutralColorOk: backgroundAnalysis.neutralColorOk,
+                lightHomogeneousOk: backgroundAnalysis.lightHomogeneousOk,
+                allOk: faceHeightOk && eyeHeightOk && fileFormatOk && fileSizeOk && dateOk && headTiltAnalysis.tiltOk && eyesOpenAnalysis.eyesOpenOk && backgroundAnalysis.neutralColorOk && backgroundAnalysis.lightHomogeneousOk
+            };
         }
 
         async function analyzeHeadTilt() {
@@ -2374,6 +2369,7 @@ if (!appState.isAdmin) {
                 <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Ширина фото</span><span class="criteria-value">600 px</span></li>
                 <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Высота фото</span><span class="criteria-value">600 px</span></li>
                 <li class="criteria-item"><span class="criteria-status ${proportions.faceHeightOk ? 'ok' : 'fail'}">${proportions.faceHeightOk ? '✓' : '✗'}</span><span class="criteria-name">Размер головы</span><span class="criteria-value">${proportions.faceHeight}%</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.eyeHeightOk ? 'ok' : 'fail'}">${proportions.eyeHeightOk ? '✓' : '✗'}</span><span class="criteria-name">Высота уровня глаз</span><span class="criteria-value">${proportions.eyeHeight}%</span></li>
                 <li class="criteria-item"><span class="criteria-status ${backgroundAnalysis.neutralColorOk ? 'ok' : 'fail'}">${backgroundAnalysis.neutralColorOk ? '✓' : '✗'}</span><span class="criteria-name">Фон нейтрального цвета</span><span class="criteria-value">${backgroundAnalysis.neutralColorOk ? 'Да' : 'Нет'}</span></li>
                 <li class="criteria-item"><span class="criteria-status ${backgroundAnalysis.lightHomogeneousOk ? 'ok' : 'fail'}">${backgroundAnalysis.lightHomogeneousOk ? '✓' : '✗'}</span><span class="criteria-name">Однородный светлый фон</span><span class="criteria-value">${backgroundAnalysis.lightHomogeneousOk ? 'Да' : 'Нет'}</span></li>
                 <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Резкие тени</span><span class="criteria-value">Нет</span></li>
