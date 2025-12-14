@@ -2188,7 +2188,6 @@ if (!appState.isAdmin) {
         }
 
         
-        // Анализ фона фотографии
         async function analyzeBackground(imageElement) {
             try {
                 const canvas = document.createElement('canvas');
@@ -2237,13 +2236,9 @@ if (!appState.isAdmin) {
                     b: Math.round(bgPixels.reduce((sum, p) => sum + p.b, 0) / bgPixels.length)
                 };
 
-                const maxDiff = Math.max(
-                    Math.abs(avgColor.r - avgColor.g),
-                    Math.abs(avgColor.g - avgColor.b),
-                    Math.abs(avgColor.r - avgColor.b)
-                );
-
+                const maxDiff = Math.max(Math.abs(avgColor.r - avgColor.g), Math.abs(avgColor.g - avgColor.b), Math.abs(avgColor.r - avgColor.b));
                 const isNeutral = maxDiff < 40;
+
                 const brightness = (avgColor.r + avgColor.g + avgColor.b) / 3;
                 const isLight = brightness > 180;
 
@@ -2256,20 +2251,10 @@ if (!appState.isAdmin) {
 
                 return {
                     neutralColorOk: isNeutral,
-                    lightHomogeneousOk: isLight && isHomogeneous,
-                    avgColor,
-                    brightness: Math.round(brightness),
-                    variance: Math.round(variance)
+                    lightHomogeneousOk: isLight && isHomogeneous
                 };
             } catch (error) {
-                console.error('Background analysis error:', error);
-                return {
-                    neutralColorOk: false,
-                    lightHomogeneousOk: false,
-                    avgColor: { r: 0, g: 0, b: 0 },
-                    brightness: 0,
-                    variance: 0
-                };
+                return { neutralColorOk: false, lightHomogeneousOk: false };
             }
         }
 
