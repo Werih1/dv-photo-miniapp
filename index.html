@@ -1980,6 +1980,7 @@ if (!appState.isAdmin) {
 
         let currentImage = null;
         let faceDetectionModel = null;
+        let faceDetected = false;
         let lines = { yellow: 0, green: 50, red: 100 };
         let selectedLine = null;
         let analyzeResult = null;
@@ -2043,6 +2044,7 @@ if (!appState.isAdmin) {
                     .withFaceLandmarks();
 
                 if (detections && detections.landmarks) {
+                    faceDetected = true;
                     const landmarks = detections.landmarks.positions;
                     let topOfHead = Math.min(...landmarks.map(p => p.y));
                     const bottomOfChin = landmarks[8].y;
@@ -2054,6 +2056,7 @@ if (!appState.isAdmin) {
                     lines.red = Math.max(0, Math.min(100, (bottomOfChin / currentImage.height) * 100));
                     drawLines();
                 } else {
+                    faceDetected = false;
                     lines = { yellow: 15, green: 45, red: 80 };
                     drawLines();
                 }
@@ -2279,7 +2282,7 @@ if (!appState.isAdmin) {
             let listHTML = `
                 <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Ширина фото</span><span class="criteria-value">600 px</span></li>
                 <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Высота фото</span><span class="criteria-value">600 px</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Обнаружение лица</span><span class="criteria-value">Да</span></li>
+                <li class="criteria-item"><span class="criteria-status ${faceDetected ? 'ok' : 'fail'}">${faceDetected ? '✓' : '✗'}</span><span class="criteria-name">Обнаружение лица</span><span class="criteria-value">${faceDetected ? 'Да' : 'Нет'}</span></li>
                 <li class="criteria-item"><span class="criteria-status ${proportions.headTiltOk ? 'ok' : 'fail'}">${proportions.headTiltOk ? '✓' : '✗'}</span><span class="criteria-name">Наклон головы</span><span class="criteria-value">${proportions.headTiltAngle}°</span></li>
                 <li class="criteria-item"><span class="criteria-status ${proportions.faceHeightOk ? 'ok' : 'fail'}">${proportions.faceHeightOk ? '✓' : '✗'}</span><span class="criteria-name">Размер головы</span><span class="criteria-value">${proportions.faceHeight}%</span></li>
                 <li class="criteria-item"><span class="criteria-status ${proportions.eyeHeightOk ? 'ok' : 'fail'}">${proportions.eyeHeightOk ? '✓' : '✗'}</span><span class="criteria-name">Высота уровня глаз</span><span class="criteria-value">${proportions.eyeHeight}%</span></li>
