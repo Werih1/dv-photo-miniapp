@@ -1662,6 +1662,7 @@ if (!appState.isAdmin) {
                 document.getElementById('splashScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.add('active');
                 updateAllContent();
+                updateUIText();
                 
                 if (appState.currentLang === 'ar') {
                     document.documentElement.setAttribute('dir', 'rtl');
@@ -1884,7 +1885,7 @@ if (!appState.isAdmin) {
         </div>
 
         <div class="card" id="editorCard" style="display: none;">
-            <h3 style="margin-bottom: 15px; font-size: 16px;" id="editorTitle">${t('photo_loaded')}</h3>
+            <h3 style="margin-bottom: 15px; font-size: 16px;" id="editorTitle">Ваше фото загружено. Отрегулируйте линии.</h3>
 
             <div class="canvas-wrapper">
                 <img id="previewImage" alt="Preview">
@@ -1892,11 +1893,11 @@ if (!appState.isAdmin) {
             </div>
 
             <div class="drag-hint" id="dragHint">
-                ${t('move_lines')}
+                ✋ Перемещайте линии вверх/вниз согласно инструкции ниже:
             </div>
 
-            <button class="btn btn-primary" onclick="analyzePhoto()" id="analyzeBtn">${t('check_btn')}</button>
-            <button class="btn" style="background-color: #999; color: white;" onclick="resetUpload()" id="resetBtn1">${t('load_other')}</button>
+            <button class="btn btn-primary" onclick="analyzePhoto()" id="analyzeBtn">✓ Проверить</button>
+            <button class="btn" style="background-color: #999; color: white;" onclick="resetUpload()" id="resetBtn1">← Загрузить другое фото</button>
 
             <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.1);">
                 <div style="font-size: 11px; font-weight: 600; color: #000; text-align: center; margin-bottom: 8px; text-decoration: underline;" id="instructionLabel">Инструкция:</div>
@@ -1920,7 +1921,7 @@ if (!appState.isAdmin) {
         <div class="card" id="analysisCard" style="display: none;">
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <div class="loading-text" id="loadingText">${t('analyzing')}</div>
+                <div class="loading-text" id="loadingText">Анализируем фотографию...</div>
             </div>
 
             <div class="result" id="result">
@@ -1933,7 +1934,7 @@ if (!appState.isAdmin) {
                 <ul class="criteria-list" id="criteriaBody"></ul>
 
                 <div class="button-group">
-                    <button class="btn btn-secondary" onclick="downloadPhoto()" id="downloadBtn">${t('download_btn')}</button>
+                    <button class="btn btn-secondary" onclick="downloadPhoto()" id="downloadBtn">⬇ Скачать фото</button>
                     <button class="btn" style="background-color: #999; color: white;" onclick="resetUpload()" id="resetBtn2">↻ Загрузить другое фото</button>
                 </div>
             </div>
@@ -1949,10 +1950,10 @@ if (!appState.isAdmin) {
                 uploadHint: "Перетащите изображение или нажмите для выбора файла",
                 editorTitle: "Отрегулируйте линии",
                 dragHint: "✋ Перемещайте линии вверх/вниз",
-                analyzeBtn: "${t('check_btn')}",
-                resetBtn: "${t('load_other')}",
-                loadingText: "${t('analyzing')}",
-                downloadBtn: "${t('download_btn')}",
+                analyzeBtn: "✓ Проверить",
+                resetBtn: "← Загрузить другое фото",
+                loadingText: "Анализируем фотографию...",
+                downloadBtn: "⬇ Скачать фото",
                 resetBtn2: "↻ Загрузить другое фото"
             },
             en: {
@@ -1972,66 +1973,9 @@ if (!appState.isAdmin) {
 
         let currentLanguage = 'ru';
 
-        // ===== ПЕРЕВОДЫ =====
-        const i18n = {
-            'ru': {
-                'photo_loaded': '${t('photo_loaded')}',
-                'move_lines': '${t('move_lines')}',
-                'check_btn': '${t('check_btn')}',
-                'load_other': '${t('load_other')}',
-                'analyzing': '${t('analyzing')}',
-                'not_match': '${t('not_match')}',
-                'match': '${t('match')}',
-                'download_btn': '${t('download_btn')}',
-                'yes': 'Да',
-                'no': 'Нет',
-            },
-            'en': {
-                'photo_loaded': 'Photo uploaded. Adjust the lines.',
-                'move_lines': '✋ Move the lines up/down according to the instructions below:',
-                'check_btn': '✓ Check',
-                'load_other': '← Upload another photo',
-                'analyzing': 'Analyzing photo...',
-                'not_match': 'Photo does not meet requirements. Results below:',
-                'match': 'Photo meets all requirements. Results below:',
-                'download_btn': '⬇ Download photo',
-                'yes': 'Yes',
-                'no': 'No',
-            },
-            'fr': {
-                'photo_loaded': 'Photo chargée. Ajustez les lignes.',
-                'move_lines': '✋ Déplacez les lignes vers le haut/bas selon les instructions ci-dessous:',
-                'check_btn': '✓ Vérifier',
-                'load_other': '← Charger une autre photo',
-                'analyzing': 'Analyse de la photo...',
-                'not_match': 'La photo ne répond pas aux exigences. Résultats ci-dessous:',
-                'match': 'La photo répond à toutes les exigences. Résultats ci-dessous:',
-                'download_btn': '⬇ Télécharger la photo',
-                'yes': 'Oui',
-                'no': 'Non',
-            },
-            'ar': {
-                'photo_loaded': 'تم تحميل الصورة. اضبط الخطوط.',
-                'move_lines': '✋ حرك الخطوط لأعلى/لأسفل وفقًا للتعليمات أدناه:',
-                'check_btn': '✓ التحقق',
-                'load_other': '← تحميل صورة أخرى',
-                'analyzing': 'تحليل الصورة...',
-                'not_match': 'الصورة لا تستوفي المتطلبات. النتائج أدناه:',
-                'match': 'الصورة تستوفي جميع المتطلبات. النتائج أدناه:',
-                'download_btn': '⬇ تنزيل الصورة',
-                'yes': 'نعم',
-                'no': 'لا',
-            }
-        };
-
-        function t(key) {
-            const lang = currentLanguage || 'ru';
-            return i18n[lang]?.[key] || i18n['ru'][key];
-        }
-
-
         function setLanguage(lang) {
             currentLanguage = lang;
+            updateUIText();
             document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
         }
@@ -2334,14 +2278,14 @@ if (!appState.isAdmin) {
             document.getElementById('resultImage').src = croppedImage;
 
             let resultMsg = proportions.allOk 
-                ? `<div class="success-banner">${t('match')}</div>`
-                : `<div class="error-banner">${t('not_match')}</div>`;
+                ? `<div class="success-banner">Фото соответствует всем требованиям. Результаты ниже:</div>`
+                : `<div class="error-banner">Фото не соответствует требованиям. Результаты ниже:</div>`;
             document.getElementById('resultMessage').innerHTML = resultMsg;
 
             let listHTML = `
                 <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Ширина фото</span><span class="criteria-value">600 px</span></li>
                 <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Высота фото</span><span class="criteria-value">600 px</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Обнаружение лица</span><span class="criteria-value">${t('yes')}</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Обнаружение лица</span><span class="criteria-value">Да</span></li>
                 
                 <li class="criteria-item"><span class="criteria-status ${proportions.faceHeightOk ? 'ok' : 'fail'}">${proportions.faceHeightOk ? '✓' : '✗'}</span><span class="criteria-name">Размер головы</span><span class="criteria-value">${proportions.faceHeight}%</span></li>
                 <li class="criteria-item"><span class="criteria-status ${proportions.eyeHeightOk ? 'ok' : 'fail'}">${proportions.eyeHeightOk ? '✓' : '✗'}</span><span class="criteria-name">Высота уровня глаз</span><span class="criteria-value">${proportions.eyeHeight}%</span></li>
@@ -2349,8 +2293,8 @@ if (!appState.isAdmin) {
                 
                 <li class="criteria-item"><span class="criteria-status ${proportions.neutralBgOk ? 'ok' : 'fail'}">${proportions.neutralBgOk ? '✓' : '✗'}</span><span class="criteria-name">Фон нейтрального цвета</span><span class="criteria-value">${proportions.neutralBgOk ? 'Да' : 'Нет'}</span></li>
                 <li class="criteria-item"><span class="criteria-status ${proportions.uniformBgOk ? 'ok' : 'fail'}">${proportions.uniformBgOk ? '✓' : '✗'}</span><span class="criteria-name">Однородный светлый фон</span><span class="criteria-value">${proportions.uniformBgOk ? 'Да' : 'Нет'}</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Резкие тени</span><span class="criteria-value">${t('no')}</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Косметическая обработка (beauty-фильтры)</span><span class="criteria-value">${t('no')}</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Резкие тени</span><span class="criteria-value">Нет</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Косметическая обработка (beauty-фильтры)</span><span class="criteria-value">Нет</span></li>
                 <li class="criteria-item"><span class="criteria-status ${proportions.fileFormatOk ? 'ok' : 'fail'}">${proportions.fileFormatOk ? '✓' : '✗'}</span><span class="criteria-name">Формат файла</span><span class="criteria-value">JPEG</span></li>
                 <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Цветовое пространство</span><span class="criteria-value">sRGB</span></li>
             `;
@@ -2662,6 +2606,118 @@ setTimeout(function() {
                 return { isNeutral: false, isUniform: false };
             }
         }
+
+
+        // ===== ПЕРЕВОДЫ (Динамическое изменение текста) =====
+        const translations = {
+            'ru': {
+                'uploadCard': 'Ваше фото загружено. Отрегулируйте линии.',
+                'dragHint': '✋ Перемещайте линии вверх/вниз согласно инструкции ниже:',
+                'analyzeBtn': '✓ Проверить',
+                'resetBtn1': '← Загрузить другое фото',
+                'resetBtn2': '↻ Загрузить другое фото',
+                'loadingText': 'Анализируем фотографию...',
+                'resultMessagePass': 'Фото соответствует всем требованиям. Результаты ниже:',
+                'resultMessageFail': 'Фото не соответствует требованиям. Результаты ниже:',
+                'downloadBtn': '⬇ Скачать фото',
+                'yes': 'Да',
+                'no': 'Нет',
+            },
+            'en': {
+                'uploadCard': 'Photo uploaded. Adjust the lines.',
+                'dragHint': '✋ Move the lines up/down according to the instructions below:',
+                'analyzeBtn': '✓ Check',
+                'resetBtn1': '← Upload another photo',
+                'resetBtn2': '↻ Upload another photo',
+                'loadingText': 'Analyzing photo...',
+                'resultMessagePass': 'Photo meets all requirements. Results below:',
+                'resultMessageFail': 'Photo does not meet requirements. Results below:',
+                'downloadBtn': '⬇ Download photo',
+                'yes': 'Yes',
+                'no': 'No',
+            },
+            'fr': {
+                'uploadCard': 'Photo chargée. Ajustez les lignes.',
+                'dragHint': '✋ Déplacez les lignes vers le haut/bas selon les instructions ci-dessous:',
+                'analyzeBtn': '✓ Vérifier',
+                'resetBtn1': '← Charger une autre photo',
+                'resetBtn2': '↻ Charger une autre photo',
+                'loadingText': 'Analyse de la photo...',
+                'resultMessagePass': 'La photo répond à toutes les exigences. Résultats ci-dessous:',
+                'resultMessageFail': 'La photo ne répond pas aux exigences. Résultats ci-dessous:',
+                'downloadBtn': '⬇ Télécharger la photo',
+                'yes': 'Oui',
+                'no': 'Non',
+            },
+            'ar': {
+                'uploadCard': 'تم تحميل الصورة. اضبط الخطوط.',
+                'dragHint': '✋ حرك الخطوط لأعلى/لأسفل وفقًا للتعليمات أدناه:',
+                'analyzeBtn': '✓ التحقق',
+                'resetBtn1': '← تحميل صورة أخرى',
+                'resetBtn2': '↻ تحميل صورة أخرى',
+                'loadingText': 'تحليل الصورة...',
+                'resultMessagePass': 'الصورة تستوفي جميع المتطلبات. النتائج أدناه:',
+                'resultMessageFail': 'الصورة لا تستوفي المتطلبات. النتائج أدناه:',
+                'downloadBtn': '⬇ تنزيل الصورة',
+                'yes': 'نعم',
+                'no': 'لا',
+            }
+        };
+
+        function updateUIText() {
+            const lang = currentLanguage || 'ru';
+            const trans = translations[lang] || translations['ru'];
+
+            // Обновляю динамические элементы
+            const uploadCard = document.getElementById('uploadCard');
+            if (uploadCard) {
+                const titleEl = uploadCard.querySelector('.editorTitle');
+                if (titleEl) titleEl.textContent = trans['uploadCard'];
+            }
+
+            const dragHint = document.getElementById('dragHint');
+            if (dragHint) dragHint.textContent = trans['dragHint'];
+
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            if (analyzeBtn) analyzeBtn.textContent = trans['analyzeBtn'];
+
+            const resetBtn1 = document.getElementById('resetBtn1');
+            if (resetBtn1) resetBtn1.textContent = trans['resetBtn1'];
+
+            const resetBtn2 = document.getElementById('resetBtn2');
+            if (resetBtn2) resetBtn2.textContent = trans['resetBtn2'];
+
+            const loadingText = document.getElementById('loadingText');
+            if (loadingText) loadingText.textContent = trans['loadingText'];
+
+            const downloadBtn = document.getElementById('downloadBtn');
+            if (downloadBtn) downloadBtn.textContent = trans['downloadBtn'];
+
+            // Обновляю Да/Нет в критериях
+            document.querySelectorAll('.criteria-value').forEach(el => {
+                if (el.textContent === 'Да' || el.textContent === 'Yes' || el.textContent === 'Oui' || el.textContent === 'نعم') {
+                    el.textContent = trans['yes'];
+                } else if (el.textContent === 'Нет' || el.textContent === 'No' || el.textContent === 'Non' || el.textContent === 'لا') {
+                    el.textContent = trans['no'];
+                }
+            });
+
+            // Обновляю результат сообщение если оно видимо
+            const resultMessage = document.getElementById('resultMessage');
+            if (resultMessage && resultMessage.textContent) {
+                if (resultMessage.textContent.includes('соответствует всем требованиям') || 
+                    resultMessage.textContent.includes('meets all requirements') ||
+                    resultMessage.textContent.includes('répond à toutes') ||
+                    resultMessage.textContent.includes('تستوفي جميع')) {
+                    resultMessage.textContent = trans['resultMessagePass'];
+                } else {
+                    resultMessage.textContent = trans['resultMessageFail'];
+                }
+            }
+        }
+
+        // Вызываю обновление при смене языка
+        document.addEventListener('languageChanged', updateUIText);
 </script>
 
 </body>
