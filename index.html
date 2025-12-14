@@ -2606,80 +2606,94 @@ setTimeout(function() {
         }
 
 
-        // ===== ПРОСТЫЕ ПЕРЕВОДЫ =====
-        const lang_texts = {
+        // ===== ПЕРЕВОДЫ ТЕКСТОВ =====
+        // Объект с переводами для каждого языка
+        const textTranslations = {
             'ru': {
-                'uploadTitle': 'Ваше фото загружено. Отрегулируйте линии.',
-                'moveLinesText': '✋ Перемещайте линии вверх/вниз согласно инструкции ниже:',
-                'checkBtnText': '✓ Проверить',
-                'loadOtherText': '← Загрузить другое фото',
-                'analyzingText': 'Анализируем фотографию...',
-                'notMatchText': 'Фото не соответствует требованиям. Результаты ниже:',
-                'matchText': 'Фото соответствует всем требованиям. Результаты ниже:',
-                'downloadText': '⬇ Скачать фото',
+                'editorTitle': 'Ваше фото загружено. Отрегулируйте линии.',
+                'dragHint': '✋ Перемещайте линии вверх/вниз согласно инструкции ниже:',
+                'analyzeBtn': '✓ Проверить',
+                'resetBtn': '← Загрузить другое фото',
+                'loadingText': 'Анализируем фотографию...',
             },
             'en': {
-                'uploadTitle': 'Photo uploaded. Adjust the lines.',
-                'moveLinesText': '✋ Move the lines up/down according to the instructions below:',
-                'checkBtnText': '✓ Check',
-                'loadOtherText': '← Upload another photo',
-                'analyzingText': 'Analyzing photo...',
-                'notMatchText': 'Photo does not meet requirements. Results below:',
-                'matchText': 'Photo meets all requirements. Results below:',
-                'downloadText': '⬇ Download photo',
+                'editorTitle': 'Photo uploaded. Adjust the lines.',
+                'dragHint': '✋ Move the lines up/down according to the instructions below:',
+                'analyzeBtn': '✓ Check',
+                'resetBtn': '← Upload another photo',
+                'loadingText': 'Analyzing photo...',
             },
             'fr': {
-                'uploadTitle': 'Photo chargée. Ajustez les lignes.',
-                'moveLinesText': '✋ Déplacez les lignes vers le haut/bas selon les instructions ci-dessous:',
-                'checkBtnText': '✓ Vérifier',
-                'loadOtherText': '← Charger une autre photo',
-                'analyzingText': 'Analyse de la photo...',
-                'notMatchText': 'La photo ne répond pas aux exigences. Résultats ci-dessous:',
-                'matchText': 'La photo répond à toutes les exigences. Résultats ci-dessous:',
-                'downloadText': '⬇ Télécharger la photo',
+                'editorTitle': 'Photo chargée. Ajustez les lignes.',
+                'dragHint': '✋ Déplacez les lignes vers le haut/bas selon les instructions ci-dessous:',
+                'analyzeBtn': '✓ Vérifier',
+                'resetBtn': '← Charger une autre photo',
+                'loadingText': 'Analyse de la photo...',
             },
             'ar': {
-                'uploadTitle': 'تم تحميل الصورة. اضبط الخطوط.',
-                'moveLinesText': '✋ حرك الخطوط لأعلى/لأسفل وفقًا للتعليمات أدناه:',
-                'checkBtnText': '✓ التحقق',
-                'loadOtherText': '← تحميل صورة أخرى',
-                'analyzingText': 'تحليل الصورة...',
-                'notMatchText': 'الصورة لا تستوفي المتطلبات. النتائج أدناه:',
-                'matchText': 'الصورة تستوفي جميع المتطلبات. النتائج أدناه:',
-                'downloadText': '⬇ تنزيل الصورة',
+                'editorTitle': 'تم تحميل الصورة. اضبط الخطوط.',
+                'dragHint': '✋ حرك الخطوط لأعلى/لأسفل وفقًا للتعليمات أدناه:',
+                'analyzeBtn': '✓ التحقق',
+                'resetBtn': '← تحميل صورة أخرى',
+                'loadingText': 'تحليل الصورة...',
             }
         };
 
-        function applyTranslation() {
+        // Функция обновления текстов при смене языка
+        function updateUITexts() {
             const lang = currentLanguage || 'ru';
-            const texts = lang_texts[lang];
+            const texts = textTranslations[lang];
+
             if (!texts) return;
 
-            // Находим элементы по текущему тексту и меняем
-            const allElements = document.querySelectorAll('*');
-            allElements.forEach(el => {
-                if (!el.hasChildNodes() || (el.childNodes.length === 1 && el.childNodes[0].nodeType === 3)) {
-                    const text = el.textContent.trim();
+            // Обновляю заголовок редактора
+            const editorTitle = document.getElementById('editorTitle');
+            if (editorTitle) {
+                editorTitle.textContent = texts.editorTitle;
+            }
 
-                    // Заменяю известные текст
-                    if (text === 'Ваше фото загружено. Отрегулируйте линии.' && texts['uploadTitle']) el.textContent = texts['uploadTitle'];
-                    else if (text === '✋ Перемещайте линии вверх/вниз согласно инструкции ниже:' && texts['moveLinesText']) el.textContent = texts['moveLinesText'];
-                    else if (text === '✓ Проверить' && texts['checkBtnText']) el.textContent = texts['checkBtnText'];
-                    else if (text === '← Загрузить другое фото' && texts['loadOtherText']) el.textContent = texts['loadOtherText'];
-                    else if (text === 'Анализируем фотографию...' && texts['analyzingText']) el.textContent = texts['analyzingText'];
-                    else if (text === 'Фото не соответствует требованиям. Результаты ниже:' && texts['notMatchText']) el.textContent = texts['notMatchText'];
-                    else if (text === 'Фото соответствует всем требованиям. Результаты ниже:' && texts['matchText']) el.textContent = texts['matchText'];
-                    else if (text === '⬇ Скачать фото' && texts['downloadText']) el.textContent = texts['downloadText'];
-                }
+            // Обновляю подсказку о перемещении линий
+            const dragHint = document.getElementById('dragHint');
+            if (dragHint) {
+                dragHint.textContent = texts.dragHint;
+            }
+
+            // Обновляю кнопку "Проверить"
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            if (analyzeBtn) {
+                analyzeBtn.textContent = texts.analyzeBtn;
+            }
+
+            // Обновляю кнопки "Загрузить другое фото" (может быть несколько)
+            const resetBtns = document.querySelectorAll('[id^="resetBtn"]');
+            resetBtns.forEach(btn => {
+                btn.textContent = texts.resetBtn;
             });
+
+            // Обновляю текст "Анализируем фото"
+            const loadingText = document.getElementById('loadingText');
+            if (loadingText) {
+                loadingText.textContent = texts.loadingText;
+            }
         }
 
-        // Добавлю перевод после смены языка - перехватью setLanguage
+        // Перехватываю оригинальную функцию setLanguage
         const originalSetLanguage = window.setLanguage;
         window.setLanguage = function(lang) {
-            if (originalSetLanguage) originalSetLanguage(lang);
-            setTimeout(applyTranslation, 100);
+            currentLanguage = lang;
+
+            // Обновляю кнопки меню
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('[onclick="setLanguage(\''+lang+'\')"]')?.classList.add('active');
+
+            // Обновляю тексты UI - но с задержкой чтобы элементы загрузились
+            setTimeout(updateUITexts, 50);
         };
+
+        // Первоначальное обновление при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUITexts();
+        });
 </script>
 
 </body>
