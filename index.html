@@ -2551,12 +2551,10 @@ setTimeout(function() {
                 const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const data = imgData.data;
 
-                // Анализируем ВЕСЬ фон, не только края
-                // Берем пиксели по сетке
+                // Анализируем ВЕСЬ фон по сетке
                 const bgPixels = [];
-                const step = 30; // Шаг анализа (каждый 30-й пиксель)
+                const step = 30; // Шаг анализа
 
-                // Сканируем весь холст, но с шагом
                 for (let y = 0; y < canvas.height; y += step) {
                     for (let x = 0; x < canvas.width; x += step) {
                         const pixelIndex = (y * canvas.width + x) * 4;
@@ -2577,17 +2575,15 @@ setTimeout(function() {
                 const avgG = Math.round(bgPixels.reduce((sum, p) => sum + p.g, 0) / bgPixels.length);
                 const avgB = Math.round(bgPixels.reduce((sum, p) => sum + p.b, 0) / bgPixels.length);
 
-                // КРИТЕРИЙ 1: Нейтральность цвета
+                // КРИТЕРИЙ 1: Нейтральность (строгий)
                 const maxDiff = Math.max(
                     Math.abs(avgR - avgG),
                     Math.abs(avgG - avgB),
                     Math.abs(avgR - avgB)
                 );
-                // Нейтральный если разница < 40 (серые тона)
-                const isNeutral = maxDiff < 40;
+                const isNeutral = maxDiff < 40; // Серые тона
 
-                // КРИТЕРИЙ 2: Однородность (вариация пикселей)
-                // Очень важно! Пёстрый фон будет иметь высокую вариацию
+                // КРИТЕРИЙ 2: Однородность (МЯГКИЙ)
                 const pixelDiffs = bgPixels.map(p => {
                     return Math.abs(p.r - avgR) + Math.abs(p.g - avgG) + Math.abs(p.b - avgB);
                 });
@@ -2595,10 +2591,12 @@ setTimeout(function() {
                 const maxPixelDiff = Math.max(...pixelDiffs);
                 const avgPixelDiff = pixelDiffs.reduce((a, b) => a + b, 0) / pixelDiffs.length;
 
-                // Однородный если средняя вариация < 30 и максимум < 70
-                const isUniform = avgPixelDiff < 30 && maxPixelDiff < 70;
+                // МЯГКИЕ требования для однородности
+                // avgPixelDiff < 55 и maxPixelDiff < 130
+                // Так большинство реальных фото будут приниматься
+                const isUniform = avgPixelDiff < 55 && maxPixelDiff < 130;
 
-                console.log(`BG: RGB(${avgR},${avgG},${avgB}), ColorDiff=${maxDiff}, PixelDiff(avg)=${avgPixelDiff.toFixed(1)}, PixelDiff(max)=${maxPixelDiff}, Neutral=${isNeutral}, Uniform=${isUniform}`);
+                console.log(`BG: RGB(${avgR},${avgG},${avgB}), ColorDiff=${maxDiff}, AvgPixelDiff=${avgPixelDiff.toFixed(1)}, MaxPixelDiff=${maxPixelDiff}, Neutral=${isNeutral}, Uniform=${isUniform}`);
 
                 return { isNeutral, isUniform };
             } catch (error) {
