@@ -2307,85 +2307,22 @@ if (!appState.isAdmin) {
         }
 
         
-        // Переводит результаты анализа на текущий язык
-        function translateResults() {
+        function getText(ru, en, fr, ar) {
             const lang = appState.currentLang || 'ru';
-            if (lang === 'ru') return; // Уже на русском
-
-            const translations = {
-                en: {
-                    'Фото соответствует всем требованиям. Результаты ниже:': 'Photo meets all requirements. Results below:',
-                    'Фото не соответствует требованиям. Результаты ниже:': 'Photo does not meet requirements. Results below:',
-                    'Ширина фото': 'Photo width', 'Высота фото': 'Photo height',
-                    'Обнаружение лица': 'Face detection', 'Размер головы': 'Head size',
-                    'Высота уровня глаз': 'Eye level height',
-                    'Фон нейтрального цвета': 'Neutral background',
-                    'Однородный светлый фон': 'Uniform light background',
-                    'Резкие тени': 'Sharp shadows',
-                    'Косметическая обработка (beauty-фильтры)': 'Beauty filters',
-                    'Формат файла': 'File format', 'Цветовое пространство': 'Color space',
-                    'Размер файла': 'File size',
-                    'Дата фотографии (не старше 6 месяцев)': 'Photo date (not older than 6 months)',
-                    '⬇ Скачать фото': '⬇ Download photo',
-                    'Да': 'Yes', 'Нет': 'No'
-                },
-                fr: {
-                    'Фото соответствует всем требованиям. Результаты ниже:': 'La photo répond à toutes les exigences. Résultats ci-dessous:',
-                    'Фото не соответствует требованиям. Результаты ниже:': 'La photo ne répond pas aux exigences. Résultats ci-dessous:',
-                    'Ширина фото': 'Largeur photo', 'Высота фото': 'Hauteur photo',
-                    'Обнаружение лица': 'Détection visage', 'Размер головы': 'Taille tête',
-                    'Высота уровня глаз': 'Hauteur yeux',
-                    'Фон нейтрального цвета': 'Fond neutre',
-                    'Однородный светлый фон': 'Fond uniforme clair',
-                    'Резкие тени': 'Ombres nettes',
-                    'Косметическая обработка (beauty-фильтры)': 'Filtres beauté',
-                    'Формат файла': 'Format fichier', 'Цветовое пространство': 'Espace couleur',
-                    'Размер файла': 'Taille fichier',
-                    'Дата фотографии (не старше 6 месяцев)': 'Date photo (max 6 mois)',
-                    '⬇ Скачать фото': '⬇ Télécharger photo',
-                    'Да': 'Oui', 'Нет': 'Non'
-                },
-                ar: {
-                    'Фото соответствует всем требованиям. Результаты ниже:': 'الصورة تستوفي جميع المتطلبات. النتائج أدناه:',
-                    'Фото не соответствует требованиям. Результаты ниже:': 'الصورة لا تستوفي المتطلبات. النتائج أدناه:',
-                    'Ширина фото': 'عرض الصورة', 'Высота фото': 'ارتفاع الصورة',
-                    'Обнаружение лица': 'كشف الوجه', 'Размер головы': 'حجم الرأس',
-                    'Высота уровня глаз': 'مستوى العين',
-                    'Фон нейтрального цвета': 'خلفية محايدة',
-                    'Однородный светлый фон': 'خلفية موحدة',
-                    'Резкие тени': 'ظلال',
-                    'Косметическая обработка (beauty-фильтры)': 'مرشحات',
-                    'Формат файла': 'صيغة', 'Цветовое пространство': 'لون',
-                    'Размер файла': 'حجم',
-                    'Дата фотографии (не старше 6 месяцев)': 'التاريخ',
-                    '⬇ Скачать фото': '⬇ تنزيل الصورة',
-                    'Да': 'نعم', 'Нет': 'لا'
-                }
-            };
-
-            const dict = translations[lang];
-            if (!dict) return;
-
-            // Заменяю текст на странице
-            document.body.innerHTML = document.body.innerHTML.replace(
-                /Фото (соответствует|не соответствует)[^<]*/g,
-                (match) => dict[match] || match
-            );
-
-            // Проще - заменяю прямые строки
-            for (const [ru, translated] of Object.entries(dict)) {
-                const regex = new RegExp(ru.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
-                document.documentElement.innerHTML = document.documentElement.innerHTML.replace(regex, translated);
+            switch(lang) {
+                case 'en': return en;
+                case 'fr': return fr;
+                case 'ar': return ar;
+                default: return ru;
             }
         }
 
-
-        function showResults(croppedImage, proportions) {
+function showResults(croppedImage, proportions) {
             document.getElementById('resultImage').src = croppedImage;
 
             let resultMsg = proportions.allOk 
-                ? `<div class="success-banner">Фото соответствует всем требованиям. Результаты ниже:</div>`
-                : `<div class="error-banner">Фото не соответствует требованиям. Результаты ниже:</div>`;
+                ? `<div class="success-banner">${getText('Фото соответствует всем требованиям. Результаты ниже:', 'Photo meets all requirements. Results below:', 'La photo répond à toutes les exigences. Résultats ci-dessous:', 'الصورة تستوفي جميع المتطلبات. النتائج أدناه:')}</div>`
+                : `<div class="error-banner">${getText('Фото не соответствует требованиям. Результаты ниже:', 'Photo does not meet requirements. Results below:', 'La photo ne répond pas aux exigences. Résultats ci-dessous:', 'الصورة لا تستوفي المتطلبات. النتائج أدناه:')}</div>`;
             document.getElementById('resultMessage').innerHTML = resultMsg;
 
             let listHTML = `
@@ -2414,10 +2351,6 @@ if (!appState.isAdmin) {
             listHTML += `<li class="criteria-item"><span class="criteria-status ${proportions.dateOk ? 'ok' : 'fail'}">${proportions.dateOk ? '✓' : '✗'}</span><span class="criteria-name">Дата фотографии (не старше 6 месяцев)</span><span class="criteria-value">${formattedDate}</span></li>`;
 
             document.getElementById('criteriaBody').innerHTML = listHTML;
-        
-
-            // Переводим результаты на текущий язык
-            setTimeout(() => translateResults(), 100);
         }
 
         function downloadPhoto() {
