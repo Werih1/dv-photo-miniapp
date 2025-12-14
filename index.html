@@ -1884,7 +1884,7 @@ if (!appState.isAdmin) {
         </div>
 
         <div class="card" id="editorCard" style="display: none;">
-            <h3 style="margin-bottom: 15px; font-size: 16px;" id="editorTitle">Ваше фото загружено. Отрегулируйте линии.</h3>
+            <h3 style="margin-bottom: 15px; font-size: 16px;" id="editorTitle">${t('photo_loaded')}</h3>
 
             <div class="canvas-wrapper">
                 <img id="previewImage" alt="Preview">
@@ -1892,11 +1892,11 @@ if (!appState.isAdmin) {
             </div>
 
             <div class="drag-hint" id="dragHint">
-                ✋ Перемещайте линии вверх/вниз согласно инструкции ниже:
+                ${t('move_lines')}
             </div>
 
-            <button class="btn btn-primary" onclick="analyzePhoto()" id="analyzeBtn">✓ Проверить</button>
-            <button class="btn" style="background-color: #999; color: white;" onclick="resetUpload()" id="resetBtn1">← Загрузить другое фото</button>
+            <button class="btn btn-primary" onclick="analyzePhoto()" id="analyzeBtn">${t('check_btn')}</button>
+            <button class="btn" style="background-color: #999; color: white;" onclick="resetUpload()" id="resetBtn1">${t('load_other')}</button>
 
             <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid rgba(0,0,0,0.1);">
                 <div style="font-size: 11px; font-weight: 600; color: #000; text-align: center; margin-bottom: 8px; text-decoration: underline;" id="instructionLabel">Инструкция:</div>
@@ -1920,7 +1920,7 @@ if (!appState.isAdmin) {
         <div class="card" id="analysisCard" style="display: none;">
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <div class="loading-text" id="loadingText">Анализируем фотографию...</div>
+                <div class="loading-text" id="loadingText">${t('analyzing')}</div>
             </div>
 
             <div class="result" id="result">
@@ -1933,8 +1933,8 @@ if (!appState.isAdmin) {
                 <ul class="criteria-list" id="criteriaBody"></ul>
 
                 <div class="button-group">
-                    <button class="btn btn-secondary" onclick="downloadPhoto()" id="downloadBtn">⬇ Скачать фото</button>
-                    <button class="btn" style="background-color: #999; color: white;" onclick="resetUpload()" id="resetBtn2">↻ Загрузить другое фото</button>
+                    <button class="btn btn-secondary" onclick="downloadPhoto()" id="downloadBtn">${t('download_btn')}</button>
+                    <button class="btn" style="background-color: #999; color: white;" onclick="resetUpload()" id="resetBtn2">${t('load_other')}</button>
                 </div>
             </div>
         </div>
@@ -1949,11 +1949,11 @@ if (!appState.isAdmin) {
                 uploadHint: "Перетащите изображение или нажмите для выбора файла",
                 editorTitle: "Отрегулируйте линии",
                 dragHint: "✋ Перемещайте линии вверх/вниз",
-                analyzeBtn: "✓ Проверить",
-                resetBtn: "← Загрузить другое фото",
-                loadingText: "Анализируем фотографию...",
-                downloadBtn: "⬇ Скачать фото",
-                resetBtn2: "↻ Загрузить другое фото"
+                analyzeBtn: "${t('check_btn')}",
+                resetBtn: "${t('load_other')}",
+                loadingText: "${t('analyzing')}",
+                downloadBtn: "${t('download_btn')}",
+                resetBtn2: "${t('load_other')}"
             },
             en: {
                 mainTitle: "Portrait Validator",
@@ -1971,6 +1971,64 @@ if (!appState.isAdmin) {
         };
 
         let currentLanguage = 'ru';
+        // Объект переводов
+        const i18n = {
+            'ru': {
+                'photo_loaded': '${t('photo_loaded')}',
+                'move_lines': '${t('move_lines')}',
+                'check_btn': 'Проверить',
+                'load_other': 'Загрузить другое фото',
+                'analyzing': '${t('analyzing')}',
+                'not_match': '${t('not_match')}',
+                'match': '${t('match')}',
+                'download_btn': 'Скачать фото',
+                'yes': 'Да',
+                'no': 'Нет',
+            },
+            'en': {
+                'photo_loaded': 'Photo uploaded. Adjust the lines.',
+                'move_lines': '✋ Move the lines up/down according to the instructions below:',
+                'check_btn': 'Check',
+                'load_other': 'Upload another photo',
+                'analyzing': 'Analyzing photo...',
+                'not_match': 'Photo does not meet requirements. Results below:',
+                'match': 'Photo meets all requirements. Results below:',
+                'download_btn': 'Download photo',
+                'yes': 'Yes',
+                'no': 'No',
+            },
+            'fr': {
+                'photo_loaded': 'Photo chargée. Ajustez les lignes.',
+                'move_lines': '✋ Déplacez les lignes vers le haut/bas selon les instructions ci-dessous:',
+                'check_btn': 'Vérifier',
+                'load_other': 'Charger une autre photo',
+                'analyzing': 'Analyse de la photo...',
+                'not_match': 'La photo ne répond pas aux exigences. Résultats ci-dessous:',
+                'match': 'La photo répond à toutes les exigences. Résultats ci-dessous:',
+                'download_btn': 'Télécharger la photo',
+                'yes': 'Oui',
+                'no': 'Non',
+            },
+            'ar': {
+                'photo_loaded': 'تم تحميل الصورة. اضبط الخطوط.',
+                'move_lines': '✋ حرك الخطوط لأعلى/لأسفل وفقًا للتعليمات أدناه:',
+                'check_btn': 'التحقق',
+                'load_other': 'تحميل صورة أخرى',
+                'analyzing': 'تحليل الصورة...',
+                'not_match': 'الصورة لا تستوفي المتطلبات. النتائج أدناه:',
+                'match': 'الصورة تستوفي جميع المتطلبات. النتائج أدناه:',
+                'download_btn': 'تنزيل الصورة',
+                'yes': 'نعم',
+                'no': 'لا',
+            }
+        };
+
+        // Функция получения текста на текущем языке
+        function t(key) {
+            const lang = currentLanguage || 'ru';
+            return i18n[lang]?.[key] || i18n['ru'][key];
+        }
+
 
         function setLanguage(lang) {
             currentLanguage = lang;
@@ -2276,23 +2334,23 @@ if (!appState.isAdmin) {
             document.getElementById('resultImage').src = croppedImage;
 
             let resultMsg = proportions.allOk 
-                ? `<div class="success-banner">Фото соответствует всем требованиям. Результаты ниже:</div>`
-                : `<div class="error-banner">Фото не соответствует требованиям. Результаты ниже:</div>`;
+                ? `<div class="success-banner">${t('match')}</div>`
+                : `<div class="error-banner">${t('not_match')}</div>`;
             document.getElementById('resultMessage').innerHTML = resultMsg;
 
             let listHTML = `
                 <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Ширина фото</span><span class="criteria-value">600 px</span></li>
                 <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Высота фото</span><span class="criteria-value">600 px</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Обнаружение лица</span><span class="criteria-value">Да</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Обнаружение лица</span><span class="criteria-value">${t('yes')}</span></li>
                 
                 <li class="criteria-item"><span class="criteria-status ${proportions.faceHeightOk ? 'ok' : 'fail'}">${proportions.faceHeightOk ? '✓' : '✗'}</span><span class="criteria-name">Размер головы</span><span class="criteria-value">${proportions.faceHeight}%</span></li>
                 <li class="criteria-item"><span class="criteria-status ${proportions.eyeHeightOk ? 'ok' : 'fail'}">${proportions.eyeHeightOk ? '✓' : '✗'}</span><span class="criteria-name">Высота уровня глаз</span><span class="criteria-value">${proportions.eyeHeight}%</span></li>
                 
                 
-                <li class="criteria-item"><span class="criteria-status ${proportions.neutralBgOk ? 'ok' : 'fail'}">${proportions.neutralBgOk ? '✓' : '✗'}</span><span class="criteria-name">Фон нейтрального цвета</span><span class="criteria-value">${proportions.neutralBgOk ? 'Да' : 'Нет'}</span></li>
-                <li class="criteria-item"><span class="criteria-status ${proportions.uniformBgOk ? 'ok' : 'fail'}">${proportions.uniformBgOk ? '✓' : '✗'}</span><span class="criteria-name">Однородный светлый фон</span><span class="criteria-value">${proportions.uniformBgOk ? 'Да' : 'Нет'}</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Резкие тени</span><span class="criteria-value">Нет</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Косметическая обработка (beauty-фильтры)</span><span class="criteria-value">Нет</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.neutralBgOk ? 'ok' : 'fail'}">${proportions.neutralBgOk ? '✓' : '✗'}</span><span class="criteria-name">Фон нейтрального цвета</span><span class="criteria-value">${proportions.neutralBgOk ? t('yes') : t('no')}</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.uniformBgOk ? 'ok' : 'fail'}">${proportions.uniformBgOk ? '✓' : '✗'}</span><span class="criteria-name">Однородный светлый фон</span><span class="criteria-value">${proportions.uniformBgOk ? t('yes') : t('no')}</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Резкие тени</span><span class="criteria-value">${t('no')}</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Косметическая обработка (beauty-фильтры)</span><span class="criteria-value">${t('no')}</span></li>
                 <li class="criteria-item"><span class="criteria-status ${proportions.fileFormatOk ? 'ok' : 'fail'}">${proportions.fileFormatOk ? '✓' : '✗'}</span><span class="criteria-name">Формат файла</span><span class="criteria-value">JPEG</span></li>
                 <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Цветовое пространство</span><span class="criteria-value">sRGB</span></li>
             `;
@@ -2551,9 +2609,8 @@ setTimeout(function() {
                 const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const data = imgData.data;
 
-                // Анализируем ВЕСЬ фон по сетке
                 const bgPixels = [];
-                const step = 30; // Шаг анализа
+                const step = 30;
 
                 for (let y = 0; y < canvas.height; y += step) {
                     for (let x = 0; x < canvas.width; x += step) {
@@ -2570,20 +2627,17 @@ setTimeout(function() {
                     return { isNeutral: false, isUniform: false };
                 }
 
-                // Вычисляем среднее RGB
                 const avgR = Math.round(bgPixels.reduce((sum, p) => sum + p.r, 0) / bgPixels.length);
                 const avgG = Math.round(bgPixels.reduce((sum, p) => sum + p.g, 0) / bgPixels.length);
                 const avgB = Math.round(bgPixels.reduce((sum, p) => sum + p.b, 0) / bgPixels.length);
 
-                // КРИТЕРИЙ 1: Нейтральность (строгий)
                 const maxDiff = Math.max(
                     Math.abs(avgR - avgG),
                     Math.abs(avgG - avgB),
                     Math.abs(avgR - avgB)
                 );
-                const isNeutral = maxDiff < 40; // Серые тона
+                const isNeutral = maxDiff < 40;
 
-                // КРИТЕРИЙ 2: Однородность (МЯГКИЙ)
                 const pixelDiffs = bgPixels.map(p => {
                     return Math.abs(p.r - avgR) + Math.abs(p.g - avgG) + Math.abs(p.b - avgB);
                 });
@@ -2591,9 +2645,6 @@ setTimeout(function() {
                 const maxPixelDiff = Math.max(...pixelDiffs);
                 const avgPixelDiff = pixelDiffs.reduce((a, b) => a + b, 0) / pixelDiffs.length;
 
-                // МЯГКИЕ требования для однородности
-                // avgPixelDiff < 55 и maxPixelDiff < 130
-                // Так большинство реальных фото будут приниматься
                 const isUniform = avgPixelDiff < 55 && maxPixelDiff < 130;
 
                 console.log(`BG: RGB(${avgR},${avgG},${avgB}), ColorDiff=${maxDiff}, AvgPixelDiff=${avgPixelDiff.toFixed(1)}, MaxPixelDiff=${maxPixelDiff}, Neutral=${isNeutral}, Uniform=${isUniform}`);
