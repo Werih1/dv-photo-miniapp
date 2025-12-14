@@ -1969,7 +1969,7 @@ if (!appState.isAdmin) {
                 <ul class="criteria-list" id="criteriaBody"></ul>
 
                 <div class="button-group">
-                    <button class="btn btn-secondary" onclick="downloadPhoto()" id="downloadBtn">⬇ Скачать фото</button>
+                    <button class="btn btn-secondary" onclick="downloadPhoto()" id="downloadBtn">${getText("⬇ Скачать фото", "⬇ Download photo", "⬇ Télécharger photo", "⬇ تنزيل الصورة")}</button>
                     <button class="btn" style="background-color: #999; color: white;" onclick="resetUpload()" id="resetBtn2">↻ Загрузить другое фото</button>
                 </div>
             </div>
@@ -2321,34 +2321,34 @@ function showResults(croppedImage, proportions) {
             document.getElementById('resultImage').src = croppedImage;
 
             let resultMsg = proportions.allOk 
-                ? `<div class="success-banner">${getText('Фото соответствует всем требованиям. Результаты ниже:', 'Photo meets all requirements. Results below:', 'La photo répond à toutes les exigences. Résultats ci-dessous:', 'الصورة تستوفي جميع المتطلبات. النتائج أدناه:')}</div>`
-                : `<div class="error-banner">${getText('Фото не соответствует требованиям. Результаты ниже:', 'Photo does not meet requirements. Results below:', 'La photo ne répond pas aux exigences. Résultats ci-dessous:', 'الصورة لا تستوفي المتطلبات. النتائج أدناه:')}</div>`;
+                ? `<div class="success-banner">${getText("Фото соответствует всем требованиям. Результаты ниже:", "Photo meets all requirements. Results below:", "La photo répond à toutes les exigences. Résultats ci-dessous:", "الصورة تستوفي جميع المتطلبات. النتائج أدناه:")}</div>`
+                : `<div class="error-banner">${getText("Фото не соответствует требованиям. Результаты ниже:", "Photo does not meet requirements. Results below:", "La photo ne répond pas aux exigences. Résultats ci-dessous:", "الصورة لا تستوفي المتطلبات. النتائج أدناه:")}</div>`;
             document.getElementById('resultMessage').innerHTML = resultMsg;
 
             let listHTML = `
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Ширина фото</span><span class="criteria-value">600 px</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Высота фото</span><span class="criteria-value">600 px</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Обнаружение лица</span><span class="criteria-value">Да</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">${getText("Ширина фото", "Photo width", "Largeur photo", "عرض الصورة")}</span><span class="criteria-value">600 px</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">${getText("Высота фото", "Photo height", "Hauteur photo", "ارتفاع الصورة")}</span><span class="criteria-value">600 px</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">${getText("Обнаружение лица", "Face detection", "Détection visage", "كشف الوجه")}</span><span class="criteria-value">Да</span></li>
                 
-                <li class="criteria-item"><span class="criteria-status ${proportions.faceHeightOk ? 'ok' : 'fail'}">${proportions.faceHeightOk ? '✓' : '✗'}</span><span class="criteria-name">Размер головы</span><span class="criteria-value">${proportions.faceHeight}%</span></li>
-                <li class="criteria-item"><span class="criteria-status ${proportions.eyeHeightOk ? 'ok' : 'fail'}">${proportions.eyeHeightOk ? '✓' : '✗'}</span><span class="criteria-name">Высота уровня глаз</span><span class="criteria-value">${proportions.eyeHeight}%</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.faceHeightOk ? 'ok' : 'fail'}">${proportions.faceHeightOk ? '✓' : '✗'}</span><span class="criteria-name">${getText("Размер головы", "Head size", "Taille tête", "حجم الرأس")}</span><span class="criteria-value">${proportions.faceHeight}%</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.eyeHeightOk ? 'ok' : 'fail'}">${proportions.eyeHeightOk ? '✓' : '✗'}</span><span class="criteria-name">${getText("Высота уровня глаз", "Eye level height", "Hauteur yeux", "مستوى العين")}</span><span class="criteria-value">${proportions.eyeHeight}%</span></li>
                 
                 
-                <li class="criteria-item"><span class="criteria-status ${proportions.neutralBgOk ? 'ok' : 'fail'}">${proportions.neutralBgOk ? '✓' : '✗'}</span><span class="criteria-name">Фон нейтрального цвета</span><span class="criteria-value">${proportions.neutralBgOk ? 'Да' : 'Нет'}</span></li>
-                <li class="criteria-item"><span class="criteria-status ${proportions.uniformBgOk ? 'ok' : 'fail'}">${proportions.uniformBgOk ? '✓' : '✗'}</span><span class="criteria-name">Однородный светлый фон</span><span class="criteria-value">${proportions.uniformBgOk ? 'Да' : 'Нет'}</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Резкие тени</span><span class="criteria-value">Нет</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Косметическая обработка (beauty-фильтры)</span><span class="criteria-value">Нет</span></li>
-                <li class="criteria-item"><span class="criteria-status ${proportions.fileFormatOk ? 'ok' : 'fail'}">${proportions.fileFormatOk ? '✓' : '✗'}</span><span class="criteria-name">Формат файла</span><span class="criteria-value">JPEG</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Цветовое пространство</span><span class="criteria-value">sRGB</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.neutralBgOk ? 'ok' : 'fail'}">${proportions.neutralBgOk ? '✓' : '✗'}</span><span class="criteria-name">${getText("Фон нейтрального цвета", "Neutral background", "Fond neutre", "خلفية محايدة")}</span><span class="criteria-value">${proportions.neutralBgOk ? ${getText("Да", "Yes", "Oui", "نعم")} : ${getText("Нет", "No", "Non", "لا")}}</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.uniformBgOk ? 'ok' : 'fail'}">${proportions.uniformBgOk ? '✓' : '✗'}</span><span class="criteria-name">${getText("Однородный светлый фон", "Uniform light background", "Fond uniforme clair", "خلفية موحدة")}</span><span class="criteria-value">${proportions.uniformBgOk ? ${getText("Да", "Yes", "Oui", "نعم")} : ${getText("Нет", "No", "Non", "لا")}}</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">${getText("Резкие тени", "Sharp shadows", "Ombres nettes", "ظلال حادة")}</span><span class="criteria-value">Нет</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">${getText("Косметическая обработка (beauty-фильтры)", "Beauty filters", "Filtres beauté", "مرشحات التجميل")}</span><span class="criteria-value">Нет</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.fileFormatOk ? 'ok' : 'fail'}">${proportions.fileFormatOk ? '✓' : '✗'}</span><span class="criteria-name">${getText("Формат файла", "File format", "Format fichier", "صيغة الملف")}</span><span class="criteria-value">JPEG</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">${getText("Цветовое пространство", "Color space", "Espace couleur", "مساحة اللون")}</span><span class="criteria-value">sRGB</span></li>
             `;
 
             const finalFileSizeBytes = getBase64Size(analyzeResult.compressedDataUrl);
             const finalFileSizeKB = (finalFileSizeBytes / 1024).toFixed(1);
             const finalFileSizeOk = finalFileSizeBytes <= 240 * 1024;
-            listHTML += `<li class="criteria-item"><span class="criteria-status ${finalFileSizeOk ? 'ok' : 'fail'}">${finalFileSizeOk ? '✓' : '✗'}</span><span class="criteria-name">Размер файла</span><span class="criteria-value">${finalFileSizeKB} KB</span></li>`;
+            listHTML += `<li class="criteria-item"><span class="criteria-status ${finalFileSizeOk ? 'ok' : 'fail'}">${finalFileSizeOk ? '✓' : '✗'}</span><span class="criteria-name">${getText("Размер файла", "File size", "Taille fichier", "حجم الملف")}</span><span class="criteria-value">${finalFileSizeKB} KB</span></li>`;
 
             const formattedDate = analyzeResult.photoDate ? analyzeResult.photoDate.toLocaleDateString('ru-RU') : 'Неизвестно';
-            listHTML += `<li class="criteria-item"><span class="criteria-status ${proportions.dateOk ? 'ok' : 'fail'}">${proportions.dateOk ? '✓' : '✗'}</span><span class="criteria-name">Дата фотографии (не старше 6 месяцев)</span><span class="criteria-value">${formattedDate}</span></li>`;
+            listHTML += `<li class="criteria-item"><span class="criteria-status ${proportions.dateOk ? 'ok' : 'fail'}">${proportions.dateOk ? '✓' : '✗'}</span><span class="criteria-name">${getText("Дата фотографии (не старше 6 месяцев)", "Photo date (not older than 6 months)", "Date photo (max 6 mois)", "تاريخ الصورة")}</span><span class="criteria-value">${formattedDate}</span></li>`;
 
             document.getElementById('criteriaBody').innerHTML = listHTML;
         }
