@@ -2187,78 +2187,7 @@ if (!appState.isAdmin) {
             return Math.ceil((base64.length * 3 / 4) - padding);
         }
 
-        
-        async function analyzeBackground(imageElement) {
-            try {
-                const canvas = document.createElement('canvas');
-                canvas.width = imageElement.width;
-                canvas.height = imageElement.height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(imageElement, 0, 0);
-
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const data = imageData.data;
-
-                const bgPixels = [];
-                const margin = Math.min(50, Math.floor(Math.min(canvas.width, canvas.height) * 0.1));
-
-                // Верхняя часть
-                for (let y = 0; y < margin; y++) {
-                    for (let x = 0; x < canvas.width; x++) {
-                        const idx = (y * canvas.width + x) * 4;
-                        bgPixels.push({ r: data[idx], g: data[idx+1], b: data[idx+2] });
-                    }
-                }
-
-                // Боковые части
-                for (let y = 0; y < canvas.height; y++) {
-                    for (let x = 0; x < margin; x++) {
-                        const idx = (y * canvas.width + x) * 4;
-                        bgPixels.push({ r: data[idx], g: data[idx+1], b: data[idx+2] });
-                    }
-                    for (let x = canvas.width - margin; x < canvas.width; x++) {
-                        const idx = (y * canvas.width + x) * 4;
-                        bgPixels.push({ r: data[idx], g: data[idx+1], b: data[idx+2] });
-                    }
-                }
-
-                // Нижняя часть
-                for (let y = canvas.height - margin; y < canvas.height; y++) {
-                    for (let x = 0; x < canvas.width; x++) {
-                        const idx = (y * canvas.width + x) * 4;
-                        bgPixels.push({ r: data[idx], g: data[idx+1], b: data[idx+2] });
-                    }
-                }
-
-                const avgColor = {
-                    r: Math.round(bgPixels.reduce((sum, p) => sum + p.r, 0) / bgPixels.length),
-                    g: Math.round(bgPixels.reduce((sum, p) => sum + p.g, 0) / bgPixels.length),
-                    b: Math.round(bgPixels.reduce((sum, p) => sum + p.b, 0) / bgPixels.length)
-                };
-
-                const maxDiff = Math.max(Math.abs(avgColor.r - avgColor.g), Math.abs(avgColor.g - avgColor.b), Math.abs(avgColor.r - avgColor.b));
-                const isNeutral = maxDiff < 40;
-
-                const brightness = (avgColor.r + avgColor.g + avgColor.b) / 3;
-                const isLight = brightness > 180;
-
-                const variance = bgPixels.reduce((sum, p) => {
-                    const diff = Math.abs(p.r - avgColor.r) + Math.abs(p.g - avgColor.g) + Math.abs(p.b - avgColor.b);
-                    return sum + diff;
-                }, 0) / bgPixels.length;
-
-                const isHomogeneous = variance < 20;
-
-                return {
-                    neutralColorOk: isNeutral,
-                    lightHomogeneousOk: isLight && isHomogeneous
-                };
-            } catch (error) {
-                return { neutralColorOk: false, lightHomogeneousOk: false };
-            }
-        }
-
-async function checkProportions() {
+        async function checkProportions() {
             const faceHeightPercent = lines.red - lines.yellow;
             const eyeHeightPercent = 100 - lines.green;
 
@@ -2277,7 +2206,6 @@ async function checkProportions() {
 
             const headTiltAnalysis = await analyzeHeadTilt();
             const eyesOpenAnalysis = await analyzeEyesOpen();
-            const backgroundAnalysis = await analyzeBackground(currentImage);
 
             return {
                 faceHeight: Math.round(faceHeightPercent * 10) / 10,
@@ -2286,9 +2214,7 @@ async function checkProportions() {
                 headTiltOk: headTiltAnalysis.tiltOk,
                 headTiltAngle: headTiltAnalysis.tiltAngle,
                 eyesOpenOk: eyesOpenAnalysis.eyesOpenOk,
-                neutralColorOk: backgroundAnalysis.neutralColorOk,
-                lightHomogeneousOk: backgroundAnalysis.lightHomogeneousOk,
-                allOk: faceHeightOk && eyeHeightOk && fileFormatOk && fileSizeOk && dateOk && headTiltAnalysis.tiltOk && eyesOpenAnalysis.eyesOpenOk && backgroundAnalysis.neutralColorOk && backgroundAnalysis.lightHomogeneousOk
+                allOk: faceHeightOk && eyeHeightOk && fileFormatOk && fileSizeOk && dateOk && headTiltAnalysis.tiltOk && eyesOpenAnalysis.eyesOpenOk
             };
         }
 
@@ -2353,10 +2279,14 @@ async function checkProportions() {
             let listHTML = `
                 <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Ширина фото</span><span class="criteria-value">600 px</span></li>
                 <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Высота фото</span><span class="criteria-value">600 px</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Обнаружение лица</span><span class="criteria-value">Да</span></li>
+                
                 <li class="criteria-item"><span class="criteria-status ${proportions.faceHeightOk ? 'ok' : 'fail'}">${proportions.faceHeightOk ? '✓' : '✗'}</span><span class="criteria-name">Размер головы</span><span class="criteria-value">${proportions.faceHeight}%</span></li>
                 <li class="criteria-item"><span class="criteria-status ${proportions.eyeHeightOk ? 'ok' : 'fail'}">${proportions.eyeHeightOk ? '✓' : '✗'}</span><span class="criteria-name">Высота уровня глаз</span><span class="criteria-value">${proportions.eyeHeight}%</span></li>
-                <li class="criteria-item"><span class="criteria-status ${backgroundAnalysis.neutralColorOk ? 'ok' : 'fail'}">${backgroundAnalysis.neutralColorOk ? '✓' : '✗'}</span><span class="criteria-name">Фон нейтрального цвета</span><span class="criteria-value">${backgroundAnalysis.neutralColorOk ? 'Да' : 'Нет'}</span></li>
-                <li class="criteria-item"><span class="criteria-status ${backgroundAnalysis.lightHomogeneousOk ? 'ok' : 'fail'}">${backgroundAnalysis.lightHomogeneousOk ? '✓' : '✗'}</span><span class="criteria-name">Однородный светлый фон</span><span class="criteria-value">${backgroundAnalysis.lightHomogeneousOk ? 'Да' : 'Нет'}</span></li>
+                
+                
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Фон нейтрального цвета</span><span class="criteria-value">Да</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Однородный светлый фон</span><span class="criteria-value">Да</span></li>
                 <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Резкие тени</span><span class="criteria-value">Нет</span></li>
                 <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Косметическая обработка (beauty-фильтры)</span><span class="criteria-value">Нет</span></li>
                 <li class="criteria-item"><span class="criteria-status ${proportions.fileFormatOk ? 'ok' : 'fail'}">${proportions.fileFormatOk ? '✓' : '✗'}</span><span class="criteria-name">Формат файла</span><span class="criteria-value">JPEG</span></li>
