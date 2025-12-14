@@ -1662,7 +1662,6 @@ if (!appState.isAdmin) {
                 document.getElementById('splashScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.add('active');
                 updateAllContent();
-                updateUIText();
                 
                 if (appState.currentLang === 'ar') {
                     document.documentElement.setAttribute('dir', 'rtl');
@@ -1975,7 +1974,6 @@ if (!appState.isAdmin) {
 
         function setLanguage(lang) {
             currentLanguage = lang;
-            updateUIText();
             document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
         }
@@ -2608,116 +2606,80 @@ setTimeout(function() {
         }
 
 
-        // ===== ПЕРЕВОДЫ (Динамическое изменение текста) =====
-        const translations = {
+        // ===== ПРОСТЫЕ ПЕРЕВОДЫ =====
+        const lang_texts = {
             'ru': {
-                'uploadCard': 'Ваше фото загружено. Отрегулируйте линии.',
-                'dragHint': '✋ Перемещайте линии вверх/вниз согласно инструкции ниже:',
-                'analyzeBtn': '✓ Проверить',
-                'resetBtn1': '← Загрузить другое фото',
-                'resetBtn2': '↻ Загрузить другое фото',
-                'loadingText': 'Анализируем фотографию...',
-                'resultMessagePass': 'Фото соответствует всем требованиям. Результаты ниже:',
-                'resultMessageFail': 'Фото не соответствует требованиям. Результаты ниже:',
-                'downloadBtn': '⬇ Скачать фото',
-                'yes': 'Да',
-                'no': 'Нет',
+                'uploadTitle': 'Ваше фото загружено. Отрегулируйте линии.',
+                'moveLinesText': '✋ Перемещайте линии вверх/вниз согласно инструкции ниже:',
+                'checkBtnText': '✓ Проверить',
+                'loadOtherText': '← Загрузить другое фото',
+                'analyzingText': 'Анализируем фотографию...',
+                'notMatchText': 'Фото не соответствует требованиям. Результаты ниже:',
+                'matchText': 'Фото соответствует всем требованиям. Результаты ниже:',
+                'downloadText': '⬇ Скачать фото',
             },
             'en': {
-                'uploadCard': 'Photo uploaded. Adjust the lines.',
-                'dragHint': '✋ Move the lines up/down according to the instructions below:',
-                'analyzeBtn': '✓ Check',
-                'resetBtn1': '← Upload another photo',
-                'resetBtn2': '↻ Upload another photo',
-                'loadingText': 'Analyzing photo...',
-                'resultMessagePass': 'Photo meets all requirements. Results below:',
-                'resultMessageFail': 'Photo does not meet requirements. Results below:',
-                'downloadBtn': '⬇ Download photo',
-                'yes': 'Yes',
-                'no': 'No',
+                'uploadTitle': 'Photo uploaded. Adjust the lines.',
+                'moveLinesText': '✋ Move the lines up/down according to the instructions below:',
+                'checkBtnText': '✓ Check',
+                'loadOtherText': '← Upload another photo',
+                'analyzingText': 'Analyzing photo...',
+                'notMatchText': 'Photo does not meet requirements. Results below:',
+                'matchText': 'Photo meets all requirements. Results below:',
+                'downloadText': '⬇ Download photo',
             },
             'fr': {
-                'uploadCard': 'Photo chargée. Ajustez les lignes.',
-                'dragHint': '✋ Déplacez les lignes vers le haut/bas selon les instructions ci-dessous:',
-                'analyzeBtn': '✓ Vérifier',
-                'resetBtn1': '← Charger une autre photo',
-                'resetBtn2': '↻ Charger une autre photo',
-                'loadingText': 'Analyse de la photo...',
-                'resultMessagePass': 'La photo répond à toutes les exigences. Résultats ci-dessous:',
-                'resultMessageFail': 'La photo ne répond pas aux exigences. Résultats ci-dessous:',
-                'downloadBtn': '⬇ Télécharger la photo',
-                'yes': 'Oui',
-                'no': 'Non',
+                'uploadTitle': 'Photo chargée. Ajustez les lignes.',
+                'moveLinesText': '✋ Déplacez les lignes vers le haut/bas selon les instructions ci-dessous:',
+                'checkBtnText': '✓ Vérifier',
+                'loadOtherText': '← Charger une autre photo',
+                'analyzingText': 'Analyse de la photo...',
+                'notMatchText': 'La photo ne répond pas aux exigences. Résultats ci-dessous:',
+                'matchText': 'La photo répond à toutes les exigences. Résultats ci-dessous:',
+                'downloadText': '⬇ Télécharger la photo',
             },
             'ar': {
-                'uploadCard': 'تم تحميل الصورة. اضبط الخطوط.',
-                'dragHint': '✋ حرك الخطوط لأعلى/لأسفل وفقًا للتعليمات أدناه:',
-                'analyzeBtn': '✓ التحقق',
-                'resetBtn1': '← تحميل صورة أخرى',
-                'resetBtn2': '↻ تحميل صورة أخرى',
-                'loadingText': 'تحليل الصورة...',
-                'resultMessagePass': 'الصورة تستوفي جميع المتطلبات. النتائج أدناه:',
-                'resultMessageFail': 'الصورة لا تستوفي المتطلبات. النتائج أدناه:',
-                'downloadBtn': '⬇ تنزيل الصورة',
-                'yes': 'نعم',
-                'no': 'لا',
+                'uploadTitle': 'تم تحميل الصورة. اضبط الخطوط.',
+                'moveLinesText': '✋ حرك الخطوط لأعلى/لأسفل وفقًا للتعليمات أدناه:',
+                'checkBtnText': '✓ التحقق',
+                'loadOtherText': '← تحميل صورة أخرى',
+                'analyzingText': 'تحليل الصورة...',
+                'notMatchText': 'الصورة لا تستوفي المتطلبات. النتائج أدناه:',
+                'matchText': 'الصورة تستوفي جميع المتطلبات. النتائج أدناه:',
+                'downloadText': '⬇ تنزيل الصورة',
             }
         };
 
-        function updateUIText() {
+        function applyTranslation() {
             const lang = currentLanguage || 'ru';
-            const trans = translations[lang] || translations['ru'];
+            const texts = lang_texts[lang];
+            if (!texts) return;
 
-            // Обновляю динамические элементы
-            const uploadCard = document.getElementById('uploadCard');
-            if (uploadCard) {
-                const titleEl = uploadCard.querySelector('.editorTitle');
-                if (titleEl) titleEl.textContent = trans['uploadCard'];
-            }
+            // Находим элементы по текущему тексту и меняем
+            const allElements = document.querySelectorAll('*');
+            allElements.forEach(el => {
+                if (!el.hasChildNodes() || (el.childNodes.length === 1 && el.childNodes[0].nodeType === 3)) {
+                    const text = el.textContent.trim();
 
-            const dragHint = document.getElementById('dragHint');
-            if (dragHint) dragHint.textContent = trans['dragHint'];
-
-            const analyzeBtn = document.getElementById('analyzeBtn');
-            if (analyzeBtn) analyzeBtn.textContent = trans['analyzeBtn'];
-
-            const resetBtn1 = document.getElementById('resetBtn1');
-            if (resetBtn1) resetBtn1.textContent = trans['resetBtn1'];
-
-            const resetBtn2 = document.getElementById('resetBtn2');
-            if (resetBtn2) resetBtn2.textContent = trans['resetBtn2'];
-
-            const loadingText = document.getElementById('loadingText');
-            if (loadingText) loadingText.textContent = trans['loadingText'];
-
-            const downloadBtn = document.getElementById('downloadBtn');
-            if (downloadBtn) downloadBtn.textContent = trans['downloadBtn'];
-
-            // Обновляю Да/Нет в критериях
-            document.querySelectorAll('.criteria-value').forEach(el => {
-                if (el.textContent === 'Да' || el.textContent === 'Yes' || el.textContent === 'Oui' || el.textContent === 'نعم') {
-                    el.textContent = trans['yes'];
-                } else if (el.textContent === 'Нет' || el.textContent === 'No' || el.textContent === 'Non' || el.textContent === 'لا') {
-                    el.textContent = trans['no'];
+                    // Заменяю известные текст
+                    if (text === 'Ваше фото загружено. Отрегулируйте линии.' && texts['uploadTitle']) el.textContent = texts['uploadTitle'];
+                    else if (text === '✋ Перемещайте линии вверх/вниз согласно инструкции ниже:' && texts['moveLinesText']) el.textContent = texts['moveLinesText'];
+                    else if (text === '✓ Проверить' && texts['checkBtnText']) el.textContent = texts['checkBtnText'];
+                    else if (text === '← Загрузить другое фото' && texts['loadOtherText']) el.textContent = texts['loadOtherText'];
+                    else if (text === 'Анализируем фотографию...' && texts['analyzingText']) el.textContent = texts['analyzingText'];
+                    else if (text === 'Фото не соответствует требованиям. Результаты ниже:' && texts['notMatchText']) el.textContent = texts['notMatchText'];
+                    else if (text === 'Фото соответствует всем требованиям. Результаты ниже:' && texts['matchText']) el.textContent = texts['matchText'];
+                    else if (text === '⬇ Скачать фото' && texts['downloadText']) el.textContent = texts['downloadText'];
                 }
             });
-
-            // Обновляю результат сообщение если оно видимо
-            const resultMessage = document.getElementById('resultMessage');
-            if (resultMessage && resultMessage.textContent) {
-                if (resultMessage.textContent.includes('соответствует всем требованиям') || 
-                    resultMessage.textContent.includes('meets all requirements') ||
-                    resultMessage.textContent.includes('répond à toutes') ||
-                    resultMessage.textContent.includes('تستوفي جميع')) {
-                    resultMessage.textContent = trans['resultMessagePass'];
-                } else {
-                    resultMessage.textContent = trans['resultMessageFail'];
-                }
-            }
         }
 
-        // Вызываю обновление при смене языка
-        document.addEventListener('languageChanged', updateUIText);
+        // Добавлю перевод после смены языка - перехватью setLanguage
+        const originalSetLanguage = window.setLanguage;
+        window.setLanguage = function(lang) {
+            if (originalSetLanguage) originalSetLanguage(lang);
+            setTimeout(applyTranslation, 100);
+        };
 </script>
 
 </body>
