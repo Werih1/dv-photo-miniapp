@@ -1693,6 +1693,15 @@ if (!appState.isAdmin) {
             }, 300);
         }
 
+        
+        // Переводы кнопки Скачать фото
+        const downloadTranslations = {
+            ru: '⬇ Скачать фото',
+            en: '⬇ Download photo',
+            fr: '⬇ Télécharger la photo',
+            ar: '⬇ تنزيل الصورة'
+        };
+
         function updateAllContent() {
             const content = CONTENT[appState.currentLang];
             
@@ -2305,6 +2314,23 @@ if (!appState.isAdmin) {
                 return { eyesOpenOk: true };
             }
         }
+
+        
+        // Переводы результатов анализа
+        const resultTranslations = {
+            ru: { success: 'Фото соответствует всем требованиям. Результаты ниже:', fail: 'Фото не соответствует требованиям. Результаты ниже:' },
+            en: { success: 'Photo meets all requirements. Results below:', fail: 'Photo does not meet requirements. Results below:' },
+            fr: { success: 'La photo répond à toutes les exigences. Résultats ci-dessous:', fail: 'La photo ne répond pas aux exigences. Résultats ci-dessous:' },
+            ar: { success: 'الصورة تستوفي جميع المتطلبات. النتائج أدناه:', fail: 'الصورة لا تستوفي المتطلبات. النتائج أدناه:' }
+        };
+
+        // Переводы критериев
+        const criteriaTranslations = {
+            ru: { width: 'Ширина фото', height: 'Высота фото', face: 'Обнаружение лица', faceHeight: 'Размер головы', eyeHeight: 'Высота уровня глаз', neutralBg: 'Фон нейтрального цвета', uniformBg: 'Однородный светлый фон', shadows: 'Резкие тени', beauty: 'Косметическая обработка (beauty-фильтры)', format: 'Формат файла', color: 'Цветовое пространство', size: 'Размер файла', date: 'Дата фотографии (не старше 6 месяцев)', yes: 'Да', no: 'Нет' },
+            en: { width: 'Photo width', height: 'Photo height', face: 'Face detection', faceHeight: 'Head size', eyeHeight: 'Eye level height', neutralBg: 'Neutral background color', uniformBg: 'Uniform light background', shadows: 'Sharp shadows', beauty: 'Beauty filters', format: 'File format', color: 'Color space', size: 'File size', date: 'Photo date (not older than 6 months)', yes: 'Yes', no: 'No' },
+            fr: { width: 'Largeur de la photo', height: 'Hauteur de la photo', face: 'Détection du visage', faceHeight: 'Taille de la tête', eyeHeight: 'Hauteur des yeux', neutralBg: 'Couleur de fond neutre', uniformBg: 'Fond uniforme et clair', shadows: 'Ombres tranchantes', beauty: 'Filtres beauté', format: 'Format de fichier', color: 'Espace couleur', size: 'Taille du fichier', date: 'Date de la photo (pas plus de 6 mois)', yes: 'Oui', no: 'Non' },
+            ar: { width: 'عرض الصورة', height: 'ارتفاع الصورة', face: 'كشف الوجه', faceHeight: 'حجم الرأس', eyeHeight: 'مستوى العين', neutralBg: 'خلفية محايدة', uniformBg: 'خلفية موحدة وفاتحة', shadows: 'ظلال حادة', beauty: 'مرشحات التجميل', format: 'صيغة الملف', color: 'مساحة اللون', size: 'حجم الملف', date: 'تاريخ الصورة (ليس أكثر من 6 أشهر)', yes: 'نعم', no: 'لا' }
+        };
 
         function showResults(croppedImage, proportions) {
             document.getElementById('resultImage').src = croppedImage;
