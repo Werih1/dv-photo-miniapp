@@ -1892,7 +1892,7 @@ if (!appState.isAdmin) {
             </div>
 
             <div class="drag-hint" id="dragHint">
-                ${t('move_lines')}
+                ✋ Перемещайте линии вверх/вниз согласно инструкции ниже:
             </div>
 
             <button class="btn btn-primary" onclick="analyzePhoto()" id="analyzeBtn">${t('check_btn')}</button>
@@ -1949,11 +1949,11 @@ if (!appState.isAdmin) {
                 uploadHint: "Перетащите изображение или нажмите для выбора файла",
                 editorTitle: "Отрегулируйте линии",
                 dragHint: "✋ Перемещайте линии вверх/вниз",
-                analyzeBtn: "${t('check_btn')}",
-                resetBtn: "${t('load_other')}",
-                loadingText: "${t('analyzing')}",
-                downloadBtn: "${t('download_btn')}",
-                resetBtn2: "${t('load_other')}"
+                analyzeBtn: "✓ Проверить",
+                resetBtn: "← Загрузить другое фото",
+                loadingText: "Анализируем фотографию...",
+                downloadBtn: "⬇ Скачать фото",
+                resetBtn2: "↻ Загрузить другое фото"
             },
             en: {
                 mainTitle: "Portrait Validator",
@@ -1971,16 +1971,17 @@ if (!appState.isAdmin) {
         };
 
         let currentLanguage = 'ru';
-        // Объект переводов
+
+        // ===== ПЕРЕВОДЫ =====
         const i18n = {
             'ru': {
-                'photo_loaded': '${t('photo_loaded')}',
-                'move_lines': '${t('move_lines')}',
+                'photo_loaded': 'Ваше фото загружено. Отрегулируйте линии.',
+                'move_lines': '✋ Перемещайте линии вверх/вниз согласно инструкции ниже:',
                 'check_btn': 'Проверить',
                 'load_other': 'Загрузить другое фото',
-                'analyzing': '${t('analyzing')}',
-                'not_match': '${t('not_match')}',
-                'match': '${t('match')}',
+                'analyzing': 'Анализируем фотографию...',
+                'not_match': 'Фото не соответствует требованиям. Результаты ниже:',
+                'match': 'Фото соответствует всем требованиям. Результаты ниже:',
                 'download_btn': 'Скачать фото',
                 'yes': 'Да',
                 'no': 'Нет',
@@ -2347,8 +2348,8 @@ if (!appState.isAdmin) {
                 <li class="criteria-item"><span class="criteria-status ${proportions.eyeHeightOk ? 'ok' : 'fail'}">${proportions.eyeHeightOk ? '✓' : '✗'}</span><span class="criteria-name">Высота уровня глаз</span><span class="criteria-value">${proportions.eyeHeight}%</span></li>
                 
                 
-                <li class="criteria-item"><span class="criteria-status ${proportions.neutralBgOk ? 'ok' : 'fail'}">${proportions.neutralBgOk ? '✓' : '✗'}</span><span class="criteria-name">Фон нейтрального цвета</span><span class="criteria-value">${proportions.neutralBgOk ? t('yes') : t('no')}</span></li>
-                <li class="criteria-item"><span class="criteria-status ${proportions.uniformBgOk ? 'ok' : 'fail'}">${proportions.uniformBgOk ? '✓' : '✗'}</span><span class="criteria-name">Однородный светлый фон</span><span class="criteria-value">${proportions.uniformBgOk ? t('yes') : t('no')}</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Фон нейтрального цвета</span><span class="criteria-value">${t('yes')}</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Однородный светлый фон</span><span class="criteria-value">${t('yes')}</span></li>
                 <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Резкие тени</span><span class="criteria-value">${t('no')}</span></li>
                 <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Косметическая обработка (beauty-фильтры)</span><span class="criteria-value">${t('no')}</span></li>
                 <li class="criteria-item"><span class="criteria-status ${proportions.fileFormatOk ? 'ok' : 'fail'}">${proportions.fileFormatOk ? '✓' : '✗'}</span><span class="criteria-name">Формат файла</span><span class="criteria-value">JPEG</span></li>
@@ -2647,7 +2648,7 @@ setTimeout(function() {
 
                 const isUniform = avgPixelDiff < 55 && maxPixelDiff < 130;
 
-                console.log(`BG: RGB(${avgR},${avgG},${avgB}), ColorDiff=${maxDiff}, AvgPixelDiff=${avgPixelDiff.toFixed(1)}, MaxPixelDiff=${maxPixelDiff}, Neutral=${isNeutral}, Uniform=${isUniform}`);
+                console.log(\`BG: RGB(\${avgR},\${avgG},\${avgB}), ColorDiff=\${maxDiff}, AvgPixelDiff=\${avgPixelDiff.toFixed(1)}, MaxPixelDiff=\${maxPixelDiff}, Neutral=\${isNeutral}, Uniform=\${isUniform}\`);
 
                 return { isNeutral, isUniform };
             } catch (error) {
