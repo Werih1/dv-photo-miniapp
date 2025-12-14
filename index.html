@@ -2279,19 +2279,19 @@ if (!appState.isAdmin) {
                     Math.abs(avgColor.r - avgColor.b)
                 );
 
-                const isNeutral = maxDiff < 40; // Значения RGB должны быть близки
+                const isNeutral = maxDiff < 40;
 
                 // Проверяем светлоту (значения должны быть > 180 для светлого фона)
                 const brightness = (avgColor.r + avgColor.g + avgColor.b) / 3;
                 const isLight = brightness > 180;
 
-                // Проверяем однородность - считаем стандартное отклонение цвета по пикселям
+                // Проверяем однородность
                 const variance = bgPixels.reduce((sum, p) => {
                     const diff = Math.abs(p.r - avgColor.r) + Math.abs(p.g - avgColor.g) + Math.abs(p.b - avgColor.b);
                     return sum + diff;
                 }, 0) / bgPixels.length;
 
-                const isHomogeneous = variance < 20; // Низкое отклонение = однородный фон
+                const isHomogeneous = variance < 20;
 
                 return {
                     neutralColorOk: isNeutral,
