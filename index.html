@@ -2307,106 +2307,117 @@ if (!appState.isAdmin) {
         }
 
         
-        // ===== ПЕРЕВОДЫ ДЛЯ РЕЗУЛЬТАТОВ =====
-        const RESULT_TRANSLATIONS = {
-            ru: {
-                fail: '${RESULT_TRANSLATIONS[appState.currentLang || "ru"].fail}',
-                success: '${RESULT_TRANSLATIONS[appState.currentLang || "ru"].success}'
-            },
-            en: {
-                fail: 'Photo does not meet requirements. Results below:',
-                success: 'Photo meets all requirements. Results below:'
-            },
-            fr: {
-                fail: 'La photo ne répond pas aux exigences. Résultats ci-dessous:',
-                success: 'La photo répond à toutes les exigences. Résultats ci-dessous:'
-            },
-            ar: {
-                fail: 'الصورة لا تستوفي المتطلبات. النتائج أدناه:',
-                success: 'الصورة تستوفي جميع المتطلبات. النتائج أدناه:'
-            }
-        };
+        // Переводит результаты анализа на текущий язык
+        function translateResults() {
+            const lang = appState.currentLang || 'ru';
+            if (lang === 'ru') return; // Уже на русском
 
-        const CRITERIA_TRANSLATIONS = {
-            ru: {
-                width: 'Ширина фото', height: 'Высота фото', face: 'Обнаружение лица',
-                faceHeight: 'Размер головы', eyeHeight: 'Высота уровня глаз',
-                neutralBg: 'Фон нейтрального цвета', uniformBg: 'Однородный светлый фон',
-                shadows: 'Резкие тени', beauty: 'Косметическая обработка (beauty-фильтры)',
-                format: 'Формат файла', color: 'Цветовое пространство',
-                size: 'Размер файла', date: 'Дата фотографии (не старше 6 месяцев)',
-                yes: ${CRITERIA_TRANSLATIONS[appState.currentLang || 'ru'].yes}, no: ${CRITERIA_TRANSLATIONS[appState.currentLang || 'ru'].no}
-            },
-            en: {
-                width: 'Photo width', height: 'Photo height', face: 'Face detection',
-                faceHeight: 'Head size', eyeHeight: 'Eye level height',
-                neutralBg: 'Neutral background color', uniformBg: 'Uniform light background',
-                shadows: 'Sharp shadows', beauty: 'Beauty filters',
-                format: 'File format', color: 'Color space',
-                size: 'File size', date: 'Photo date (not older than 6 months)',
-                yes: 'Yes', no: 'No'
-            },
-            fr: {
-                width: 'Largeur photo', height: 'Hauteur photo', face: 'Détection visage',
-                faceHeight: 'Taille tête', eyeHeight: 'Hauteur yeux',
-                neutralBg: 'Fond neutre', uniformBg: 'Fond uniforme clair',
-                shadows: 'Ombres nettes', beauty: 'Filtres beauté',
-                format: 'Format fichier', color: 'Espace couleur',
-                size: 'Taille fichier', date: 'Date photo (max 6 mois)',
-                yes: 'Oui', no: 'Non'
-            },
-            ar: {
-                width: 'عرض الصورة', height: 'ارتفاع الصورة', face: 'كشف الوجه',
-                faceHeight: 'حجم الرأس', eyeHeight: 'مستوى العين',
-                neutralBg: 'خلفية محايدة', uniformBg: 'خلفية موحدة',
-                shadows: 'ظلال', beauty: 'مرشحات',
-                format: 'صيغة', color: 'لون',
-                size: 'حجم', date: 'التاريخ',
-                yes: 'نعم', no: 'لا'
-            }
-        };
+            const translations = {
+                en: {
+                    'Фото соответствует всем требованиям. Результаты ниже:': 'Photo meets all requirements. Results below:',
+                    'Фото не соответствует требованиям. Результаты ниже:': 'Photo does not meet requirements. Results below:',
+                    'Ширина фото': 'Photo width', 'Высота фото': 'Photo height',
+                    'Обнаружение лица': 'Face detection', 'Размер головы': 'Head size',
+                    'Высота уровня глаз': 'Eye level height',
+                    'Фон нейтрального цвета': 'Neutral background',
+                    'Однородный светлый фон': 'Uniform light background',
+                    'Резкие тени': 'Sharp shadows',
+                    'Косметическая обработка (beauty-фильтры)': 'Beauty filters',
+                    'Формат файла': 'File format', 'Цветовое пространство': 'Color space',
+                    'Размер файла': 'File size',
+                    'Дата фотографии (не старше 6 месяцев)': 'Photo date (not older than 6 months)',
+                    '⬇ Скачать фото': '⬇ Download photo',
+                    'Да': 'Yes', 'Нет': 'No'
+                },
+                fr: {
+                    'Фото соответствует всем требованиям. Результаты ниже:': 'La photo répond à toutes les exigences. Résultats ci-dessous:',
+                    'Фото не соответствует требованиям. Результаты ниже:': 'La photo ne répond pas aux exigences. Résultats ci-dessous:',
+                    'Ширина фото': 'Largeur photo', 'Высота фото': 'Hauteur photo',
+                    'Обнаружение лица': 'Détection visage', 'Размер головы': 'Taille tête',
+                    'Высота уровня глаз': 'Hauteur yeux',
+                    'Фон нейтрального цвета': 'Fond neutre',
+                    'Однородный светлый фон': 'Fond uniforme clair',
+                    'Резкие тени': 'Ombres nettes',
+                    'Косметическая обработка (beauty-фильтры)': 'Filtres beauté',
+                    'Формат файла': 'Format fichier', 'Цветовое пространство': 'Espace couleur',
+                    'Размер файла': 'Taille fichier',
+                    'Дата фотографии (не старше 6 месяцев)': 'Date photo (max 6 mois)',
+                    '⬇ Скачать фото': '⬇ Télécharger photo',
+                    'Да': 'Oui', 'Нет': 'Non'
+                },
+                ar: {
+                    'Фото соответствует всем требованиям. Результаты ниже:': 'الصورة تستوفي جميع المتطلبات. النتائج أدناه:',
+                    'Фото не соответствует требованиям. Результаты ниже:': 'الصورة لا تستوفي المتطلبات. النتائج أدناه:',
+                    'Ширина фото': 'عرض الصورة', 'Высота фото': 'ارتفاع الصورة',
+                    'Обнаружение лица': 'كشف الوجه', 'Размер головы': 'حجم الرأس',
+                    'Высота уровня глаз': 'مستوى العين',
+                    'Фон нейтрального цвета': 'خلفية محايدة',
+                    'Однородный светлый фон': 'خلفية موحدة',
+                    'Резкие тени': 'ظلال',
+                    'Косметическая обработка (beauty-фильтры)': 'مرشحات',
+                    'Формат файла': 'صيغة', 'Цветовое пространство': 'لون',
+                    'Размер файла': 'حجم',
+                    'Дата фотографии (не старше 6 месяцев)': 'التاريخ',
+                    '⬇ Скачать фото': '⬇ تنزيل الصورة',
+                    'Да': 'نعم', 'Нет': 'لا'
+                }
+            };
 
-        const DOWNLOAD_TRANSLATIONS = {
-            ru: '⬇ Скачать фото',
-            en: '⬇ Download photo',
-            fr: '⬇ Télécharger photo',
-            ar: '⬇ تنزيل الصورة'
-        };
+            const dict = translations[lang];
+            if (!dict) return;
+
+            // Заменяю текст на странице
+            document.body.innerHTML = document.body.innerHTML.replace(
+                /Фото (соответствует|не соответствует)[^<]*/g,
+                (match) => dict[match] || match
+            );
+
+            // Проще - заменяю прямые строки
+            for (const [ru, translated] of Object.entries(dict)) {
+                const regex = new RegExp(ru.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+                document.documentElement.innerHTML = document.documentElement.innerHTML.replace(regex, translated);
+            }
+        }
+
 
         function showResults(croppedImage, proportions) {
             document.getElementById('resultImage').src = croppedImage;
 
             let resultMsg = proportions.allOk 
-                ? `<div class="success-banner">${RESULT_TRANSLATIONS[appState.currentLang || "ru"].success}</div>`
-                : `<div class="error-banner">${RESULT_TRANSLATIONS[appState.currentLang || "ru"].fail}</div>`;
+                ? `<div class="success-banner">Фото соответствует всем требованиям. Результаты ниже:</div>`
+                : `<div class="error-banner">Фото не соответствует требованиям. Результаты ниже:</div>`;
             document.getElementById('resultMessage').innerHTML = resultMsg;
 
             let listHTML = `
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">${CRITERIA_TRANSLATIONS[appState.currentLang || "ru"].width}</span><span class="criteria-value">600 px</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">${CRITERIA_TRANSLATIONS[appState.currentLang || "ru"].height}</span><span class="criteria-value">600 px</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">${CRITERIA_TRANSLATIONS[appState.currentLang || "ru"].face}</span><span class="criteria-value">Да</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Ширина фото</span><span class="criteria-value">600 px</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Высота фото</span><span class="criteria-value">600 px</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Обнаружение лица</span><span class="criteria-value">Да</span></li>
                 
-                <li class="criteria-item"><span class="criteria-status ${proportions.faceHeightOk ? 'ok' : 'fail'}">${proportions.faceHeightOk ? '✓' : '✗'}</span><span class="criteria-name">${CRITERIA_TRANSLATIONS[appState.currentLang || "ru"].faceHeight}</span><span class="criteria-value">${proportions.faceHeight}%</span></li>
-                <li class="criteria-item"><span class="criteria-status ${proportions.eyeHeightOk ? 'ok' : 'fail'}">${proportions.eyeHeightOk ? '✓' : '✗'}</span><span class="criteria-name">${CRITERIA_TRANSLATIONS[appState.currentLang || "ru"].eyeHeight}</span><span class="criteria-value">${proportions.eyeHeight}%</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.faceHeightOk ? 'ok' : 'fail'}">${proportions.faceHeightOk ? '✓' : '✗'}</span><span class="criteria-name">Размер головы</span><span class="criteria-value">${proportions.faceHeight}%</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.eyeHeightOk ? 'ok' : 'fail'}">${proportions.eyeHeightOk ? '✓' : '✗'}</span><span class="criteria-name">Высота уровня глаз</span><span class="criteria-value">${proportions.eyeHeight}%</span></li>
                 
                 
-                <li class="criteria-item"><span class="criteria-status ${proportions.neutralBgOk ? 'ok' : 'fail'}">${proportions.neutralBgOk ? '✓' : '✗'}</span><span class="criteria-name">${CRITERIA_TRANSLATIONS[appState.currentLang || "ru"].neutralBg}</span><span class="criteria-value">${proportions.neutralBgOk ? ${CRITERIA_TRANSLATIONS[appState.currentLang || 'ru'].yes} : ${CRITERIA_TRANSLATIONS[appState.currentLang || 'ru'].no}}</span></li>
-                <li class="criteria-item"><span class="criteria-status ${proportions.uniformBgOk ? 'ok' : 'fail'}">${proportions.uniformBgOk ? '✓' : '✗'}</span><span class="criteria-name">${CRITERIA_TRANSLATIONS[appState.currentLang || "ru"].uniformBg}</span><span class="criteria-value">${proportions.uniformBgOk ? ${CRITERIA_TRANSLATIONS[appState.currentLang || 'ru'].yes} : ${CRITERIA_TRANSLATIONS[appState.currentLang || 'ru'].no}}</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">${CRITERIA_TRANSLATIONS[appState.currentLang || "ru"].shadows}</span><span class="criteria-value">Нет</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">${CRITERIA_TRANSLATIONS[appState.currentLang || "ru"].beauty}</span><span class="criteria-value">Нет</span></li>
-                <li class="criteria-item"><span class="criteria-status ${proportions.fileFormatOk ? 'ok' : 'fail'}">${proportions.fileFormatOk ? '✓' : '✗'}</span><span class="criteria-name">${CRITERIA_TRANSLATIONS[appState.currentLang || "ru"].format}</span><span class="criteria-value">JPEG</span></li>
-                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">${CRITERIA_TRANSLATIONS[appState.currentLang || "ru"].color}</span><span class="criteria-value">sRGB</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.neutralBgOk ? 'ok' : 'fail'}">${proportions.neutralBgOk ? '✓' : '✗'}</span><span class="criteria-name">Фон нейтрального цвета</span><span class="criteria-value">${proportions.neutralBgOk ? 'Да' : 'Нет'}</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.uniformBgOk ? 'ok' : 'fail'}">${proportions.uniformBgOk ? '✓' : '✗'}</span><span class="criteria-name">Однородный светлый фон</span><span class="criteria-value">${proportions.uniformBgOk ? 'Да' : 'Нет'}</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Резкие тени</span><span class="criteria-value">Нет</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Косметическая обработка (beauty-фильтры)</span><span class="criteria-value">Нет</span></li>
+                <li class="criteria-item"><span class="criteria-status ${proportions.fileFormatOk ? 'ok' : 'fail'}">${proportions.fileFormatOk ? '✓' : '✗'}</span><span class="criteria-name">Формат файла</span><span class="criteria-value">JPEG</span></li>
+                <li class="criteria-item"><span class="criteria-status ok">✓</span><span class="criteria-name">Цветовое пространство</span><span class="criteria-value">sRGB</span></li>
             `;
 
             const finalFileSizeBytes = getBase64Size(analyzeResult.compressedDataUrl);
             const finalFileSizeKB = (finalFileSizeBytes / 1024).toFixed(1);
             const finalFileSizeOk = finalFileSizeBytes <= 240 * 1024;
-            listHTML += `<li class="criteria-item"><span class="criteria-status ${finalFileSizeOk ? 'ok' : 'fail'}">${finalFileSizeOk ? '✓' : '✗'}</span><span class="criteria-name">${CRITERIA_TRANSLATIONS[appState.currentLang || "ru"].size}</span><span class="criteria-value">${finalFileSizeKB} KB</span></li>`;
+            listHTML += `<li class="criteria-item"><span class="criteria-status ${finalFileSizeOk ? 'ok' : 'fail'}">${finalFileSizeOk ? '✓' : '✗'}</span><span class="criteria-name">Размер файла</span><span class="criteria-value">${finalFileSizeKB} KB</span></li>`;
 
             const formattedDate = analyzeResult.photoDate ? analyzeResult.photoDate.toLocaleDateString('ru-RU') : 'Неизвестно';
-            listHTML += `<li class="criteria-item"><span class="criteria-status ${proportions.dateOk ? 'ok' : 'fail'}">${proportions.dateOk ? '✓' : '✗'}</span><span class="criteria-name">${CRITERIA_TRANSLATIONS[appState.currentLang || "ru"].date}</span><span class="criteria-value">${formattedDate}</span></li>`;
+            listHTML += `<li class="criteria-item"><span class="criteria-status ${proportions.dateOk ? 'ok' : 'fail'}">${proportions.dateOk ? '✓' : '✗'}</span><span class="criteria-name">Дата фотографии (не старше 6 месяцев)</span><span class="criteria-value">${formattedDate}</span></li>`;
 
             document.getElementById('criteriaBody').innerHTML = listHTML;
+        
+
+            // Переводим результаты на текущий язык
+            setTimeout(() => translateResults(), 100);
         }
 
         function downloadPhoto() {
