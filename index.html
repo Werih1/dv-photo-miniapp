@@ -575,6 +575,37 @@
             text-shadow: 0 1px 4px rgba(0,0,0,0.3);
         }
 
+        .language-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .flag-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 12px;
+            font-size: 32px;
+            width: 60px;
+            height: 60px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .flag-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.6);
+            transform: scale(1.1);
+        }
+
+        .flag-btn:active {
+            transform: scale(0.95);
+        }
+
         .select-language-text {
             font-size: 16px;
             color: white;
@@ -1225,18 +1256,18 @@
         </div>
 
         <div class="splash-bottom">
-            <!-- Описание приложения на разных языках -->
+            <!-- Описание на 4 языках -->
             <div id="appDescription" class="app-description">Онлайн‑проверка фото на соответствие официальным требованиям лотереи Green Card (DV‑Lottery) США</div>
 
-            <!-- Существующие кнопки языков (флаги) остаются как были -->
+            <!-- Кнопки флагов -->
             <div class="language-buttons">
-                <button class="lang-btn" onclick="setLanguage('ru')">🇷🇺</button>
-                <button class="lang-btn" onclick="setLanguage('en')">🇺🇸</button>
-                <button class="lang-btn" onclick="setLanguage('fr')">🇫🇷</button>
-                <button class="lang-btn" onclick="setLanguage('ar')">🇸🇩</button>
+                <button class="lang-btn flag-btn" onclick="setLanguage('ru')">🇷🇺</button>
+                <button class="lang-btn flag-btn" onclick="setLanguage('en')">🇺🇸</button>
+                <button class="lang-btn flag-btn" onclick="setLanguage('fr')">🇫🇷</button>
+                <button class="lang-btn flag-btn" onclick="setLanguage('ar')">🇸🇩</button>
             </div>
 
-            <!-- Текст "Выберите язык" на разных языках (вместо старого текста) -->
+            <!-- Текст "Выберите язык" -->
             <div id="selectLanguageText" class="select-language-text">Выберите язык</div>
         </div>
             <div class="language-selector-splash">
@@ -1732,12 +1763,10 @@ if (!appState.isAdmin) {
                 function updateLanguageTexts() {
             const lang = appState.currentLang || 'ru';
             const texts = APP_TRANSLATIONS[lang];
-
             const descEl = document.getElementById('appDescription');
-            const selectLangEl = document.getElementById('selectLanguageText');
-
+            const selectEl = document.getElementById('selectLanguageText');
             if (descEl) descEl.textContent = texts.description;
-            if (selectLangEl) selectLangEl.textContent = texts.selectLanguage;
+            if (selectEl) selectEl.textContent = texts.selectLanguage;
         }
 
 function selectLanguage(lang) {
@@ -1749,6 +1778,7 @@ function selectLanguage(lang) {
             setTimeout(() => {
                 document.getElementById('splashScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.add('active');
+                updateLanguageTexts();
                 updateAllContent();
                 
                 if (appState.currentLang === 'ar') {
@@ -1759,7 +1789,6 @@ function selectLanguage(lang) {
                     document.documentElement.lang = appState.currentLang;
                 }
             }, 300);
-            updateLanguageTexts();
         }
 
         function updateAllContent() {
@@ -2786,7 +2815,7 @@ setTimeout(function() {
 </script>
 
 </body>
-</html>        // Переводы описания и выбора языка
+</html>        // Переводы приложения
         const APP_TRANSLATIONS = {
             ru: {
                 description: 'Онлайн‑проверка фото на соответствие официальным требованиям лотереи Green Card (DV‑Lottery) США',
