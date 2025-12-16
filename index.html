@@ -59,7 +59,6 @@
             line-height: 1.2;
             text-shadow: 0 2px 8px rgba(0,0,0,0.3);
             letter-spacing: -0.5px;
-            margin-top: -80px;
         }
 
         .splash-middle {
@@ -544,18 +543,7 @@
             background: #999;
         }
     
-
-        /* OPTIMIZATION: Smooth language transitions for iPhone */
-        .language-subtitle,
-        .language-description {
-            will-change: opacity;
-            transform: translateZ(0);
-            backface-visibility: hidden;
-            -webkit-font-smoothing: antialiased;
-            -webkit-transform: translate3d(0, 0, 0);
-            transition: opacity 400ms cubic-bezier(0.4, 0, 0.2, 1) !important;
-        }
-        </style>
+</style>
 <style>
 
         :root {
@@ -1653,30 +1641,24 @@
                 currentLangIndex = (currentLangIndex + 1) % LANGUAGES.length;
                 const lang = LANGUAGES[currentLangIndex];
 
-                // Используем requestAnimationFrame для синхронизации с экраном
-                requestAnimationFrame(() => {
-                    // Более длительный fade out для iPhone
-                    subtitleEl.style.opacity = '0';
-                    descEl.style.opacity = '0';
+                // Fade out оба элемента
+                subtitleEl.style.opacity = '0';
+                descEl.style.opacity = '0';
 
-                    // После fade out, меняем текст и fade in
-                    // Увеличиваем время для лучшей синхронизации на iPhone
-                    setTimeout(() => {
-                        // Меняем "Выберите язык"
-                        subtitleEl.textContent = CONTENT[lang].selectLanguage;
+                // После fade out, меняем текст и fade in
+                setTimeout(() => {
+                    // Меняем "Выберите язык"
+                    subtitleEl.textContent = CONTENT[lang].selectLanguage;
 
-                        // Меняем описание
-                        if (APP_TRANSLATIONS && APP_TRANSLATIONS[lang]) {
-                            descEl.textContent = APP_TRANSLATIONS[lang].description;
-                        }
+                    // Меняем описание
+                    if (APP_TRANSLATIONS && APP_TRANSLATIONS[lang]) {
+                        descEl.textContent = APP_TRANSLATIONS[lang].description;
+                    }
 
-                        // Fade in с requestAnimationFrame для плавности
-                        requestAnimationFrame(() => {
-                            subtitleEl.style.opacity = '1';
-                            descEl.style.opacity = '1';
-                        });
-                    }, 400);
-                });
+                    // Fade in оба элемента одновременно
+                    subtitleEl.style.opacity = '1';
+                    descEl.style.opacity = '1';
+                }, 300);
             }, 5000);
         }
 
