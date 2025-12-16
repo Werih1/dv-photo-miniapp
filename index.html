@@ -549,9 +549,9 @@
             color: white;
             text-align: center;
             line-height: 1.35;
-            width: 75%;
-            max-width: 90%;
-            margin: 0 auto 20px;
+            width: 85%;
+            max-width: 95%;
+            margin: 0 auto 15px;
             word-wrap: break-word;
             word-break: normal;
             text-shadow: 0 1px 4px rgba(0,0,0,0.3);
@@ -1188,20 +1188,21 @@
     <!-- SPLASH SCREEN -->
     <div class="splash" id="splashScreen">
         <div class="splash-top">
+            <div class="splash-title">DV-Lottery<br>Photo Check</div>
         </div>
         
         <div class="splash-middle">
             <div style="text-align: center;">
-                <div style="font-size: 52px; font-weight: 700; color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.3); margin-bottom: 8px;">DV-LOTTERY</div>
+                <div style="font-size: 52px; font-weight: 700; color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.3); margin-bottom: 2px; line-height: 1.0;">DV-LOTTERY</div>
                 <div style="font-size: 32px; font-weight: 600; color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.3);">Photo Check</div>
             </div>
         </div>
 
         <div class="splash-bottom">
-            <!-- Описание приложения на 4 языках -->
+            <!-- Описание на 4 языках - расширенное, ближе к кнопкам -->
             <div id="appDescription" class="app-description-splash">Онлайн‑проверка фото на соответствие официальным требованиям лотереи Green Card (DV‑Lottery) США</div>
 
-            <!-- Кнопки флагов - БЕЗ ИЗМЕНЕНИЙ -->
+            <!-- Кнопки флагов -->
             <div class="language-selector-splash">
                 <button class="lang-btn-splash" data-lang="ru" title="Русский">
                     <img src="images/russia.png" alt="Русский">
@@ -1695,19 +1696,19 @@ if (!appState.isAdmin) {
             document.getElementById('applyPromoBtn').addEventListener('click', applyPromoCode);
         }
 
-        
-        function updateAppDescription() {
+                function updateAppDescription() {
             const lang = appState.currentLang || 'ru';
             const descEl = document.getElementById('appDescription');
             if (descEl && APP_TRANSLATIONS[lang]) {
                 descEl.textContent = APP_TRANSLATIONS[lang].description;
             }
         }
+
 function selectLanguage(lang) {
+            updateAppDescription();
             if (animationInterval) clearInterval(animationInterval);
             
             appState.currentLang = lang;
-            updateAppDescription();
             appState.languageSelected = true;
             
             setTimeout(() => {
