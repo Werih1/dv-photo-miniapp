@@ -544,25 +544,7 @@
         }
     
 
-        .app-title {
-            font-size: 48px;
-            font-weight: 700;
-            color: white;
-            text-align: center;
-            letter-spacing: -1px;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            margin-bottom: 10px;
-        }
-
-        .app-subtitle {
-            font-size: 28px;
-            font-weight: 600;
-            color: white;
-            text-align: center;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-
-        .app-description {
+        .app-description-splash {
             font-size: 16px;
             color: white;
             text-align: center;
@@ -572,45 +554,6 @@
             margin: 0 auto 20px;
             word-wrap: break-word;
             word-break: normal;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.3);
-        }
-
-        .language-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .flag-btn {
-            background: rgba(255,255,255,0.2);
-            border: 2px solid rgba(255,255,255,0.4);
-            border-radius: 12px;
-            font-size: 32px;
-            width: 60px;
-            height: 60px;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .flag-btn:hover {
-            background: rgba(255,255,255,0.3);
-            border-color: rgba(255,255,255,0.6);
-            transform: scale(1.1);
-        }
-
-        .flag-btn:active {
-            transform: scale(0.95);
-        }
-
-        .select-language-text {
-            font-size: 16px;
-            color: white;
-            text-align: center;
-            margin-top: 15px;
             text-shadow: 0 1px 4px rgba(0,0,0,0.3);
         }
 </style>
@@ -1245,31 +1188,20 @@
     <!-- SPLASH SCREEN -->
     <div class="splash" id="splashScreen">
         <div class="splash-top">
-            <div class="splash-title">DV-Lottery<br>Photo Check</div>
         </div>
         
         <div class="splash-middle">
             <div style="text-align: center;">
-                <div class="app-title">DV-LOTTERY</div>
-                <div class="app-subtitle">Photo Check</div>
+                <div style="font-size: 52px; font-weight: 700; color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.3); margin-bottom: 8px;">DV-LOTTERY</div>
+                <div style="font-size: 32px; font-weight: 600; color: white; text-shadow: 0 2px 8px rgba(0,0,0,0.3);">Photo Check</div>
             </div>
         </div>
 
         <div class="splash-bottom">
-            <!-- Описание на 4 языках -->
-            <div id="appDescription" class="app-description">Онлайн‑проверка фото на соответствие официальным требованиям лотереи Green Card (DV‑Lottery) США</div>
+            <!-- Описание приложения на 4 языках -->
+            <div id="appDescription" class="app-description-splash">Онлайн‑проверка фото на соответствие официальным требованиям лотереи Green Card (DV‑Lottery) США</div>
 
-            <!-- Кнопки флагов -->
-            <div class="language-buttons">
-                <button class="lang-btn flag-btn" onclick="setLanguage('ru')">🇷🇺</button>
-                <button class="lang-btn flag-btn" onclick="setLanguage('en')">🇺🇸</button>
-                <button class="lang-btn flag-btn" onclick="setLanguage('fr')">🇫🇷</button>
-                <button class="lang-btn flag-btn" onclick="setLanguage('ar')">🇸🇩</button>
-            </div>
-
-            <!-- Текст "Выберите язык" -->
-            <div id="selectLanguageText" class="select-language-text">Выберите язык</div>
-        </div>
+            <!-- Кнопки флагов - БЕЗ ИЗМЕНЕНИЙ -->
             <div class="language-selector-splash">
                 <button class="lang-btn-splash" data-lang="ru" title="Русский">
                     <img src="images/russia.png" alt="Русский">
@@ -1284,6 +1216,9 @@
                     <img src="images/emirates.png" alt="العربية">
                 </button>
             </div>
+
+            <!-- "Выберите язык" под кнопками -->
+            <div class="splash-subtitle" id="splashSubtitle">Выберите язык</div>
         </div>
     </div>
 
@@ -1760,25 +1695,24 @@ if (!appState.isAdmin) {
             document.getElementById('applyPromoBtn').addEventListener('click', applyPromoCode);
         }
 
-                function updateLanguageTexts() {
+        
+        function updateAppDescription() {
             const lang = appState.currentLang || 'ru';
-            const texts = APP_TRANSLATIONS[lang];
             const descEl = document.getElementById('appDescription');
-            const selectEl = document.getElementById('selectLanguageText');
-            if (descEl) descEl.textContent = texts.description;
-            if (selectEl) selectEl.textContent = texts.selectLanguage;
+            if (descEl && APP_TRANSLATIONS[lang]) {
+                descEl.textContent = APP_TRANSLATIONS[lang].description;
+            }
         }
-
 function selectLanguage(lang) {
             if (animationInterval) clearInterval(animationInterval);
             
             appState.currentLang = lang;
+            updateAppDescription();
             appState.languageSelected = true;
             
             setTimeout(() => {
                 document.getElementById('splashScreen').classList.add('hidden');
                 document.getElementById('mainApp').classList.add('active');
-                updateLanguageTexts();
                 updateAllContent();
                 
                 if (appState.currentLang === 'ar') {
@@ -2815,23 +2749,19 @@ setTimeout(function() {
 </script>
 
 </body>
-</html>        // Переводы приложения
+</html>        // Переводы описания приложения
         const APP_TRANSLATIONS = {
             ru: {
-                description: 'Онлайн‑проверка фото на соответствие официальным требованиям лотереи Green Card (DV‑Lottery) США',
-                selectLanguage: 'Выберите язык'
+                description: 'Онлайн‑проверка фото на соответствие официальным требованиям лотереи Green Card (DV‑Lottery) США'
             },
             en: {
-                description: 'Online photo check for compliance with the official requirements of the U.S. Green Card (DV Lottery)',
-                selectLanguage: 'Select language'
+                description: 'Online photo check for compliance with the official requirements of the U.S. Green Card (DV Lottery)'
             },
             fr: {
-                description: 'Vérification en ligne des photos pour conformité aux exigences officielles de la loterie Green Card (DV Lottery) des États‑Unis',
-                selectLanguage: 'Sélectionnez une langue'
+                description: 'Vérification en ligne des photos pour conformité aux exigences officielles de la loterie Green Card (DV Lottery) des États‑Unis'
             },
             ar: {
-                description: 'فحص الصور عبر الإنترنت للتأكد من مطابقتها للمتطلبات الرسمية لقرعة البطاقة الخضراء الأمريكية (DV Lottery)',
-                selectLanguage: 'اختر اللغة'
+                description: 'فحص الصور عبر الإنترنت للتأكد من مطابقتها للمتطلبات الرسمية لقرعة البطاقة الخضراء الأمريكية (DV Lottery)'
             }
         };
 
