@@ -543,19 +543,6 @@
             background: #999;
         }
     
-
-        .app-description-splash {
-            font-size: 16px;
-            color: white;
-            text-align: center;
-            line-height: 1.35;
-            width: 85%;
-            max-width: 95%;
-            margin: 0 auto 15px;
-            word-wrap: break-word;
-            word-break: normal;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.3);
-        }
 </style>
 <style>
 
@@ -1188,7 +1175,6 @@
     <!-- SPLASH SCREEN -->
     <div class="splash" id="splashScreen">
         <div class="splash-top">
-            <div class="splash-title">DV-Lottery<br>Photo Check</div>
         </div>
         
         <div class="splash-middle">
@@ -1199,10 +1185,9 @@
         </div>
 
         <div class="splash-bottom">
-            <!-- Описание на 4 языках - расширенное, ближе к кнопкам -->
-            <div id="appDescription" class="app-description-splash">Онлайн‑проверка фото на соответствие официальным требованиям лотереи Green Card (DV‑Lottery) США</div>
+            <div id="appDescription" class="app-description-splash" style="font-size: 16px; color: white; text-align: center; line-height: 1.35; width: 85%; max-width: 95%; margin: 0 auto 15px; word-wrap: break-word; word-break: normal; text-shadow: 0 1px 4px rgba(0,0,0,0.3);">Онлайн‑проверка фото на соответствие официальным требованиям лотереи Green Card (DV‑Lottery) США</div>
 
-            <!-- Кнопки флагов -->
+            <div class="splash-subtitle" id="splashSubtitle">Выберите язык</div>
             <div class="language-selector-splash">
                 <button class="lang-btn-splash" data-lang="ru" title="Русский">
                     <img src="images/russia.png" alt="Русский">
@@ -1217,9 +1202,6 @@
                     <img src="images/emirates.png" alt="العربية">
                 </button>
             </div>
-
-            <!-- "Выберите язык" под кнопками -->
-            <div class="splash-subtitle" id="splashSubtitle">Выберите язык</div>
         </div>
     </div>
 
@@ -1589,6 +1571,22 @@
             agencyProExpiry: null
         };
 
+                // Переводы описания приложения
+        const APP_TRANSLATIONS = {
+            ru: {
+                description: 'Онлайн‑проверка фото на соответствие официальным требованиям лотереи Green Card (DV‑Lottery) США'
+            },
+            en: {
+                description: 'Online photo check for compliance with the official requirements of the U.S. Green Card (DV Lottery)'
+            },
+            fr: {
+                description: 'Vérification en ligne des photos pour conformité aux exigences officielles de la loterie Green Card (DV Lottery) des États‑Unis'
+            },
+            ar: {
+                description: 'فحص الصور عبر الإنترنت للتأكد من مطابقتها للمتطلبات الرسمية لقرعة البطاقة الخضراء الأمريكية (DV Lottery)'
+            }
+        };
+
         const LANGUAGES = ['ru', 'en', 'fr', 'ar'];
         let currentLangIndex = 0;
         let animationInterval = null;
@@ -1696,19 +1694,12 @@ if (!appState.isAdmin) {
             document.getElementById('applyPromoBtn').addEventListener('click', applyPromoCode);
         }
 
-                function updateAppDescription() {
-            const lang = appState.currentLang || 'ru';
-            const descEl = document.getElementById('appDescription');
-            if (descEl && APP_TRANSLATIONS[lang]) {
-                descEl.textContent = APP_TRANSLATIONS[lang].description;
-            }
-        }
-
-function selectLanguage(lang) {
-            updateAppDescription();
+        function selectLanguage(lang) {
             if (animationInterval) clearInterval(animationInterval);
             
             appState.currentLang = lang;
+            const descEl = document.getElementById("appDescription");
+            if (descEl && APP_TRANSLATIONS[lang]) { descEl.textContent = APP_TRANSLATIONS[lang].description; }
             appState.languageSelected = true;
             
             setTimeout(() => {
@@ -2750,20 +2741,4 @@ setTimeout(function() {
 </script>
 
 </body>
-</html>        // Переводы описания приложения
-        const APP_TRANSLATIONS = {
-            ru: {
-                description: 'Онлайн‑проверка фото на соответствие официальным требованиям лотереи Green Card (DV‑Lottery) США'
-            },
-            en: {
-                description: 'Online photo check for compliance with the official requirements of the U.S. Green Card (DV Lottery)'
-            },
-            fr: {
-                description: 'Vérification en ligne des photos pour conformité aux exigences officielles de la loterie Green Card (DV Lottery) des États‑Unis'
-            },
-            ar: {
-                description: 'فحص الصور عبر الإنترنت للتأكد من مطابقتها للمتطلبات الرسمية لقرعة البطاقة الخضراء الأمريكية (DV Lottery)'
-            }
-        };
-
-
+</html>
