@@ -569,7 +569,7 @@
             line-height: 1.35;
             width: 75%;
             max-width: 90%;
-            margin: 0 auto 25px;
+            margin: 0 auto 20px;
             word-wrap: break-word;
             word-break: normal;
             text-shadow: 0 1px 4px rgba(0,0,0,0.3);
@@ -1228,7 +1228,7 @@
             <!-- Описание приложения на разных языках -->
             <div id="appDescription" class="app-description">Онлайн‑проверка фото на соответствие официальным требованиям лотереи Green Card (DV‑Lottery) США</div>
 
-            <!-- Кнопки выбора языка -->
+            <!-- Существующие кнопки языков (флаги) остаются как были -->
             <div class="language-buttons">
                 <button class="lang-btn" onclick="setLanguage('ru')">🇷🇺</button>
                 <button class="lang-btn" onclick="setLanguage('en')">🇺🇸</button>
@@ -1236,7 +1236,7 @@
                 <button class="lang-btn" onclick="setLanguage('ar')">🇸🇩</button>
             </div>
 
-            <!-- Текст "Выберите язык" на разных языках -->
+            <!-- Текст "Выберите язык" на разных языках (вместо старого текста) -->
             <div id="selectLanguageText" class="select-language-text">Выберите язык</div>
         </div>
             <div class="language-selector-splash">
@@ -1613,27 +1613,7 @@
         };
 
         // ===== APP STATE =====
-                // Переводы описания приложения и текста выбора языка
-        const APP_TRANSLATIONS = {
-            ru: {
-                description: 'Онлайн‑проверка фото на соответствие официальным требованиям лотереи Green Card (DV‑Lottery) США',
-                selectLanguage: 'Выберите язык'
-            },
-            en: {
-                description: 'Online photo check for compliance with the official requirements of the U.S. Green Card (DV Lottery)',
-                selectLanguage: 'Select language'
-            },
-            fr: {
-                description: 'Vérification en ligne des photos pour conformité aux exigences officielles de la loterie Green Card (DV Lottery) des États‑Unis',
-                selectLanguage: 'Sélectionnez une langue'
-            },
-            ar: {
-                description: 'فحص الصور عبر الإنترنت للتأكد من مطابقتها للمتطلبات الرسمية لقرعة البطاقة الخضراء الأمريكية (DV Lottery)',
-                selectLanguage: 'اختر اللغة'
-            }
-        };
-
-let appState = {
+        let appState = {
             currentLang: null,
             attempts: 3,
             isAdmin: false,
@@ -1749,8 +1729,7 @@ if (!appState.isAdmin) {
             document.getElementById('applyPromoBtn').addEventListener('click', applyPromoCode);
         }
 
-                // Обновляет тексты описания и выбора языка
-        function updateLanguageTexts() {
+                function updateLanguageTexts() {
             const lang = appState.currentLang || 'ru';
             const texts = APP_TRANSLATIONS[lang];
 
@@ -1780,7 +1759,6 @@ function selectLanguage(lang) {
                     document.documentElement.lang = appState.currentLang;
                 }
             }, 300);
-        
             updateLanguageTexts();
         }
 
@@ -2808,4 +2786,24 @@ setTimeout(function() {
 </script>
 
 </body>
-</html>
+</html>        // Переводы описания и выбора языка
+        const APP_TRANSLATIONS = {
+            ru: {
+                description: 'Онлайн‑проверка фото на соответствие официальным требованиям лотереи Green Card (DV‑Lottery) США',
+                selectLanguage: 'Выберите язык'
+            },
+            en: {
+                description: 'Online photo check for compliance with the official requirements of the U.S. Green Card (DV Lottery)',
+                selectLanguage: 'Select language'
+            },
+            fr: {
+                description: 'Vérification en ligne des photos pour conformité aux exigences officielles de la loterie Green Card (DV Lottery) des États‑Unis',
+                selectLanguage: 'Sélectionnez une langue'
+            },
+            ar: {
+                description: 'فحص الصور عبر الإنترنت للتأكد من مطابقتها للمتطلبات الرسمية لقرعة البطاقة الخضراء الأمريكية (DV Lottery)',
+                selectLanguage: 'اختر اللغة'
+            }
+        };
+
+
