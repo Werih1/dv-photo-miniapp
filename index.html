@@ -1185,9 +1185,9 @@
         </div>
 
         <div class="splash-bottom">
-            <div id="appDescription" class="app-description-splash" style="font-size: 16px; color: white; text-align: center; line-height: 1.35; width: 85%; max-width: 95%; margin: 0 auto 15px; word-wrap: break-word; word-break: normal; text-shadow: 0 1px 4px rgba(0,0,0,0.3); transition: opacity 0.3s ease;">Онлайн‑проверка фото на соответствие официальным требованиям лотереи Green Card (DV‑Lottery) США</div>
+            <div id="appDescription" style="font-size: 16px; color: white; text-align: center; line-height: 1.35; width: 85%; max-width: 95%; margin: 0 auto 15px; word-wrap: break-word; word-break: normal; text-shadow: 0 1px 4px rgba(0,0,0,0.3); transition: opacity 0.3s ease; min-height: 80px; display: flex; align-items: center; justify-content: center;">Онлайн‑проверка фото на соответствие официальным требованиям лотереи Green Card (DV‑Lottery) США</div>
 
-            <div class="splash-subtitle" id="splashSubtitle" style="transition: opacity 0.3s ease;">Выберите язык</div>
+            <div class="splash-subtitle" id="splashSubtitle" style="transition: opacity 0.3s ease; min-height: 24px; display: flex; align-items: center; justify-content: center;">Выберите язык</div>
             <div class="language-selector-splash">
                 <button class="lang-btn-splash" data-lang="ru" title="Русский">
                     <img src="images/russia.png" alt="Русский">
@@ -1579,7 +1579,7 @@
                 description: 'Online photo check for compliance with the official requirements of the U.S. Green Card (DV Lottery)'
             },
             fr: {
-                description: 'Vérification en ligne des photos для conformité aux exigences officielles de la loterie Green Card (DV Lottery) des États‑Unis'
+                description: 'Vérification en ligne des photos pour conformité aux exigences officielles de la loterie Green Card (DV Lottery) des États‑Unis'
             },
             ar: {
                 description: 'فحص الصور عبر الإنترنت للتأكد من مطابقتها للمتطلبات الرسمية لقرعة البطاقة الخضراء الأمريكية (DV Lottery)'
@@ -1659,7 +1659,7 @@
                     subtitleEl.style.opacity = '1';
                     descEl.style.opacity = '1';
                 }, 300);
-            }, 2000);
+            }, 5000);
         }
 
         function setupEventListeners() {
