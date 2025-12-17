@@ -5,12 +5,12 @@ module.exports = {
   BOT_TOKEN: process.env.BOT_TOKEN || "YOUR_BOT_TOKEN_HERE",
   
   // Admin IDs (твои ID в Telegram, разделены запятой)
-  ADMIN_IDS: (process.env.ADMIN_IDS || "").split("380950248, 375133882").map(Number),
+  ADMIN_IDS: (process.env.ADMIN_IDS || "").split(",").map(Number),
   
   // Промокоды и их значения
   PROMO_CODES: {
-    "HORSE2026": 5,          // +5 попыток
-    "STAR02": 2,         // +2 попытки
+    "PROMO_1": 5,          // +5 попыток
+    "PROMO_2": 2,         // +2 попытки
   },
   
   // Telegram Payment Token для Stars
@@ -19,3 +19,4 @@ module.exports = {
   // URL твоего приложения
   APP_URL: process.env.APP_URL || "http://localhost:3000"
 };
+
