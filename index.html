@@ -1345,19 +1345,19 @@
                     { 
                         name: 'LITE', 
                         attempts: '10 попыток', 
-                        price: '1 ⭐',
+                        price: '100 ⭐',
                         description: 'Идеально подходит, если подаётесь один.\n10 проверок достаточно, чтобы сделать несколько попыток и при необходимости спокойно перефотографироваться.\nПодойдёт тем, кто уже имел опыт использования инструментов для проверки фото и хочет получить всё необходимое без переплаты.'
                     },
                     { 
                         name: 'MAX', 
                         attempts: 'Безлимит на 48 часов', 
-                        price: '1 ⭐',
+                        price: '500 ⭐',
                         description: 'Лучшее решение для семьи или подачи сразу нескольких анкет.\nДва полных дня без ограничений — комфортно сделать все снимки для себя, супруга/супруги и детей, включая повторные попытки.\n48 часов дают спокойствие: не нужно торопиться, можно переснять фото при нужном освещении или в другой день.\nИдеальный баланс цены и времени.'
                     },
                     { 
                         name: 'ULTRA', 
                         attempts: 'Безлимит на 6 месяцев', 
-                        price: '1 ⭐',
+                        price: '2500 ⭐',
                         description: 'Максимальная свобода без ограничений.\nПодходит для фотоателье, агентств, частных фотографов, визовых специалистов, блогеров и малого бизнеса.\nВ период массовой подачи анкет тариф окупается за 1–2 дня активной работы.\nБезлимитное количество проверок на 6 месяцев с даты покупки — профессиональное решение для тех, кто работает с большим потоком клиентов.'
                     }
                 ],
@@ -1406,19 +1406,19 @@
                     { 
                         name: 'LITE', 
                         attempts: '10 attempts', 
-                        price: '1 ⭐',
+                        price: '100 ⭐',
                         description: 'Perfect if you\'re applying alone.\n10 checks are enough to make several attempts and comfortably retake photos if needed.\nIdeal for those who already have experience using photo verification tools and want everything necessary without overpaying.'
                     },
                     { 
                         name: 'MAX', 
                         attempts: 'Unlimited for 48 hours', 
-                        price: '1 ⭐',
+                        price: '500 ⭐',
                         description: 'Best solution for families or submitting multiple applications at once.\nTwo full days without limits — comfortably take all photos for yourself, spouse and children, including retakes.\n48 hours give you peace of mind: no need to rush, retake photos with better lighting or on another day.\nPerfect balance of price and time.'
                     },
                     { 
                         name: 'ULTRA', 
                         attempts: 'Unlimited for 6 months', 
-                        price: '1 ⭐',
+                        price: '2500 ⭐',
                         description: 'Maximum freedom without limits.\nPerfect for photo studios, agencies, professional photographers, visa specialists, bloggers and small businesses.\nDuring peak application periods, the plan pays for itself in 1-2 days of active work.\nUnlimited checks for 6 months from purchase date — a professional solution for those working with high client volumes.'
                     }
                 ],
@@ -1468,19 +1468,19 @@
                     { 
                         name: 'LITE', 
                         attempts: '10 tentatives', 
-                        price: '1 ⭐',
+                        price: '100 ⭐',
                         description: 'Parfait si vous postulez seul.\n10 vérifications suffisent pour faire plusieurs tentatives et reprendre les photos tranquillement si nécessaire.\nIdéal pour ceux qui ont déjà de l\'expérience avec les outils de vérification de photos et qui veulent tout le nécessaire sans surpayer.'
                     },
                     { 
                         name: 'MAX', 
                         attempts: 'Illimité pendant 48 heures', 
-                        price: '1 ⭐',
+                        price: '500 ⭐',
                         description: 'Meilleure solution pour la famille ou soumettre plusieurs candidatures à la fois.\nDeux jours complets sans limites — prenez confortablement toutes les photos pour vous, votre conjoint et vos enfants, y compris les reprises.\n48 heures vous donnent la tranquillité d\'esprit: pas besoin de se dépêcher, reprenez les photos avec un meilleur éclairage ou un autre jour.\nÉquilibre parfait entre le prix et le temps.'
                     },
                     { 
                         name: 'ULTRA', 
                         attempts: 'Illimité pendant 6 mois', 
-                        price: '1 ⭐',
+                        price: '2500 ⭐',
                         description: 'Liberté maximale sans limites.\nParfait pour les studios photo, agences, photographes professionnels, spécialistes visa, blogueurs et petites entreprises.\nPendant les périodes de forte activité, le plan se rembourse en 1-2 jours de travail actif.\nVérifications illimitées pendant 6 mois à partir de la date d\'achat — une solution professionnelle pour ceux travaillant avec de gros volumes de clients.'
                     }
                 ],
@@ -1536,7 +1536,7 @@
                     { 
                         name: 'MAX', 
                         attempts: 'غير محدود لمدة 48 ساعة', 
-                        price: '1 ⭐',
+                        price: '500 ⭐',
                         description: 'الحل الأفضل للعائلة أو تقديم عدة طلبات في وقت واحد.\nيومين كاملين بدون قيود — التقط جميع الصور براحة لنفسك وزوجتك وأطفالك، بما في ذلك الصور المكررة.\n48 ساعة تعطيك السلام: لا حاجة للعجلة، أعد التقاط الصور بإضاءة أفضل أو في يوم آخر.\nتوازن مثالي بين السعر والوقت.'
                     },
                     { 
@@ -1924,67 +1924,26 @@ if (!appState.isAdmin) {
         }
 
         function buyPlan(planName, idx) {
-            // Plan pricing in Stars
-            const planPrices = {
-                'LITE': 1,
-                'MAX': 1,
-                'ULTRA': 1
-            };
+            console.log(`🛒 Покупка тарифа: ${planName}`);
 
-            const priceInStars = planPrices[planName] || 1;
-
-            // Prepare descriptions in different languages
-            const descriptions = {
-                'ru': {
-                    'LITE': 'Тариф LITE - 10 проверок фото',
-                    'MAX': 'Тариф MAX - Безлимит на 48 часов',
-                    'ULTRA': 'Тариф ULTRA - Безлимит на 6 месяцев'
-                },
-                'en': {
-                    'LITE': 'LITE Plan - 10 photo checks',
-                    'MAX': 'MAX Plan - Unlimited for 48 hours',
-                    'ULTRA': 'ULTRA Plan - Unlimited for 6 months'
-                },
-                'ar': {
-                    'LITE': 'خطة LITE - 10 فحوصات صور',
-                    'MAX': 'خطة MAX - غير محدود لمدة 48 ساعة',
-                    'ULTRA': 'خطة ULTRA - غير محدود لمدة 6 أشهر'
-                },
-                'es': {
-                    'LITE': 'Plan LITE - 10 verificaciones de fotos',
-                    'MAX': 'Plan MAX - Ilimitado por 48 horas',
-                    'ULTRA': 'Plan ULTRA - Ilimitado por 6 meses'
-                }
-            };
-
-            const lang = appState.currentLang || 'ru';
-            const description = descriptions[lang]?.[planName] || `Plan: ${planName}`;
-
-            // Create unique invoice ID
-            const invoiceId = `plan_${planName}_${Date.now()}`;
-
-            // Use Telegram Web App API to send invoice
+            // Отправляем запрос боту через Telegram Web App API
             if (window.Telegram?.WebApp) {
-                // Store pending plan info
-                window.pendingPlanInfo = {
-                    planName: planName,
-                    amount: priceInStars,
-                    invoiceId: invoiceId
-                };
-
-                // Send invoice via bot command
+                // Отправляем данные боту
                 window.Telegram.WebApp.sendData(JSON.stringify({
                     action: 'buy_plan',
                     plan: planName,
-                    amount: priceInStars
+                    user_id: appState.userId,
+                    timestamp: new Date().toISOString()
                 }));
 
-                // Notify user
-                alert(`Инициирование платежа для тарифа ${planName}...`);
+                console.log(`✅ Запрос отправлен боту: ${planName}`);
+                alert(`⏳ Инициируем платёж для ${planName}...\nПожалуйста, подождите...`);
             } else {
-                alert('Telegram WebApp не доступен. Используйте приложение через Telegram.');
+                console.warn('❌ Telegram WebApp не доступен');
+                alert('❌ Ошибка: Telegram WebApp не доступен. Пожалуйста, используйте приложение через Telegram.');
             }
         }
+
         // Smooth transitions
         const style = document.createElement('style');
         style.textContent = `
