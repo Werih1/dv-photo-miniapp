@@ -1924,47 +1924,66 @@ if (!appState.isAdmin) {
         }
 
         function buyPlan(planName, idx) {
-    console.log(`🛒 Покупка: ${planName}`);
+    // ===== ОТЛАДКА =====
+    console.log('===== BUY PLAN DEBUG =====');
+    console.log('planName:', planName);
+    console.log('planName type:', typeof planName);
+    console.log('planName is undefined?', planName === undefined);
+    console.log('window.Telegram:', window.Telegram);
+    console.log('window.Telegram.WebApp:', window.Telegram?.WebApp);
+    console.log('initDataUnsafe:', window.Telegram?.WebApp?.initDataUnsafe);
+    console.log('user:', window.Telegram?.WebApp?.initDataUnsafe?.user);
+    console.log('user.id:', window.Telegram?.WebApp?.initDataUnsafe?.user?.id);
+    console.log('=======================');
     
-    if (window.Telegram?.WebApp) {
-        // Получаем ID пользователя из Telegram
-        const userId = window.Telegram.WebApp.initDataUnsafe?.user?.id;
-        
-        if (!userId) {
-            console.error('❌ Не удалось получить user ID');
-            alert('❌ Ошибка: не удалось получить ID пользователя. Убедитесь что открыли приложение через Telegram.');
-            return;
-        }
-        
-        console.log(`📤 Отправляем запрос на backend: user=${userId}, plan=${planName}`);
-        
-        // Отправляем запрос на backend для создания инвойса
-        fetch('https://dv-lottery-api-ob49.onrender.com/api/payments/send-invoice', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                telegram_id: userId,
-                plan: planName
-            })
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.ok) {
-                console.log('✅ Инвойс отправлен успешно');
-                alert(`✅ Счет отправлен в Telegram!\n\nНажмите на кнопку оплаты в чате для подтверждения платежа.`);
-            } else {
-                console.error('❌ Ошибка сервера:', data.error);
-                alert(`❌ Ошибка: ${data.error}`);
-            }
-        })
-        .catch(err => {
-            console.error('❌ Ошибка подключения:', err);
-            alert(`❌ Ошибка подключения: ${err.message}`);
-        });
-    } else {
-        console.warn('❌ Telegram WebApp не доступен');
-        alert('❌ Telegram WebApp не доступен. Используйте приложение через Telegram.');
+    if (!planName) {
+        alert('❌ Ошибка: planName не определён!');
+        console.error('❌ planName is undefined or empty');
+        return;
     }
+    
+    if (!window.Telegram?.WebApp) {
+        alert('❌ Ошибка: Telegram WebApp не доступен!');
+        console.error('❌ Telegram WebApp not available');
+        return;
+    }
+    
+    const userId = window.Telegram.WebApp.initDataUnsafe?.user?.id;
+    
+    if (!userId) {
+        alert('❌ Ошибка: не удалось получить user ID!');
+        console.error('❌ User ID is undefined');
+        return;
+    }
+    
+    console.log(`🛒 Отправляем платёж: user=${userId}, plan=${planName}`);
+    
+    fetch('https://dv-lottery-api-ob49.onrender.com/api/payments/send-invoice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            telegram_id: userId,
+            plan: planName
+        })
+    })
+    .then(r => {
+        console.log('Response status:', r.status);
+        return r.json();
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        if (data.ok) {
+            console.log('✅ Инвойс отправлен успешно');
+            alert(`✅ Счет отправлен в Telegram!\n\nНажмите на кнопку оплаты в чате для подтверждения платежа.`);
+        } else {
+            console.error('❌ Ошибка сервера:', data.error);
+            alert(`❌ Ошибка: ${data.error}`);
+        }
+    })
+    .catch(err => {
+        console.error('❌ Ошибка подключения:', err);
+        alert(`❌ Ошибка подключения: ${err.message}`);
+    });
 }
         // Smooth transitions
         const style = document.createElement('style');
