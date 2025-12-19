@@ -1932,7 +1932,7 @@ if (!appState.isAdmin) {
                 console.log(`📤 Отправляем запрос на backend: user=${userId}, plan=${planName}`);
 
                 // Отправляем запрос на backend для создания инвойса
-                fetch('/api/payments/send-invoice', {
+                fetch('https://dv-lottery-api-ob49.onrender.com/api/payments/send-invoice', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
