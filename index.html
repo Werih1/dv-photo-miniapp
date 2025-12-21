@@ -1840,22 +1840,20 @@ if (!appState.isAdmin) {
         }
 
         function populatePricing() {
-  const content = CONTENT[appState.currentLang];
-  const list = document.getElementById('pricingList');
-  const btnText = content.btnbuy || 'Купить';
-  
-  list.innerHTML = content.pricing.map((p, idx) => `
-    <div class="pricing-card">
-      <div class="pricing-name">${p.name}</div>
-      <div class="pricing-attempts">${p.attempts}</div>
-      <div class="pricing-price">${p.price}</div>
-      <div class="pricing-description-toggle" onclick="toggleDescription(${idx})">${content.descriptiontoggle}</div>
-      <div class="pricing-description" id="desc${idx}">${p.description.replace(/\n/g, '<br>')}</div>
-      <button class="btn-buy" onclick="buyPlan('${p.name}', ${idx})">${btnText}</button>
-    </div>
-  `).join('');
-}
-
+            const content = CONTENT[appState.currentLang];
+            const list = document.getElementById('pricingList');
+            
+            list.innerHTML = content.pricing.map((p, idx) => `
+                <div class="pricing-card">
+                    <div class="pricing-name">${p.name}</div>
+                    <div class="pricing-attempts">${p.attempts}</div>
+                    <div class="pricing-price">${p.price}</div>
+                    <div class="pricing-description-toggle" onclick="toggleDescription(${idx})">${content.description_toggle}</div>
+                    <div class="pricing-description" id="desc_${idx}">${p.description.replace(/\n/g, '<br>')}</div>
+                    <button class="btn-buy" onclick="buyPlan('${p.name}', ${idx})">${content.btn_buy}</button>
+                </div>
+            `).join('');
+        }
 
         function populateHowWorks() {
             const content = CONTENT[appState.currentLang];
@@ -1926,76 +1924,83 @@ if (!appState.isAdmin) {
         }
 
         function buyPlan(planName, idx) {
-  console.log('🛒 BUY PLAN');
-  console.log('Plan:', planName);
-
-  if (!planName) {
-    alert('❌ Ошибка: тариф не определён');
-    return;
-  }
-
-  if (!window.Telegram?.WebApp) {
-    alert('❌ Приложение должно открываться в Telegram');
-    return;
-  }
-
-  const userId = window.Telegram.WebApp.initDataUnsafe?.user?.id;
-  if (!userId) {
-    alert('❌ Ошибка: не удалось получить ID');
-    return;
-  }
-
-  console.log(`✅ Платёж: user=${userId}, plan=${planName}`);
-
-  fetch('https://dv-lottery-api-ob49.onrender.com/api/payments/send-invoice', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      telegram_id: userId,
-      plan: planName
+    // ===== ОТЛАДКА =====
+    console.log('===== BUY PLAN DEBUG =====');
+    console.log('planName:', planName);
+    console.log('planName type:', typeof planName);
+    console.log('planName is undefined?', planName === undefined);
+    console.log('window.Telegram:', window.Telegram);
+    console.log('window.Telegram.WebApp:', window.Telegram?.WebApp);
+    console.log('initDataUnsafe:', window.Telegram?.WebApp?.initDataUnsafe);
+    console.log('user:', window.Telegram?.WebApp?.initDataUnsafe?.user);
+    console.log('user.id:', window.Telegram?.WebApp?.initDataUnsafe?.user?.id);
+    console.log('=======================');
+    
+    if (!planName) {
+        alert('❌ Ошибка: planName не определён!');
+        console.error('❌ planName is undefined or empty');
+        return;
+    }
+    
+    if (!window.Telegram?.WebApp) {
+        alert('❌ Ошибка: Telegram WebApp не доступен!');
+        console.error('❌ Telegram WebApp not available');
+        return;
+    }
+    
+    const userId = window.Telegram.WebApp.initDataUnsafe?.user?.id;
+    
+    if (!userId) {
+        alert('❌ Ошибка: не удалось получить user ID!');
+        console.error('❌ User ID is undefined');
+        return;
+    }
+    
+    console.log(`🛒 Отправляем платёж: user=${userId}, plan=${planName}`);
+    
+    fetch('https://dv-lottery-api-ob49.onrender.com/api/payments/send-invoice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            telegram_id: userId,
+            plan: planName
+        })
     })
-  })
-    .then(r => r.json())
+    .then(r => {
+        console.log('Response status:', r.status);
+        return r.json();
+    })
     .then(data => {
-      if (data.ok) {
-        console.log('✅ Счёт отправлен! Проверь Telegram.');
-      } else {
-        alert(`❌ Ошибка: ${data.error}`);
-      }
+        console.log('Response data:', data);
+        if (data.ok) {
+            console.log('✅ Инвойс отправлен успешно');
+            alert(`✅ Счет отправлен в Telegram!\n\nНажмите на кнопку оплаты в чате для подтверждения платежа.`);
+        } else {
+            console.error('❌ Ошибка сервера:', data.error);
+            alert(`❌ Ошибка: ${data.error}`);
+        }
     })
-    .catch(e => {
-      console.error('❌', e);
-      alert(`❌ Ошибка сети: ${e.message}`);
+    .catch(err => {
+        console.error('❌ Ошибка подключения:', err);
+        alert(`❌ Ошибка подключения: ${err.message}`);
     });
 }
+        // Smooth transitions
+        const style = document.createElement('style');
+        style.textContent = `
+            #splashSubtitle {
+                transition: opacity 0.3s ease;
+            }
+        `;
+        document.head.appendChild(style);
 
-// ===== СЛУШАТЕЛЬ ПЛАТЕЖЕЙ =====
-function setupPaymentListener() {
-  console.log('💳 Инициализируем платежи');
-  window.addEventListener('message', (event) => {
-    if (event.data?.event === 'payment_success') {
-      console.log('✅ Платёж успешен!');
-      alert('✅ Спасибо за покупку!');
-      if (appState) appState.attempts = 999;
-      updateAttemptsBadge();
-    }
-  });
-}
-
-function updateAttemptsBadge() {
-  const text = appState?.attempts === 999 ? '∞' : appState?.attempts;
-  document.querySelectorAll('.attemptsCount').forEach(el => {
-    el.textContent = text;
-  });
-}
-
-// Инициализируем при загрузке
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', setupPaymentListener);
-} else {
-  setupPaymentListener();
-}
-
+        // Display attempts on load
+        window.addEventListener('load', () => {
+            const attemptsText = appState.attempts === 999 ? '∞' : appState.attempts;
+                    document.querySelectorAll('.attemptsCount').forEach(el => {
+                        el.textContent = attemptsText;
+                    });
+        });
     </script>
 </div>
 <div id="analizPage" class="analiz-page">
