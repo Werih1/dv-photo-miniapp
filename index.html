@@ -1842,14 +1842,16 @@ if (!appState.isAdmin) {
         function populatePricing() {
   const content = CONTENT[appState.currentLang];
   const list = document.getElementById('pricingList');
+  const btnText = content.btnbuy || 'Купить';
+  
   list.innerHTML = content.pricing.map((p, idx) => `
     <div class="pricing-card">
       <div class="pricing-name">${p.name}</div>
       <div class="pricing-attempts">${p.attempts}</div>
-      <div class="pricing-price">${p.price} ⭐</div>
+      <div class="pricing-price">${p.price}</div>
       <div class="pricing-description-toggle" onclick="toggleDescription(${idx})">${content.descriptiontoggle}</div>
       <div class="pricing-description" id="desc${idx}">${p.description.replace(/\n/g, '<br>')}</div>
-      <button class="btn-buy" onclick="buyPlan('${p.name}', ${idx})">${content.btnbuy}</button>
+      <button class="btn-buy" onclick="buyPlan('${p.name}', ${idx})">${btnText}</button>
     </div>
   `).join('');
 }
