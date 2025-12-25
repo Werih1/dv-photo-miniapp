@@ -6,7 +6,7 @@
 class PaymentsHandler {
   constructor(telegramAPI) {
     this.telegram = telegramAPI;
-    this.backendURL = 'http://localhost:3000'; // Изменить на реальный URL
+    this.backendURL = 'https://dv-lottery-api-ob49.onrender.com'; // Изменить на реальный URL
     this.userId = telegramAPI.getUserId();
     this.language = telegramAPI.getLanguage();
     
