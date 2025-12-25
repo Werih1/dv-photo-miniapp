@@ -7,7 +7,7 @@ class TelegramAPI {
   constructor() {
     this.webApp = window.Telegram?.WebApp;
     this.user = null;
-    this.backendURL = 'http://localhost:3000'; // Изменить на реальный URL при деплое
+    this.backendURL = 'https://dv-lottery-api-ob49.onrender.com'; // Изменить на реальный URL при деплое
     
     if (this.webApp) {
       this.webApp.ready();
